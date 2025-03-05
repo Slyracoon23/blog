@@ -1,6 +1,6 @@
 ---
 title: "{{< fa newspaper >}} Articles"
-description: "Technical articles about graph neural networks, large language models, and convex optimization."
+description: "Technical articles about programming, large language models, and AI agents."
 listing:
   contents: posts
   sort: "date desc"
