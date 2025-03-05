@@ -24,7 +24,7 @@ website:
   favicon: /images/favicon.ico
   twitter-card: true
   open-graph: true
-  page-footer: "{{< fa regular copyright >}} Copyright 2023, Earl Potters" 
+  page-footer: "{{< fa regular copyright >}} Copyright 2025, Earl Potters" 
 
   sidebar:
     - id: articles
