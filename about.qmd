@@ -1,5 +1,5 @@
 ---
-title: "Maxime Labonne"
+title: "Earl Potters"
 title-block-style: none
 image: images/profilepicture.jpg
 sidebar: false
@@ -8,22 +8,22 @@ about:
   links:
     - icon: twitter-x
       text: Twitter
-      href: https://twitter.com/maximelabonne
+      href: https://x.com/SRacoon23
     - icon: linkedin
       text: LinkedIn
-      href: https://linkedin.com/in/maxime-labonne/
+      href: https://www.linkedin.com/in/earl-potters-b2b306187/
     - icon: github
       text: Github
-      href: https://github.com/mlabonne
+      href: https://github.com/Slyracoon23
     - text: "{{< iconify logos:hugging-face-icon >}} Hugging Face"
-      href: https://huggingface.co/mlabonne
+      href: https://huggingface.co/Slyracoon23
 ---
 
-Maxime Labonne is a Senior Staff Machine Learning Scientist at [Liquid AI](https://www.liquid.ai/), serving as the head of post-training. He holds a Ph.D. in Machine Learning from the Polytechnic Institute of Paris and is recognized as a Google Developer Expert in AI/ML.
+Earl Potters is an AI Engineer based in Boulder, CO. He studied Computer Science and specializes in building AI Agents. He is passionate about robotics and artificial intelligence.
 
-An active blogger, he has made significant contributions to the open-source community, including the [LLM Course](https://github.com/mlabonne/llm-course) on GitHub, tools such as [LLM AutoEval](https://github.com/mlabonne/llm-autoeval), and several state-of-the-art models like [NeuralBeagle](https://huggingface.co/mlabonne/NeuralBeagle14-7B) and [Phixtral](https://huggingface.co/mlabonne/phixtral-4x2_8). He is the author of the best-selling book "Hands-On Graph Neural Networks Using Python," published by Packt.
+An active blogger, as evidenced by his social media presence, Earl has contributed to various projects including work at Missio AI. His GitHub showcases numerous repositories related to robotics, AI, and blockchain development, including contributions to CityDAO's parcel contracts.
 
-Connect with him on [X](https://twitter.com/maximelabonne) and [LinkedIn](https://www.linkedin.com/in/maxime-labonne/) @maximelabonne.
+Connect with him on [X](https://x.com/SRacoon23) and [LinkedIn](https://www.linkedin.com/in/earl-potters-b2b306187/).
 
 <hr>
 
