@@ -12,13 +12,13 @@ website:
         file: about.qmd
     right:
       - icon: twitter-x
-        href: https://twitter.com/earlpotters
+        href: https://x.com/SRacoon23
       - icon: linkedin
-        href: https://linkedin.com/in/earl-potters/
+        href: https://www.linkedin.com/in/earl-potters-b2b306187/
       - icon: github
-        href: https://github.com/earlpotters
-      - text: "![](https://mlabonne.github.io/blog/images/hf-icon.svg)"
-        href: https://huggingface.co/earlpotters
+        href: https://github.com/Slyracoon23
+      - text: "![](https://slyracoon23.github.io/blog/images/hf-icon.svg)"
+        href: https://huggingface.co/Slyracoon23
     pinned: false
   google-analytics: "G-4DWYJM47PC"
   favicon: /images/favicon.ico
