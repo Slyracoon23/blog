@@ -4,7 +4,7 @@ aliases:
 categories:
 - AI Agents
 date: '2024-04-25'
-image: /images/chatgpt_kg/thumbnail.jpg
+image: /images/what_is_an_agent/thumbnail.jpg
 title: "What is an AI Agent?"
 subtitle: "Understanding the core concepts, architecture, and applications of autonomous AI systems"
 ---

@@ -4,7 +4,7 @@ aliases:
 categories:
 - Large Language Models
 date: '2025-02-19'
-image: /images/chatgpt_kg/thumbnail.jpg
+image: /images/building_chatgpt_from_scratch/thumbnail.jpg
 title: "Building ChatGPT from Scratch"
 subtitle: "A step-by-step guide to creating your own AI assistant"
 ---
