@@ -35,8 +35,13 @@ website:
       contents:
         - section: "🤖 **AI Agents**"
           contents:
-            - text: "Building Autonomous Agents"
-              href: posts/building-autonomous-agents.html
+            - text: "What is an AI Agent?"
+              href: posts/2025-03-03_what_is_an_agent.html
+        - text: "---"
+        - section: "🗣️ **Large Language Models**"
+          contents:
+            - text: "Building ChatGPT from Scratch"
+              href: posts/2025-02-19_building_chatgpt_from_scratch.html
 
     - id: notes
       title: "Notes"

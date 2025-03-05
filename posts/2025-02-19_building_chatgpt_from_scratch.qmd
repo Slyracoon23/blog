@@ -1,0 +1,252 @@
+---
+aliases:
+- /chatgpt-from-scratch/
+categories:
+- Large Language Models
+date: '2025-02-19'
+image: /images/chatgpt_kg/thumbnail.jpg
+title: "Building ChatGPT from Scratch"
+subtitle: "A step-by-step guide to creating your own AI assistant"
+---
+
+![](https://i.imgur.com/ZHwzQvI.png)
+
+Building your own ChatGPT-like assistant is now more accessible than ever. With the release of powerful open-source models and efficient fine-tuning techniques, developers can create customized AI assistants tailored to specific use cases. In this comprehensive guide, we'll walk through the entire process of building a ChatGPT-like system from scratch.
+
+## 🤖 Understanding ChatGPT Architecture
+
+At its core, ChatGPT consists of several key components:
+
+1. **Base Language Model**: A large language model (LLM) trained on vast amounts of text data
+2. **Instruction Fine-tuning**: Training to follow instructions and generate helpful responses
+3. **Alignment**: Ensuring the model's outputs align with human preferences and values
+4. **Deployment Infrastructure**: Systems to serve the model efficiently to users
+
+![](https://i.imgur.com/ftrth4Q.png)
+
+The most critical aspect of building a ChatGPT-like system is the alignment process. Traditional approaches involve a multi-stage pipeline: first Supervised Fine-Tuning (SFT) to adapt the model to follow instructions, followed by preference alignment methods like Reinforcement Learning with Human Feedback (RLHF) or Direct Preference Optimization (DPO).
+
+However, newer techniques like ORPO (Odds Ratio Preference Optimization) now allow us to combine these stages, making the process more efficient.
+
+## 💻 Step 1: Selecting a Base Model
+
+For our ChatGPT clone, we'll use Llama 3 8B, the latest open-weight model from Meta. This model offers an excellent balance of performance and resource requirements, making it ideal for custom development.
+
+Llama 3 was trained on approximately 15 trillion tokens (compared to 2T tokens for Llama 2) and features an 8,192 token context window. The model uses a new tokenizer with a 128K-token vocabulary, which reduces the number of tokens required to encode text by about 15%.
+
+```python
+import torch
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    BitsAndBytesConfig,
+)
+
+# Model
+base_model = "meta-llama/Meta-Llama-3-8B"
+
+# Configure quantization for efficient loading
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_use_double_quant=True,
+)
+
+# Load tokenizer and model
+tokenizer = AutoTokenizer.from_pretrained(base_model)
+model = AutoModelForCausalLM.from_pretrained(
+    base_model,
+    quantization_config=bnb_config,
+    device_map="auto"
+)
+```
+
+## 📚 Step 2: Preparing Training Data
+
+High-quality training data is crucial for building an effective assistant. We need two types of datasets:
+
+1. **Instruction Dataset**: Examples of prompts and helpful responses
+2. **Preference Dataset**: Pairs of responses where one is preferred over the other
+
+For our project, we'll create a custom dataset combining several high-quality sources:
+
+```python
+from datasets import load_dataset
+
+# Load and prepare dataset
+dataset = load_dataset("mlabonne/chatgpt-training-mix")
+dataset = dataset.shuffle(seed=42)
+
+# Format data for chat template
+def format_chat_template(row):
+    row["chosen"] = tokenizer.apply_chat_template(row["chosen"], tokenize=False)
+    row["rejected"] = tokenizer.apply_chat_template(row["rejected"], tokenize=False)
+    return row
+
+dataset = dataset.map(format_chat_template)
+dataset = dataset.train_test_split(test_size=0.05)
+```
+
+## 🔄 Step 3: Fine-tuning with ORPO
+
+Now we'll fine-tune our model using ORPO, which combines instruction tuning and preference alignment into a single process. This approach is more efficient than traditional methods and produces better results.
+
+```python
+from peft import LoraConfig, prepare_model_for_kbit_training
+from trl import ORPOConfig, ORPOTrainer, setup_chat_format
+
+# Prepare model for chat format
+model, tokenizer = setup_chat_format(model, tokenizer)
+model = prepare_model_for_kbit_training(model)
+
+# Configure LoRA for parameter-efficient fine-tuning
+peft_config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM",
+    target_modules=['up_proj', 'down_proj', 'gate_proj', 'k_proj', 'q_proj', 'v_proj', 'o_proj']
+)
+
+# Configure ORPO training
+orpo_args = ORPOConfig(
+    learning_rate=5e-6,
+    beta=0.1,
+    lr_scheduler_type="linear",
+    max_length=2048,
+    max_prompt_length=512,
+    per_device_train_batch_size=4,
+    gradient_accumulation_steps=4,
+    optim="paged_adamw_8bit",
+    num_train_epochs=3,
+    output_dir="./chatgpt-model/",
+)
+
+# Initialize trainer and start training
+trainer = ORPOTrainer(
+    model=model,
+    args=orpo_args,
+    train_dataset=dataset["train"],
+    eval_dataset=dataset["test"],
+    peft_config=peft_config,
+    tokenizer=tokenizer,
+)
+trainer.train()
+trainer.save_model("./chatgpt-model")
+```
+
+## 🔍 Step 4: Evaluation and Iteration
+
+After training, we need to evaluate our model to ensure it meets our quality standards. We'll use a combination of automated benchmarks and human evaluation:
+
+```python
+from transformers import pipeline
+
+# Load the fine-tuned model
+model_path = "./chatgpt-model"
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+model = AutoModelForCausalLM.from_pretrained(
+    model_path,
+    torch_dtype=torch.float16,
+    device_map="auto"
+)
+
+# Create a chat pipeline
+chat_pipeline = pipeline(
+    "text-generation",
+    model=model,
+    tokenizer=tokenizer,
+    max_length=1024,
+    do_sample=True,
+    temperature=0.7,
+    top_p=0.9,
+)
+
+# Test with sample prompts
+test_prompts = [
+    "Explain quantum computing in simple terms",
+    "Write a short poem about artificial intelligence",
+    "How can I improve my programming skills?"
+]
+
+for prompt in test_prompts:
+    formatted_prompt = tokenizer.apply_chat_template([{"role": "user", "content": prompt}], tokenize=False)
+    response = chat_pipeline(formatted_prompt)
+    print(f"Prompt: {prompt}\nResponse: {response[0]['generated_text']}\n")
+```
+
+Based on evaluation results, we may need to iterate on our training data or fine-tuning approach to improve performance.
+
+## 🚀 Step 5: Deployment
+
+Finally, we'll deploy our ChatGPT clone as a web service that users can interact with:
+
+```python
+import gradio as gr
+from transformers import pipeline
+
+# Load model and create pipeline
+model_path = "./chatgpt-model"
+chat_pipeline = pipeline(
+    "text-generation",
+    model=model_path,
+    tokenizer=model_path,
+    max_length=1024,
+    do_sample=True,
+    temperature=0.7,
+    top_p=0.9,
+    device_map="auto"
+)
+
+# Chat history management
+def format_history(history):
+    formatted_history = []
+    for human, assistant in history:
+        formatted_history.append({"role": "user", "content": human})
+        if assistant:
+            formatted_history.append({"role": "assistant", "content": assistant})
+    return formatted_history
+
+# Response generation function
+def generate_response(message, history):
+    formatted_history = format_history(history)
+    formatted_history.append({"role": "user", "content": message})
+    
+    prompt = tokenizer.apply_chat_template(formatted_history, tokenize=False)
+    response = chat_pipeline(prompt)[0]["generated_text"]
+    
+    # Extract just the assistant's response
+    assistant_response = response.split("assistant\n")[-1].strip()
+    return assistant_response
+
+# Create Gradio interface
+demo = gr.ChatInterface(
+    generate_response,
+    title="My ChatGPT Clone",
+    description="Ask me anything!",
+    theme="soft"
+)
+
+# Launch the web interface
+demo.launch(share=True)
+```
+
+![](https://i.imgur.com/id852fz.png)
+
+## Conclusion
+
+Building your own ChatGPT-like assistant is a complex but rewarding process. By following the steps outlined in this guide, you can create a customized AI assistant tailored to your specific needs. The key components include selecting a powerful base model, preparing high-quality training data, fine-tuning with modern techniques like ORPO, rigorous evaluation, and deployment as a user-friendly service.
+
+As open-source models continue to improve, the gap between custom-built assistants and commercial offerings like ChatGPT is narrowing. This democratization of AI technology enables developers to create specialized assistants for various domains without relying on closed API services.
+
+I hope this guide helps you on your journey to building your own AI assistant. If you have any questions or want to share your creations, feel free to reach out to me on Twitter [@maximelabonne](https://twitter.com/maximelabonne).
+
+## References
+
+* J. Hong, N. Lee, and J. Thorne, [ORPO: Monolithic Preference Optimization without Reference Model](https://arxiv.org/abs/2403.07691). 2024.
+* L. von Werra et al., TRL: Transformer Reinforcement Learning. GitHub, 2020. [Online]. Available: https://github.com/huggingface/trl
+* AI at Meta, [Introducing Meta Llama 3](https://ai.meta.com/blog/meta-llama-3/), 2024.
+* Anthropic, [Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073), 2022.
+* OpenAI, [Training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155), 2022.
