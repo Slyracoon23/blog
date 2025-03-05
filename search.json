@@ -1,120 +1,5 @@
 [
   {
-    "objectID": "notes.html",
-    "href": "notes.html",
-    "title": " Research notes",
-    "section": "",
-    "text": "Training Data Influence Analysis and Estimation A Survey\n\n\n\n\n\n\nMachine Learning\n\n\n\n\n\n\n\n\n\n5 min\n\n\n\n\n\n\n\n\n\n\n\n\nExtending the Context Window of LLMs\n\n\n\n\n\n\nLarge Language Models\n\n\n\n\n\n\n\n\n\n2 min\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html",
-    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html",
-    "title": "Building ChatGPT from Scratch",
-    "section": "",
-    "text": "Building your own ChatGPT-like assistant is now more accessible than ever. With the release of powerful open-source models and efficient fine-tuning techniques, developers can create customized AI assistants tailored to specific use cases. In this comprehensive guide, we’ll walk through the entire process of building a ChatGPT-like system from scratch.",
-    "crumbs": [
-      "{{< fa address-card >}} About",
-      "🗣️ **Large Language Models**",
-      "Building ChatGPT from Scratch"
-    ]
-  },
-  {
-    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#understanding-chatgpt-architecture",
-    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#understanding-chatgpt-architecture",
-    "title": "Building ChatGPT from Scratch",
-    "section": "🤖 Understanding ChatGPT Architecture",
-    "text": "🤖 Understanding ChatGPT Architecture\nAt its core, ChatGPT consists of several key components:\n\nBase Language Model: A large language model (LLM) trained on vast amounts of text data\nInstruction Fine-tuning: Training to follow instructions and generate helpful responses\nAlignment: Ensuring the model’s outputs align with human preferences and values\nDeployment Infrastructure: Systems to serve the model efficiently to users\n\n\nThe most critical aspect of building a ChatGPT-like system is the alignment process. Traditional approaches involve a multi-stage pipeline: first Supervised Fine-Tuning (SFT) to adapt the model to follow instructions, followed by preference alignment methods like Reinforcement Learning with Human Feedback (RLHF) or Direct Preference Optimization (DPO).\nHowever, newer techniques like ORPO (Odds Ratio Preference Optimization) now allow us to combine these stages, making the process more efficient.",
-    "crumbs": [
-      "{{< fa address-card >}} About",
-      "🗣️ **Large Language Models**",
-      "Building ChatGPT from Scratch"
-    ]
-  },
-  {
-    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-1-selecting-a-base-model",
-    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-1-selecting-a-base-model",
-    "title": "Building ChatGPT from Scratch",
-    "section": "💻 Step 1: Selecting a Base Model",
-    "text": "💻 Step 1: Selecting a Base Model\nFor our ChatGPT clone, we’ll use Llama 3 8B, the latest open-weight model from Meta. This model offers an excellent balance of performance and resource requirements, making it ideal for custom development.\nLlama 3 was trained on approximately 15 trillion tokens (compared to 2T tokens for Llama 2) and features an 8,192 token context window. The model uses a new tokenizer with a 128K-token vocabulary, which reduces the number of tokens required to encode text by about 15%.\nimport torch\nfrom transformers import (\n    AutoModelForCausalLM,\n    AutoTokenizer,\n    BitsAndBytesConfig,\n)\n\n# Model\nbase_model = \"meta-llama/Meta-Llama-3-8B\"\n\n# Configure quantization for efficient loading\nbnb_config = BitsAndBytesConfig(\n    load_in_4bit=True,\n    bnb_4bit_quant_type=\"nf4\",\n    bnb_4bit_compute_dtype=torch.float16,\n    bnb_4bit_use_double_quant=True,\n)\n\n# Load tokenizer and model\ntokenizer = AutoTokenizer.from_pretrained(base_model)\nmodel = AutoModelForCausalLM.from_pretrained(\n    base_model,\n    quantization_config=bnb_config,\n    device_map=\"auto\"\n)",
-    "crumbs": [
-      "{{< fa address-card >}} About",
-      "🗣️ **Large Language Models**",
-      "Building ChatGPT from Scratch"
-    ]
-  },
-  {
-    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-2-preparing-training-data",
-    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-2-preparing-training-data",
-    "title": "Building ChatGPT from Scratch",
-    "section": "📚 Step 2: Preparing Training Data",
-    "text": "📚 Step 2: Preparing Training Data\nHigh-quality training data is crucial for building an effective assistant. We need two types of datasets:\n\nInstruction Dataset: Examples of prompts and helpful responses\nPreference Dataset: Pairs of responses where one is preferred over the other\n\nFor our project, we’ll create a custom dataset combining several high-quality sources:\nfrom datasets import load_dataset\n\n# Load and prepare dataset\ndataset = load_dataset(\"mlabonne/chatgpt-training-mix\")\ndataset = dataset.shuffle(seed=42)\n\n# Format data for chat template\ndef format_chat_template(row):\n    row[\"chosen\"] = tokenizer.apply_chat_template(row[\"chosen\"], tokenize=False)\n    row[\"rejected\"] = tokenizer.apply_chat_template(row[\"rejected\"], tokenize=False)\n    return row\n\ndataset = dataset.map(format_chat_template)\ndataset = dataset.train_test_split(test_size=0.05)",
-    "crumbs": [
-      "{{< fa address-card >}} About",
-      "🗣️ **Large Language Models**",
-      "Building ChatGPT from Scratch"
-    ]
-  },
-  {
-    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-3-fine-tuning-with-orpo",
-    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-3-fine-tuning-with-orpo",
-    "title": "Building ChatGPT from Scratch",
-    "section": "🔄 Step 3: Fine-tuning with ORPO",
-    "text": "🔄 Step 3: Fine-tuning with ORPO\nNow we’ll fine-tune our model using ORPO, which combines instruction tuning and preference alignment into a single process. This approach is more efficient than traditional methods and produces better results.\nfrom peft import LoraConfig, prepare_model_for_kbit_training\nfrom trl import ORPOConfig, ORPOTrainer, setup_chat_format\n\n# Prepare model for chat format\nmodel, tokenizer = setup_chat_format(model, tokenizer)\nmodel = prepare_model_for_kbit_training(model)\n\n# Configure LoRA for parameter-efficient fine-tuning\npeft_config = LoraConfig(\n    r=16,\n    lora_alpha=32,\n    lora_dropout=0.05,\n    bias=\"none\",\n    task_type=\"CAUSAL_LM\",\n    target_modules=['up_proj', 'down_proj', 'gate_proj', 'k_proj', 'q_proj', 'v_proj', 'o_proj']\n)\n\n# Configure ORPO training\norpo_args = ORPOConfig(\n    learning_rate=5e-6,\n    beta=0.1,\n    lr_scheduler_type=\"linear\",\n    max_length=2048,\n    max_prompt_length=512,\n    per_device_train_batch_size=4,\n    gradient_accumulation_steps=4,\n    optim=\"paged_adamw_8bit\",\n    num_train_epochs=3,\n    output_dir=\"./chatgpt-model/\",\n)\n\n# Initialize trainer and start training\ntrainer = ORPOTrainer(\n    model=model,\n    args=orpo_args,\n    train_dataset=dataset[\"train\"],\n    eval_dataset=dataset[\"test\"],\n    peft_config=peft_config,\n    tokenizer=tokenizer,\n)\ntrainer.train()\ntrainer.save_model(\"./chatgpt-model\")",
-    "crumbs": [
-      "{{< fa address-card >}} About",
-      "🗣️ **Large Language Models**",
-      "Building ChatGPT from Scratch"
-    ]
-  },
-  {
-    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-4-evaluation-and-iteration",
-    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-4-evaluation-and-iteration",
-    "title": "Building ChatGPT from Scratch",
-    "section": "🔍 Step 4: Evaluation and Iteration",
-    "text": "🔍 Step 4: Evaluation and Iteration\nAfter training, we need to evaluate our model to ensure it meets our quality standards. We’ll use a combination of automated benchmarks and human evaluation:\nfrom transformers import pipeline\n\n# Load the fine-tuned model\nmodel_path = \"./chatgpt-model\"\ntokenizer = AutoTokenizer.from_pretrained(model_path)\nmodel = AutoModelForCausalLM.from_pretrained(\n    model_path,\n    torch_dtype=torch.float16,\n    device_map=\"auto\"\n)\n\n# Create a chat pipeline\nchat_pipeline = pipeline(\n    \"text-generation\",\n    model=model,\n    tokenizer=tokenizer,\n    max_length=1024,\n    do_sample=True,\n    temperature=0.7,\n    top_p=0.9,\n)\n\n# Test with sample prompts\ntest_prompts = [\n    \"Explain quantum computing in simple terms\",\n    \"Write a short poem about artificial intelligence\",\n    \"How can I improve my programming skills?\"\n]\n\nfor prompt in test_prompts:\n    formatted_prompt = tokenizer.apply_chat_template([{\"role\": \"user\", \"content\": prompt}], tokenize=False)\n    response = chat_pipeline(formatted_prompt)\n    print(f\"Prompt: {prompt}\\nResponse: {response[0]['generated_text']}\\n\")\nBased on evaluation results, we may need to iterate on our training data or fine-tuning approach to improve performance.",
-    "crumbs": [
-      "{{< fa address-card >}} About",
-      "🗣️ **Large Language Models**",
-      "Building ChatGPT from Scratch"
-    ]
-  },
-  {
-    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-5-deployment",
-    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-5-deployment",
-    "title": "Building ChatGPT from Scratch",
-    "section": "🚀 Step 5: Deployment",
-    "text": "🚀 Step 5: Deployment\nFinally, we’ll deploy our ChatGPT clone as a web service that users can interact with:\nimport gradio as gr\nfrom transformers import pipeline\n\n# Load model and create pipeline\nmodel_path = \"./chatgpt-model\"\nchat_pipeline = pipeline(\n    \"text-generation\",\n    model=model_path,\n    tokenizer=model_path,\n    max_length=1024,\n    do_sample=True,\n    temperature=0.7,\n    top_p=0.9,\n    device_map=\"auto\"\n)\n\n# Chat history management\ndef format_history(history):\n    formatted_history = []\n    for human, assistant in history:\n        formatted_history.append({\"role\": \"user\", \"content\": human})\n        if assistant:\n            formatted_history.append({\"role\": \"assistant\", \"content\": assistant})\n    return formatted_history\n\n# Response generation function\ndef generate_response(message, history):\n    formatted_history = format_history(history)\n    formatted_history.append({\"role\": \"user\", \"content\": message})\n    \n    prompt = tokenizer.apply_chat_template(formatted_history, tokenize=False)\n    response = chat_pipeline(prompt)[0][\"generated_text\"]\n    \n    # Extract just the assistant's response\n    assistant_response = response.split(\"assistant\\n\")[-1].strip()\n    return assistant_response\n\n# Create Gradio interface\ndemo = gr.ChatInterface(\n    generate_response,\n    title=\"My ChatGPT Clone\",\n    description=\"Ask me anything!\",\n    theme=\"soft\"\n)\n\n# Launch the web interface\ndemo.launch(share=True)",
-    "crumbs": [
-      "{{< fa address-card >}} About",
-      "🗣️ **Large Language Models**",
-      "Building ChatGPT from Scratch"
-    ]
-  },
-  {
-    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#conclusion",
-    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#conclusion",
-    "title": "Building ChatGPT from Scratch",
-    "section": "Conclusion",
-    "text": "Conclusion\nBuilding your own ChatGPT-like assistant is a complex but rewarding process. By following the steps outlined in this guide, you can create a customized AI assistant tailored to your specific needs. The key components include selecting a powerful base model, preparing high-quality training data, fine-tuning with modern techniques like ORPO, rigorous evaluation, and deployment as a user-friendly service.\nAs open-source models continue to improve, the gap between custom-built assistants and commercial offerings like ChatGPT is narrowing. This democratization of AI technology enables developers to create specialized assistants for various domains without relying on closed API services.\nI hope this guide helps you on your journey to building your own AI assistant. If you have any questions or want to share your creations, feel free to reach out to me on Twitter @maximelabonne.",
-    "crumbs": [
-      "{{< fa address-card >}} About",
-      "🗣️ **Large Language Models**",
-      "Building ChatGPT from Scratch"
-    ]
-  },
-  {
-    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#references",
-    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#references",
-    "title": "Building ChatGPT from Scratch",
-    "section": "References",
-    "text": "References\n\nJ. Hong, N. Lee, and J. Thorne, ORPO: Monolithic Preference Optimization without Reference Model. 2024.\nL. von Werra et al., TRL: Transformer Reinforcement Learning. GitHub, 2020. [Online]. Available: https://github.com/huggingface/trl\nAI at Meta, Introducing Meta Llama 3, 2024.\nAnthropic, Constitutional AI: Harmlessness from AI Feedback, 2022.\nOpenAI, Training language models to follow instructions with human feedback, 2022.",
-    "crumbs": [
-      "{{< fa address-card >}} About",
-      "🗣️ **Large Language Models**",
-      "Building ChatGPT from Scratch"
-    ]
-  },
-  {
     "objectID": "notes/Agents/data_influence.html",
     "href": "notes/Agents/data_influence.html",
     "title": "Training Data Influence Analysis and Estimation A Survey",
@@ -141,48 +26,6 @@
     "title": "Training Data Influence Analysis and Estimation A Survey",
     "section": "Gradient-Based Influence Estimation",
     "text": "Gradient-Based Influence Estimation\nIn models trained using gradient descent, the influence of training instances can be assessed through training gradients.\nThere are two types of gradient-based methods:\n\nStatic methods estimate the effect of retraining by examining gradients with respect to final model parameters, but this approach typically requires stronger assumptions due to the limited insight a single set of parameters can provide into the optimization landscape.\nDynamic methods analyze model parameters throughout training, which while being more computationally demanding, allows for fewer assumptions.\n\nHowever, both share a common limitation: they can potentially overlook highly influential training instances.\n\nStatic Estimators\nThere are two main static estimators: influence functions (more general) and representer point (more scalable).\n\nInfluence Functions\nAnalyze how a model changes when the weight of a training instance is slightly perturbed: \\theta^{(T)}_{+ \\epsilon_i} = \\arg \\min_{\\theta} \\frac{1}{n} \\sum_{z \\in D} L(z; \\theta) + \\epsilon_i L(z_i; \\theta). Assuming the model and loss function are twice-differentiable and strictly convex, Cook and Weisberg demonstrated that an infinitesimal perturbation’s impact could be calculated using a first-order Taylor expansion: \\frac{d\\theta^{(T)}_{+\\epsilon_i}}{d\\epsilon_i} \\bigg|_{\\epsilon_i=0} = - (H^{(T)}_\\theta)^{-1} \\nabla_\\theta L(z_i; \\theta^{(T)}), where the empirical risk Hessian H^{(T)}_\\theta := \\frac{1}{n} \\sum_{z \\in D} \\nabla^2_\\theta L(z; \\theta^{(T)}) is assumed to be positive definite.\nKoh and Liang extend this result to consider the effect of this infinitesimal perturbation on z_{te}’s risk, whereby applying the chain rule, we get:\n\\begin{align*}\n\\frac{dL(z_{te}; \\theta^{(T)})}{d\\epsilon_i} \\bigg|_{\\epsilon_i=0}\n\n&= \\frac{dL(z_{te}; \\theta^{(T)})}{d\\theta^{(T)}_{+\\epsilon_i}}^\\top {\\frac{d\\theta^{(T)}_{+\\epsilon_i}}{d\\epsilon_i}} \\bigg|_{\\epsilon_i=0} \\\\\n\n&= - \\nabla_\\theta L(z_{te}; \\theta^{(T)})^\\top (H^{(T)}_\\theta)^{-1} \\nabla_\\theta L(z_i; \\theta^{(T)}).\n\\end{align*}\nRemoving training instance z_i from D is equivalent to \\epsilon_i = -\\frac{1}{n}, resulting in the pointwise influence functions estimator \\hat{I}_{IF}(z_i, z_{te}) := \\frac{1}{n} \\nabla_\\theta L(z_{te}; \\theta^{(T)})^\\top (H^{(T)}_\\theta)^{-1} \\nabla_\\theta L(z_i; \\theta^{(T)}) Intuitively, it represents the influence functions’ estimate of the leave-one-out influence of z_i on z_{te}.\n\n\nRepresenter Point Methods\nRepresenter-based methods rely on kernels, which are functions that measure the similarity between two vectors. They decompose the predictions of specific model classes into the individual contributions (i.e., influence) of each training instance.\n\n\n\nDynamic Estimators\n\nTracIn – Tracing Gradient Descent\n\n\nHyDRA – Hypergradient Data Relevance Analysis"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": " Articles",
-    "section": "",
-    "text": "Building ChatGPT from Scratch\n\n\nA step-by-step guide to creating your own AI assistant\n\n\n\nLarge Language Models\n\n\n\n\n\n\nFeb 19, 2025\n\n\n6 min\n\n\n\n\n\n\n\n\n\n\n\n\nWhat is an AI Agent?\n\n\nUnderstanding the core concepts, architecture, and applications of autonomous AI systems\n\n\n\nAI Agents\n\n\n\n\n\n\nApr 25, 2024\n\n\n9 min\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "notes/Large Language Models/extending_context.html",
-    "href": "notes/Large Language Models/extending_context.html",
-    "title": "Extending the Context Window of LLMs",
-    "section": "",
-    "text": "📝 Article: https://kaiokendev.github.io/context"
-  },
-  {
-    "objectID": "notes/Large Language Models/extending_context.html#problem",
-    "href": "notes/Large Language Models/extending_context.html#problem",
-    "title": "Extending the Context Window of LLMs",
-    "section": "Problem",
-    "text": "Problem\nProblem: it is hard to extend the sequence length of a model.\n\nAnil et al. (2022): the length extrapolation fails in part because of “distracting tokens” in the input during the PARITY task.\nChi et al. (2022): bias terms in positional encoding (like in ALiBi) replicate the effect of windowed attention by decaying token inter-dependency on long-range receptive fields (the tokens only focus on the tokens closest to them).\nTao et al. (2023) observe that, in long sequences, rear position embeddings are updates much fewer times than front position embeddings. They add random padding to the front patch of the sequence.\nLiu et al. (2023): attention in long sequences starts to drift as we move to later positions and only attends to the most recent tokens."
-  },
-  {
-    "objectID": "notes/Large Language Models/extending_context.html#silver-linings",
-    "href": "notes/Large Language Models/extending_context.html#silver-linings",
-    "title": "Extending the Context Window of LLMs",
-    "section": "Silver Linings",
-    "text": "Silver Linings\nThe attention mechanism seems destabilized in the case of long sequences due to an imbalance of attended tokens (either skewed to the front or the back).\nSeveral solutions have been proposed:\n\nFew-shot chain-of-thought reasoning and marker tokens\nLength generalization/extrapolation can be learned ability to a certain extent (improves performance but not a silver bullet)\nLLaMa 7B has been trained for retrieval over a 32K token window by introducing landmark tokens combined with a windowed-attention (blockwise computation)."
-  },
-  {
-    "objectID": "notes/Large Language Models/extending_context.html#potential-solutions",
-    "href": "notes/Large Language Models/extending_context.html#potential-solutions",
-    "title": "Extending the Context Window of LLMs",
-    "section": "Potential Solutions",
-    "text": "Potential Solutions\n\nChange the attention calculation: log(n) scaling (does help), relacing the softmax with ReLU in the attention equation (does not converge), etc.\nRandom Positional Encoding\nShifted Positional Encodings: shifting the tokens progressively along the desired length during the encoding step (failure)."
-  },
-  {
-    "objectID": "notes/Large Language Models/extending_context.html#final-solution",
-    "href": "notes/Large Language Models/extending_context.html#final-solution",
-    "title": "Extending the Context Window of LLMs",
-    "section": "Final Solution",
-    "text": "Final Solution\nTransformers do not learn how to gauge position based on the relative distance or the rotational factors, but memorize the tokens and their positional scaling factors.\n\nRotary positional embedding to loop the positions around after crossing the max context length (e.g., 2048): position_ids = position_ids % 2048\nBlock repeated positions: repeating the chosen frequency for a block of positions, so [1, 2, 3, 4, 5, …, L] becomes [1, 1, 1, 1, 2, 2, 2, 2, 3, …, L]. This is achieved by changing the frequency update: t *= 1/4.\n\nIn other words, several tokens (4 in this example) are assigned to the same position. This (surprising) scheme can quadruple the context length with minimal performance degradation (~2%). More information about it in this paper from Meta: https://arxiv.org/abs/2306.15595"
   },
   {
     "objectID": "about.html",
@@ -298,5 +141,162 @@
       "🤖 **AI Agents**",
       "What is an AI Agent?"
     ]
+  },
+  {
+    "objectID": "notes.html",
+    "href": "notes.html",
+    "title": " Research notes",
+    "section": "",
+    "text": "Training Data Influence Analysis and Estimation A Survey\n\n\n\n\n\n\nMachine Learning\n\n\n\n\n\n\n\n\n\n5 min\n\n\n\n\n\n\n\n\n\n\n\n\nExtending the Context Window of LLMs\n\n\n\n\n\n\nLarge Language Models\n\n\n\n\n\n\n\n\n\n2 min\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html",
+    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html",
+    "title": "Building ChatGPT from Scratch",
+    "section": "",
+    "text": "Building your own ChatGPT-like assistant is now more accessible than ever. With the release of powerful open-source models and efficient fine-tuning techniques, developers can create customized AI assistants tailored to specific use cases. In this comprehensive guide, we’ll walk through the entire process of building a ChatGPT-like system from scratch.",
+    "crumbs": [
+      "{{< fa address-card >}} About",
+      "🗣️ **Large Language Models**",
+      "Building ChatGPT from Scratch"
+    ]
+  },
+  {
+    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#understanding-chatgpt-architecture",
+    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#understanding-chatgpt-architecture",
+    "title": "Building ChatGPT from Scratch",
+    "section": "🤖 Understanding ChatGPT Architecture",
+    "text": "🤖 Understanding ChatGPT Architecture\nAt its core, ChatGPT consists of several key components:\n\nBase Language Model: A large language model (LLM) trained on vast amounts of text data\nInstruction Fine-tuning: Training to follow instructions and generate helpful responses\nAlignment: Ensuring the model’s outputs align with human preferences and values\nDeployment Infrastructure: Systems to serve the model efficiently to users\n\n\nThe most critical aspect of building a ChatGPT-like system is the alignment process. Traditional approaches involve a multi-stage pipeline: first Supervised Fine-Tuning (SFT) to adapt the model to follow instructions, followed by preference alignment methods like Reinforcement Learning with Human Feedback (RLHF) or Direct Preference Optimization (DPO).\nHowever, newer techniques like ORPO (Odds Ratio Preference Optimization) now allow us to combine these stages, making the process more efficient.",
+    "crumbs": [
+      "{{< fa address-card >}} About",
+      "🗣️ **Large Language Models**",
+      "Building ChatGPT from Scratch"
+    ]
+  },
+  {
+    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-1-selecting-a-base-model",
+    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-1-selecting-a-base-model",
+    "title": "Building ChatGPT from Scratch",
+    "section": "💻 Step 1: Selecting a Base Model",
+    "text": "💻 Step 1: Selecting a Base Model\nFor our ChatGPT clone, we’ll use Llama 3 8B, the latest open-weight model from Meta. This model offers an excellent balance of performance and resource requirements, making it ideal for custom development.\nLlama 3 was trained on approximately 15 trillion tokens (compared to 2T tokens for Llama 2) and features an 8,192 token context window. The model uses a new tokenizer with a 128K-token vocabulary, which reduces the number of tokens required to encode text by about 15%.\nimport torch\nfrom transformers import (\n    AutoModelForCausalLM,\n    AutoTokenizer,\n    BitsAndBytesConfig,\n)\n\n# Model\nbase_model = \"meta-llama/Meta-Llama-3-8B\"\n\n# Configure quantization for efficient loading\nbnb_config = BitsAndBytesConfig(\n    load_in_4bit=True,\n    bnb_4bit_quant_type=\"nf4\",\n    bnb_4bit_compute_dtype=torch.float16,\n    bnb_4bit_use_double_quant=True,\n)\n\n# Load tokenizer and model\ntokenizer = AutoTokenizer.from_pretrained(base_model)\nmodel = AutoModelForCausalLM.from_pretrained(\n    base_model,\n    quantization_config=bnb_config,\n    device_map=\"auto\"\n)",
+    "crumbs": [
+      "{{< fa address-card >}} About",
+      "🗣️ **Large Language Models**",
+      "Building ChatGPT from Scratch"
+    ]
+  },
+  {
+    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-2-preparing-training-data",
+    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-2-preparing-training-data",
+    "title": "Building ChatGPT from Scratch",
+    "section": "📚 Step 2: Preparing Training Data",
+    "text": "📚 Step 2: Preparing Training Data\nHigh-quality training data is crucial for building an effective assistant. We need two types of datasets:\n\nInstruction Dataset: Examples of prompts and helpful responses\nPreference Dataset: Pairs of responses where one is preferred over the other\n\nFor our project, we’ll create a custom dataset combining several high-quality sources:\nfrom datasets import load_dataset\n\n# Load and prepare dataset\ndataset = load_dataset(\"mlabonne/chatgpt-training-mix\")\ndataset = dataset.shuffle(seed=42)\n\n# Format data for chat template\ndef format_chat_template(row):\n    row[\"chosen\"] = tokenizer.apply_chat_template(row[\"chosen\"], tokenize=False)\n    row[\"rejected\"] = tokenizer.apply_chat_template(row[\"rejected\"], tokenize=False)\n    return row\n\ndataset = dataset.map(format_chat_template)\ndataset = dataset.train_test_split(test_size=0.05)",
+    "crumbs": [
+      "{{< fa address-card >}} About",
+      "🗣️ **Large Language Models**",
+      "Building ChatGPT from Scratch"
+    ]
+  },
+  {
+    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-3-fine-tuning-with-orpo",
+    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-3-fine-tuning-with-orpo",
+    "title": "Building ChatGPT from Scratch",
+    "section": "🔄 Step 3: Fine-tuning with ORPO",
+    "text": "🔄 Step 3: Fine-tuning with ORPO\nNow we’ll fine-tune our model using ORPO, which combines instruction tuning and preference alignment into a single process. This approach is more efficient than traditional methods and produces better results.\nfrom peft import LoraConfig, prepare_model_for_kbit_training\nfrom trl import ORPOConfig, ORPOTrainer, setup_chat_format\n\n# Prepare model for chat format\nmodel, tokenizer = setup_chat_format(model, tokenizer)\nmodel = prepare_model_for_kbit_training(model)\n\n# Configure LoRA for parameter-efficient fine-tuning\npeft_config = LoraConfig(\n    r=16,\n    lora_alpha=32,\n    lora_dropout=0.05,\n    bias=\"none\",\n    task_type=\"CAUSAL_LM\",\n    target_modules=['up_proj', 'down_proj', 'gate_proj', 'k_proj', 'q_proj', 'v_proj', 'o_proj']\n)\n\n# Configure ORPO training\norpo_args = ORPOConfig(\n    learning_rate=5e-6,\n    beta=0.1,\n    lr_scheduler_type=\"linear\",\n    max_length=2048,\n    max_prompt_length=512,\n    per_device_train_batch_size=4,\n    gradient_accumulation_steps=4,\n    optim=\"paged_adamw_8bit\",\n    num_train_epochs=3,\n    output_dir=\"./chatgpt-model/\",\n)\n\n# Initialize trainer and start training\ntrainer = ORPOTrainer(\n    model=model,\n    args=orpo_args,\n    train_dataset=dataset[\"train\"],\n    eval_dataset=dataset[\"test\"],\n    peft_config=peft_config,\n    tokenizer=tokenizer,\n)\ntrainer.train()\ntrainer.save_model(\"./chatgpt-model\")",
+    "crumbs": [
+      "{{< fa address-card >}} About",
+      "🗣️ **Large Language Models**",
+      "Building ChatGPT from Scratch"
+    ]
+  },
+  {
+    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-4-evaluation-and-iteration",
+    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-4-evaluation-and-iteration",
+    "title": "Building ChatGPT from Scratch",
+    "section": "🔍 Step 4: Evaluation and Iteration",
+    "text": "🔍 Step 4: Evaluation and Iteration\nAfter training, we need to evaluate our model to ensure it meets our quality standards. We’ll use a combination of automated benchmarks and human evaluation:\nfrom transformers import pipeline\n\n# Load the fine-tuned model\nmodel_path = \"./chatgpt-model\"\ntokenizer = AutoTokenizer.from_pretrained(model_path)\nmodel = AutoModelForCausalLM.from_pretrained(\n    model_path,\n    torch_dtype=torch.float16,\n    device_map=\"auto\"\n)\n\n# Create a chat pipeline\nchat_pipeline = pipeline(\n    \"text-generation\",\n    model=model,\n    tokenizer=tokenizer,\n    max_length=1024,\n    do_sample=True,\n    temperature=0.7,\n    top_p=0.9,\n)\n\n# Test with sample prompts\ntest_prompts = [\n    \"Explain quantum computing in simple terms\",\n    \"Write a short poem about artificial intelligence\",\n    \"How can I improve my programming skills?\"\n]\n\nfor prompt in test_prompts:\n    formatted_prompt = tokenizer.apply_chat_template([{\"role\": \"user\", \"content\": prompt}], tokenize=False)\n    response = chat_pipeline(formatted_prompt)\n    print(f\"Prompt: {prompt}\\nResponse: {response[0]['generated_text']}\\n\")\nBased on evaluation results, we may need to iterate on our training data or fine-tuning approach to improve performance.",
+    "crumbs": [
+      "{{< fa address-card >}} About",
+      "🗣️ **Large Language Models**",
+      "Building ChatGPT from Scratch"
+    ]
+  },
+  {
+    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-5-deployment",
+    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#step-5-deployment",
+    "title": "Building ChatGPT from Scratch",
+    "section": "🚀 Step 5: Deployment",
+    "text": "🚀 Step 5: Deployment\nFinally, we’ll deploy our ChatGPT clone as a web service that users can interact with:\nimport gradio as gr\nfrom transformers import pipeline\n\n# Load model and create pipeline\nmodel_path = \"./chatgpt-model\"\nchat_pipeline = pipeline(\n    \"text-generation\",\n    model=model_path,\n    tokenizer=model_path,\n    max_length=1024,\n    do_sample=True,\n    temperature=0.7,\n    top_p=0.9,\n    device_map=\"auto\"\n)\n\n# Chat history management\ndef format_history(history):\n    formatted_history = []\n    for human, assistant in history:\n        formatted_history.append({\"role\": \"user\", \"content\": human})\n        if assistant:\n            formatted_history.append({\"role\": \"assistant\", \"content\": assistant})\n    return formatted_history\n\n# Response generation function\ndef generate_response(message, history):\n    formatted_history = format_history(history)\n    formatted_history.append({\"role\": \"user\", \"content\": message})\n    \n    prompt = tokenizer.apply_chat_template(formatted_history, tokenize=False)\n    response = chat_pipeline(prompt)[0][\"generated_text\"]\n    \n    # Extract just the assistant's response\n    assistant_response = response.split(\"assistant\\n\")[-1].strip()\n    return assistant_response\n\n# Create Gradio interface\ndemo = gr.ChatInterface(\n    generate_response,\n    title=\"My ChatGPT Clone\",\n    description=\"Ask me anything!\",\n    theme=\"soft\"\n)\n\n# Launch the web interface\ndemo.launch(share=True)",
+    "crumbs": [
+      "{{< fa address-card >}} About",
+      "🗣️ **Large Language Models**",
+      "Building ChatGPT from Scratch"
+    ]
+  },
+  {
+    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#conclusion",
+    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#conclusion",
+    "title": "Building ChatGPT from Scratch",
+    "section": "Conclusion",
+    "text": "Conclusion\nBuilding your own ChatGPT-like assistant is a complex but rewarding process. By following the steps outlined in this guide, you can create a customized AI assistant tailored to your specific needs. The key components include selecting a powerful base model, preparing high-quality training data, fine-tuning with modern techniques like ORPO, rigorous evaluation, and deployment as a user-friendly service.\nAs open-source models continue to improve, the gap between custom-built assistants and commercial offerings like ChatGPT is narrowing. This democratization of AI technology enables developers to create specialized assistants for various domains without relying on closed API services.\nI hope this guide helps you on your journey to building your own AI assistant. If you have any questions or want to share your creations, feel free to reach out to me on Twitter @maximelabonne.",
+    "crumbs": [
+      "{{< fa address-card >}} About",
+      "🗣️ **Large Language Models**",
+      "Building ChatGPT from Scratch"
+    ]
+  },
+  {
+    "objectID": "posts/2025-02-19_building_chatgpt_from_scratch.html#references",
+    "href": "posts/2025-02-19_building_chatgpt_from_scratch.html#references",
+    "title": "Building ChatGPT from Scratch",
+    "section": "References",
+    "text": "References\n\nJ. Hong, N. Lee, and J. Thorne, ORPO: Monolithic Preference Optimization without Reference Model. 2024.\nL. von Werra et al., TRL: Transformer Reinforcement Learning. GitHub, 2020. [Online]. Available: https://github.com/huggingface/trl\nAI at Meta, Introducing Meta Llama 3, 2024.\nAnthropic, Constitutional AI: Harmlessness from AI Feedback, 2022.\nOpenAI, Training language models to follow instructions with human feedback, 2022.",
+    "crumbs": [
+      "{{< fa address-card >}} About",
+      "🗣️ **Large Language Models**",
+      "Building ChatGPT from Scratch"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": " Articles",
+    "section": "",
+    "text": "Building ChatGPT from Scratch\n\n\nA step-by-step guide to creating your own AI assistant\n\n\n\nLarge Language Models\n\n\n\n\n\n\nFeb 19, 2025\n\n\n6 min\n\n\n\n\n\n\n\n\n\n\n\n\nWhat is an AI Agent?\n\n\nUnderstanding the core concepts, architecture, and applications of autonomous AI systems\n\n\n\nAI Agents\n\n\n\n\n\n\nApr 25, 2024\n\n\n9 min\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "notes/Large Language Models/extending_context.html",
+    "href": "notes/Large Language Models/extending_context.html",
+    "title": "Extending the Context Window of LLMs",
+    "section": "",
+    "text": "📝 Article: https://kaiokendev.github.io/context"
+  },
+  {
+    "objectID": "notes/Large Language Models/extending_context.html#problem",
+    "href": "notes/Large Language Models/extending_context.html#problem",
+    "title": "Extending the Context Window of LLMs",
+    "section": "Problem",
+    "text": "Problem\nProblem: it is hard to extend the sequence length of a model.\n\nAnil et al. (2022): the length extrapolation fails in part because of “distracting tokens” in the input during the PARITY task.\nChi et al. (2022): bias terms in positional encoding (like in ALiBi) replicate the effect of windowed attention by decaying token inter-dependency on long-range receptive fields (the tokens only focus on the tokens closest to them).\nTao et al. (2023) observe that, in long sequences, rear position embeddings are updates much fewer times than front position embeddings. They add random padding to the front patch of the sequence.\nLiu et al. (2023): attention in long sequences starts to drift as we move to later positions and only attends to the most recent tokens."
+  },
+  {
+    "objectID": "notes/Large Language Models/extending_context.html#silver-linings",
+    "href": "notes/Large Language Models/extending_context.html#silver-linings",
+    "title": "Extending the Context Window of LLMs",
+    "section": "Silver Linings",
+    "text": "Silver Linings\nThe attention mechanism seems destabilized in the case of long sequences due to an imbalance of attended tokens (either skewed to the front or the back).\nSeveral solutions have been proposed:\n\nFew-shot chain-of-thought reasoning and marker tokens\nLength generalization/extrapolation can be learned ability to a certain extent (improves performance but not a silver bullet)\nLLaMa 7B has been trained for retrieval over a 32K token window by introducing landmark tokens combined with a windowed-attention (blockwise computation)."
+  },
+  {
+    "objectID": "notes/Large Language Models/extending_context.html#potential-solutions",
+    "href": "notes/Large Language Models/extending_context.html#potential-solutions",
+    "title": "Extending the Context Window of LLMs",
+    "section": "Potential Solutions",
+    "text": "Potential Solutions\n\nChange the attention calculation: log(n) scaling (does help), relacing the softmax with ReLU in the attention equation (does not converge), etc.\nRandom Positional Encoding\nShifted Positional Encodings: shifting the tokens progressively along the desired length during the encoding step (failure)."
+  },
+  {
+    "objectID": "notes/Large Language Models/extending_context.html#final-solution",
+    "href": "notes/Large Language Models/extending_context.html#final-solution",
+    "title": "Extending the Context Window of LLMs",
+    "section": "Final Solution",
+    "text": "Final Solution\nTransformers do not learn how to gauge position based on the relative distance or the rotational factors, but memorize the tokens and their positional scaling factors.\n\nRotary positional embedding to loop the positions around after crossing the max context length (e.g., 2048): position_ids = position_ids % 2048\nBlock repeated positions: repeating the chosen frequency for a block of positions, so [1, 2, 3, 4, 5, …, L] becomes [1, 1, 1, 1, 2, 2, 2, 2, 3, …, L]. This is achieved by changing the frequency update: t *= 1/4.\n\nIn other words, several tokens (4 in this example) are assigned to the same position. This (surprising) scheme can quadruple the context length with minimal performance degradation (~2%). More information about it in this paper from Meta: https://arxiv.org/abs/2306.15595"
   }
 ]
