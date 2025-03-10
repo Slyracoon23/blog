@@ -10,43 +10,37 @@ subtitle: "A step-by-step guide to transforming user session recordings into val
 format: html
 ---
 
-I have been building AI application for a while now. (Over 2 years now!) Over that time I have kind of dreaded to actually do "real" machine learning an AI work. I think since I am a developer I should not worry about data and model performance but (un)fortuanlty these models really are data oriented and aligned. If you want to understand how to get strong results with LLMs and other AI/machine learning system you will eventually have to touch data and human label it. I am sorry but it's unavoidable. 
+I have been building AI applications for a while now (over 2 years!). During this time, I've somewhat dreaded doing "real" machine learning and AI work. As a developer, I initially thought I shouldn't need to worry about data and model performance, but (un)fortunately these models are truly data-oriented. If you want to achieve strong results with LLMs and other AI/machine learning systems, you will eventually have to work with data and label it yourself. I'm sorry, but it's unavoidable.
 
-Lucky for you, We will go though an exerice of how to get from a general LLM capability to an actual data label set that will grow and hopefully become used for downstream tasks like evaluations, fine-tuning and more.
-
-
+Luckily for you, we'll go through an exercise of how to get from a general LLM capability to an actual labeled dataset that will grow and hopefully become useful for downstream tasks like evaluations, fine-tuning, and more.
 
 ## Overview
 
-Before we start, I will go throught a hypothenically real example that is actualy quite a general capability that LLM have these days. We want to use the latest models that have vision and lanaguge component and use the vision component to give us captions. 
+Before we start, I'll walk through a hypothetical but realistic example that demonstrates a common capability of modern LLMs. We want to use the latest models with vision and language components and leverage the vision capability to generate captions.
 
 Why?!
 
-As a buisness usecase it might be valuable to take screenshots on UI elements and generate html or screenshots of websites that can generate code or even search over sites that "look" similar. Either way, this turns out to be useful and therefore valuable. 
+From a business perspective, it can be valuable to take screenshots of UI elements and generate HTML, or capture screenshots of websites to generate code, or even search for sites that "look" similar. This turns out to be genuinely useful and therefore valuable.
 
-Your job is to create LLM that given a screenshot of a UI eleent should output a caption/description of that image.
+Your job is to create an LLM that, given a screenshot of a UI element, can output a caption/description of that image.
 
-As a high level overview we will do the following:
+At a high level, we'll follow these steps:
 
-
-1. Define the task and capabilities of the LLM (tasks, capabilties, input -> output paradigmn)
-2. Review what kind of data we need or have (collect, sythenize, etc.)
-3. Scripts and pipeline to Collection, process, clean and store data
+1. Define the task and capabilities of the LLM (tasks, capabilities, input → output paradigm)
+2. Review what kind of data we need or have (collect, synthesize, etc.)
+3. Create scripts and pipelines to collect, process, clean, and store data
 4. Label your data and publish your dataset
 
-Finially, we we review what we learned and have a follow up discusion about the evolution of your dataset. Like most things, it's constantly evovling and there might be new and potentialy better ways of doing things.
+Finally, we'll review what we learned and have a follow-up discussion about the evolution of your dataset. Like most things, it's constantly evolving, and there might be new and potentially better ways of doing things.
 
-
+image.png
 Let's begin!
-
 
 ## What do we want the LLM to do?
 
-Even though this LLMs are amazing machines that can take in an instruction and output something super useful, they still make mistakes and are very much unreliable. The first biggest mistake is think that these models are useless, that is simpliy not true -- they have demostrate that they are extremely usefualy but second biggest mistake is that they can do everything. I would so dearly wish they can zero-shot startups but that's just not the case. 
+Even though LLMs are amazing machines that can take instructions and output something incredibly useful, they still make mistakes and can be unreliable. The first big mistake is thinking these models are useless, which is simply not true—they have demonstrated they're extremely useful. The second biggest mistake is assuming they can do everything. I would dearly wish they could zero-shot startups, but that's just not the case.
 
-But we want to get practical, so what is the practical thing we want to achive in this example. For this task it's quite simple, we want to give an LLM an image of a screenshot of some UI element on website and it should output description of the image. That is it. We will fixed the input prompt but really the only varible is the image.
-
-Before
+Let's get practical. For this task, it's quite simple: we want to give an LLM an image (a screenshot of some UI element on a website) and have it output a description of the image. That's it. We'll use a fixed input prompt, with the image being the only variable.
 
 Let's visualize what we're trying to achieve with a simple diagram:
 
@@ -56,39 +50,77 @@ This is a straightforward task: given an image input, generate a descriptive tex
 
 ## Show me the data
 
-Ok, we have established what the task is. A natrual question you should ask yourself is: what data will be good to represent the tasks I am the LLM to do. Much like people you need to teach them by have a bunch of examples with inputs and the expected output.
+Now that we've established the task, a natural question to ask yourself is: what data will effectively represent the tasks I want the LLM to perform? Much like teaching people, you need to provide a collection of examples with inputs and expected outputs.
 
-Before we go any furhter it's good to know where you can get some free data. 
+Before we go any further, it's good to know where you can get some free data.
 
 [insert meme about it's free data]
 
-You can use huggingface where there are some really nice datasets already public and in the open or if you have some raw datasets lieing around from your previous project or job it might be worth clean them up.
+You can use Hugging Face, which hosts many excellent datasets that are already public and open-source. Alternatively, if you have raw datasets lying around from previous projects or jobs, it might be worth cleaning them up.
 
-I had a bunch of rrweb json data that I turned into images so I will just use that.
+I had a bunch of rrweb JSON data that I converted into images, so I'll use that.
 
-You can click [here] where I show you how I created if from rrweb.
-
+You can click [here](/posts/2025-03-09_how_to_turn_rrweb_jsons_to_videos_images_and_snapshots.qmd) to see how I created these images from rrweb.
 
 ## Process and clean your data
 
-So in this case I had a screenshot of two UI elments. Since I wanted to augment my data I wanted to create a dataset from these two images.
+In this case, I had screenshots of two UI elements. Since I wanted to augment my data, I created a dataset from these two images.
 
-[Show an visual of the two images using pandas dataframe]
+Let me show you some examples of the data I worked with:
 
-Simplest, maybe longest but pre-optimiation is the root of all evil, solution is to start labeling them by hand. You really need just around 10 examples from each UI screenshot and depending on how many screenshot of UI element you want you can get from 20 - 100 examples. Don't go overboard, it's important that you start small and grow when you estabilihed a pipeline.
+![Screenshot of a website dashboard interface with navigation menu on the left and content area on the right](/images/how_to_create_a_visual_dataset_from_session_recordings/ui-image1.png)
+
+![Screenshot of a form interface with input fields and submit button](/images/how_to_create_a_visual_dataset_from_session_recordings/ui-image2.png)
 
 
-So here you see me go to a site and actualy using the dev tools I created a red box or frame from my element I wanted to take a screenshot of. This was additional visual que I wanted to add to the image so that the LLM would know where to contrasin it's anwsers. This is not strictly nessary but I thought it might help. At the end of the day Data is kind of what you make of it. You do hope to be roughly around how people will use it though.
 
+This variety helps ensure the model can generalize across different UI contexts and isn't overfitting to specific visual patterns.
+
+The simplest solution (though potentially time-consuming—but remember, premature optimization is the root of all evil) is to start labeling them by hand. You really only need around 10 examples from each UI screenshot. Depending on how many types of UI elements you have, you can collect anywhere from 20 to 100 examples. Don't go overboard; it's important to start small and grow once you've established a pipeline.
+
+![Sample screenshots from my dataset showing UI elements with red bounding boxes highlighting specific components. The left shows a navigation menu, and the right shows a form input field.](/images/how_to_create_a_visual_dataset_from_session_recordings/sample_visualizations.png)
+
+Here you can see me visiting a site and using the developer tools to create a red box or frame around the element I wanted to capture. This visual cue was added to help the LLM know where to focus its responses. This isn't strictly necessary, but I thought it might help. At the end of the day, data is what you make of it. You do hope it roughly aligns with how people will actually use it.
 
 ## Label and publish
 
-Once you have a folder full of images it's time to do the other side  and focus on the labelling or the output. This is where you will bring your human intuition and supiror intelect. You need to write out what the expected output for these LLMs. That means, you need to have a reference anwser or output that you claim is the "right" anwser. You have to be opinionated. Since it's your job to know the differnce be good and bad, and right vs evil. The line is blurry but you must hold conviction and draw the line.
+Once you have a folder full of images, it's time to focus on the labeling or output side. This is where you'll apply your human intuition and superior intellect. You need to write out the expected outputs for these LLMs—reference answers that you claim are the "right" answers. You have to be opinionated. It's your job to know the difference between good and bad, right and wrong. The line may be blurry, but you must hold conviction and draw that line.
+
+```python
+image_path,original_path,image_hash,snapshot_id,timestamp,element_id,snapshot_name,metadata,captions
+example_image_1.png,example_original_1.png,hash123,1,1678886400,1,snapshot_1,"{width: 800, height: 600}","{model_1: caption_1, model_2: caption_2}"
+example_image_2.png,example_original_2.png,hash456,2,1678890000,2,snapshot_2,"{width: 1024, height: 768}","{model_1: caption_3, model_3: caption_4}"
+example_image_3.png,example_original_3.png,hash789,1,1678886400,3,snapshot_1,"{width: 800, height: 600}","{model_2: caption_5, model_4: caption_6}"
+```
 
 
-You can literaly do this in excel if you must but I have created a notebook that would use an existing LLM to label it for me. I then changed it if I didn't like it. I am not saying you have to do the work yourself but you need to give it your stamp of approval.
+You can literally do this in Excel if needed, but I created a notebook that used an existing LLM to label the images for me. I then modified the labels if I didn't like them. I'm not saying you have to do all the work yourself, but you do need to give your stamp of approval.
 
+And finialy you push it hugging face with the following code.
+
+```python
+# Install the Hugging Face datasets library if you haven't already
+!pip install datasets
+
+from datasets import Dataset
+import pandas as pd
+import os
+
+# Assuming you have your data in a pandas DataFrame or CSV file
+df = pd.read_csv('your_labeled_data.csv')
+
+# Convert to Hugging Face Dataset
+dataset = Dataset.from_pandas(df)
+
+# Push to Hugging Face Hub
+dataset.push_to_hub("your-username/your-dataset-name", private=False)
+```
+
+
+Once your dataset is published to Hugging Face Hub, it will be available for others to use and contribute to. The platform provides version control, documentation features, and community engagement metrics to help you track how your dataset is being used.
+
+![Screenshot of the Hugging Face Hub interface showing a published dataset with metadata, files, and community metrics](/images/how_to_create_a_visual_dataset_from_session_recordings/huggingface-hub.png)
 
 ## Conclusion
 
-That is it, you know have a dataset in huggingface where you can use a building block for the next steps like evals, finetuning and training.
+That's it! You now have a dataset in Hugging Face that you can use as a building block for the next steps like evaluations, fine-tuning, and training.
