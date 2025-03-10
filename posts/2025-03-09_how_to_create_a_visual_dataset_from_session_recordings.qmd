@@ -3,6 +3,8 @@ aliases:
 - /how-to-create-a-visual-dataset-from-session-recordings/
 categories:
 - Dataset Preparation
+- Machine Learning
+- Computer Vision
 date: '2025-03-09'
 image: /images/how_to_create_a_visual_dataset_from_session_recordings/thumbnail.jpg
 title: "How to Create a Visual Dataset from Session Recordings"
@@ -10,35 +12,43 @@ subtitle: "A step-by-step guide to transforming user session recordings into val
 format: html
 ---
 
-I have been building AI applications for a while now (over 2 years!). During this time, I've somewhat dreaded doing "real" machine learning and AI work. As a developer, I initially thought I shouldn't need to worry about data and model performance, but (un)fortunately these models are truly data-oriented. If you want to achieve strong results with LLMs and other AI/machine learning systems, you will eventually have to work with data and label it yourself. I'm sorry, but it's unavoidable.
+I have been building AI applications for a while now (over 2 years!). During this time, I've somewhat dreaded doing "real" machine learning and AI work. As a developer, I initially thought I shouldn't need to worry about data and model performance, but (un)fortunately these models are **truly data-oriented**. If you want to achieve strong results with LLMs and other AI/machine learning systems, you will eventually have to work with data and label it yourself. I'm sorry, but it's unavoidable.
 
-Luckily for you, we'll go through an exercise of how to get from a general LLM capability to an actual labeled dataset that will grow and hopefully become useful for downstream tasks like evaluations, fine-tuning, and more.
+Luckily for you, we'll go through an exercise of how to get from a general LLM capability to an **actual labeled dataset** that will grow and hopefully become useful for downstream tasks like evaluations, fine-tuning, and more.
 
 ## Overview
 
-Before we start, I'll walk through a hypothetical but realistic example that demonstrates a common capability of modern LLMs. We want to use the latest models with vision and language components and leverage the vision capability to generate captions.
+Before we start, I'll walk through a hypothetical but realistic example that demonstrates a common capability of modern LLMs. We want to use the latest models with vision and language capabilities (**VLMs**) and leverage the vision component to generate accurate captions for UI elements.
 
-Why?!
+### Why is this valuable?
 
-From a business perspective, it can be valuable to take screenshots of UI elements and generate HTML, or capture screenshots of websites to generate code, or even search for sites that "look" similar. This turns out to be genuinely useful and therefore valuable.
+From a business perspective, it can be incredibly valuable to take screenshots of UI elements and generate HTML, or capture screenshots of websites to generate code, or even search for sites that "look" similar. This turns out to be genuinely useful for several applications:
 
-Your job is to create an LLM that, given a screenshot of a UI element, can output a caption/description of that image.
+- **Automating the conversion** of designs to code
+- **Improving accessibility** through automatic alt-text generation
+- Creating **training data** for UI component recognition systems
+- Enabling **visual search** across design systems
+
+Your job is to create a vision-language model that, given a screenshot of a UI element, can output a precise caption/description of that image.
 
 At a high level, we'll follow these steps:
 
-1. Define the task and capabilities of the LLM (tasks, capabilities, input → output paradigm)
-2. Review what kind of data we need or have (collect, synthesize, etc.)
-3. Create scripts and pipelines to collect, process, clean, and store data
-4. Label your data and publish your dataset
+1. **Define the task** and capabilities of the LLM (tasks, capabilities, input → output paradigm)
+2. **Review what kind of data** we need or have (collect, synthesize, etc.)
+3. **Create scripts and pipelines** to collect, process, clean, and store data
+4. **Label your data** and publish your dataset
 
-Finally, we'll review what we learned and have a follow-up discussion about the evolution of your dataset. Like most things, it's constantly evolving, and there might be new and potentially better ways of doing things.
+Finally, we'll review what we learned and have a follow-up discussion about the evolution of your dataset. Like most things in AI development, datasets are constantly evolving, and there might be new and potentially better ways of doing things as techniques and tools improve.
 
-image.png
+![Overview of the dataset creation process](/images/how_to_create_a_visual_dataset_from_session_recordings/dataset_creation_process.png)
+
 Let's begin!
 
 ## What do we want the LLM to do?
 
-Even though LLMs are amazing machines that can take instructions and output something incredibly useful, they still make mistakes and can be unreliable. The first big mistake is thinking these models are useless, which is simply not true—they have demonstrated they're extremely useful. The second biggest mistake is assuming they can do everything. I would dearly wish they could zero-shot startups, but that's just not the case.
+Even though LLMs are amazing machines that can take instructions and output something incredibly useful, they still make mistakes and can be unreliable. The first big mistake is thinking these models are useless, which is simply not true—they have demonstrated they're extremely useful. The second biggest mistake is assuming they can do everything perfectly without specific training data. I would dearly wish they could zero-shot startups, but that's just not the case.
+
+From an AI engineer's perspective, the key to success is being **realistic about what models can currently achieve** and providing them with the right training data to excel at specific tasks. General-purpose models are impressive, but **domain-specific fine-tuning** often delivers the best results for specialized applications.
 
 Let's get practical. For this task, it's quite simple: we want to give an LLM an image (a screenshot of some UI element on a website) and have it output a description of the image. That's it. We'll use a fixed input prompt, with the image being the only variable.
 
@@ -48,17 +58,28 @@ Let's visualize what we're trying to achieve with a simple diagram:
 
 This is a straightforward task: given an image input, generate a descriptive text output. The model needs to understand UI elements, their relationships, and be able to describe them accurately in natural language.
 
+From a technical standpoint, this involves:
+
+1. A **vision encoder** that processes the input image
+2. A **language model** that generates the descriptive output
+3. A **training process** that aligns these components using labeled examples
+
 ## Show me the data
 
-Now that we've established the task, a natural question to ask yourself is: what data will effectively represent the tasks I want the LLM to perform? Much like teaching people, you need to provide a collection of examples with inputs and expected outputs.
+Now that we've established the task, a natural question to ask yourself is: *what data will effectively represent the tasks I want the LLM to perform?* Much like teaching people, you need to provide a collection of examples with inputs and expected outputs.
 
 Before we go any further, it's good to know where you can get some free data.
 
-[insert meme about it's free data]
+![It's free data meme showing a character excitedly pointing at various data sources](/images/how_to_create_a_visual_dataset_from_session_recordings/data-meme.png)
 
-You can use Hugging Face, which hosts many excellent datasets that are already public and open-source. Alternatively, if you have raw datasets lying around from previous projects or jobs, it might be worth cleaning them up.
+You can use [Hugging Face](https://huggingface.co/), which hosts many excellent datasets that are already public and open-source [[21]](#references). Some useful datasets for UI-related tasks include:
+- The [RICO dataset](https://interactionmining.org/rico) (mobile UI screenshots)
+- The [WebSight dataset](https://github.com/microsoft/WebSight) (web UI components)
+- [Screen2Words](https://github.com/google-research-datasets/screen2words) (UI screen descriptions)
 
-I had a bunch of rrweb JSON data that I converted into images, so I'll use that.
+Alternatively, if you have raw datasets lying around from previous projects or jobs, it might be worth cleaning them up.
+
+I had a bunch of [rrweb](https://github.com/rrweb-io/rrweb) JSON data that I converted into images, so I'll use that. rrweb (*record and replay the web*) is a powerful JavaScript library that records user sessions by capturing DOM mutations, which can then be converted to videos or static images [[4]](#references).
 
 You can click [here](/posts/2025-03-09_how_to_turn_rrweb_jsons_to_videos_images_and_snapshots.qmd) to see how I created these images from rrweb.
 
@@ -72,19 +93,64 @@ Let me show you some examples of the data I worked with:
 
 ![Screenshot of a form interface with input fields and submit button](/images/how_to_create_a_visual_dataset_from_session_recordings/ui-image2.png)
 
-
-
 This variety helps ensure the model can generalize across different UI contexts and isn't overfitting to specific visual patterns.
 
-The simplest solution (though potentially time-consuming—but remember, premature optimization is the root of all evil) is to start labeling them by hand. You really only need around 10 examples from each UI screenshot. Depending on how many types of UI elements you have, you can collect anywhere from 20 to 100 examples. Don't go overboard; it's important to start small and grow once you've established a pipeline.
+From a technical perspective, processing your raw data involves several important steps:
+
+1. **Image standardization**: Resize images to consistent dimensions (e.g., 512x512 or 1024x1024 pixels)
+2. **Quality filtering**: Remove blurry, incomplete, or irrelevant screenshots
+3. **Element identification**: Clearly mark the UI elements you want the model to focus on
+4. **Metadata extraction**: Record additional information like element type, screen location, etc.
+
+> 💡 **Pro tip**: The simplest solution (though potentially time-consuming—but remember, *premature optimization is the root of all evil*) is to start labeling them by hand. You really only need around 10 examples from each UI screenshot.
+
+Depending on how many types of UI elements you have, you can collect anywhere from 20 to 100 examples. **Don't go overboard**; it's important to start small and grow once you've established a pipeline.
+
+```python
+# Example code for processing images
+import cv2
+import os
+from pathlib import Path
+
+def process_screenshots(input_dir, output_dir, target_size=(1024, 1024)):
+    """Process raw screenshots for dataset creation"""
+    Path(output_dir).mkdir(exist_ok=True, parents=True)
+    
+    for img_file in Path(input_dir).glob("*.png"):
+        # Read image
+        img = cv2.imread(str(img_file))
+        
+        # Resize to standard dimensions
+        img_resized = cv2.resize(img, target_size)
+        
+        # Save processed image
+        output_path = Path(output_dir) / img_file.name
+        cv2.imwrite(str(output_path), img_resized)
+        
+        print(f"Processed: {img_file.name}")
+
+# Usage
+process_screenshots("raw_screenshots", "processed_screenshots")
+```
 
 ![Sample screenshots from my dataset showing UI elements with red bounding boxes highlighting specific components. The left shows a navigation menu, and the right shows a form input field.](/images/how_to_create_a_visual_dataset_from_session_recordings/sample_visualizations.png)
 
-Here you can see me visiting a site and using the developer tools to create a red box or frame around the element I wanted to capture. This visual cue was added to help the LLM know where to focus its responses. This isn't strictly necessary, but I thought it might help. At the end of the day, data is what you make of it. You do hope it roughly aligns with how people will actually use it.
+Here you can see me visiting a site and using the developer tools to create a **red box or frame** around the element I wanted to capture. This visual cue was added to help the LLM know where to focus its responses. This isn't strictly necessary, but I thought it might help. At the end of the day, **data is what you make of it**. You do hope it roughly aligns with how people will actually use it.
+
+Another approach used by researchers is to create a dataset by **automatically extracting UI elements** from DOM structures [[17]](#references). This approach can scale much better than manual extraction but requires careful validation to ensure quality.
 
 ## Label and publish
 
-Once you have a folder full of images, it's time to focus on the labeling or output side. This is where you'll apply your human intuition and superior intellect. You need to write out the expected outputs for these LLMs—reference answers that you claim are the "right" answers. You have to be opinionated. It's your job to know the difference between good and bad, right and wrong. The line may be blurry, but you must hold conviction and draw that line.
+Once you have a folder full of images, it's time to focus on the labeling or output side. This is where you'll apply your human intuition and superior intellect. You need to write out the expected outputs for these LLMs—reference answers that you claim are the "right" answers. You have to be **opinionated**. It's your job to know the difference between good and bad, right and wrong. The line may be blurry, but you must hold conviction and draw that line.
+
+As an AI engineer, you should consider these best practices for labeling:
+
+1. **Consistency**: Use a consistent format and level of detail across all labels
+2. **Specificity**: Include precise descriptions of element type, visual appearance, and function
+3. **Objectivity**: Focus on observable characteristics rather than subjective interpretations
+4. **Completeness**: Cover all relevant aspects of the UI element without unnecessary information
+
+Here's an example dataset structure:
 
 ```python
 image_path,original_path,image_hash,snapshot_id,timestamp,element_id,snapshot_name,metadata,captions
@@ -93,10 +159,55 @@ example_image_2.png,example_original_2.png,hash456,2,1678890000,2,snapshot_2,"{w
 example_image_3.png,example_original_3.png,hash789,1,1678886400,3,snapshot_1,"{width: 800, height: 600}","{model_2: caption_5, model_4: caption_6}"
 ```
 
+You can literally do this in Excel if needed, but I created a notebook that used an existing LLM to label the images for me. I then modified the labels if I didn't like them. I'm not saying you have to do *all* the work yourself, but you do need to give your **stamp of approval**.
 
-You can literally do this in Excel if needed, but I created a notebook that used an existing LLM to label the images for me. I then modified the labels if I didn't like them. I'm not saying you have to do all the work yourself, but you do need to give your stamp of approval.
+Here's a simple example of using a vision-language model to generate initial captions:
 
-And finialy you push it hugging face with the following code.
+```python
+from transformers import AutoProcessor, AutoModelForCausalLM
+import torch
+from PIL import Image
+
+# Load model and processor
+processor = AutoProcessor.from_pretrained("openai/clip-vit-large-patch14")
+model = AutoModelForCausalLM.from_pretrained("microsoft/git-base")
+
+def generate_caption(image_path):
+    """Generate a caption for a UI element image using a pre-trained model"""
+    image = Image.open(image_path).convert("RGB")
+    inputs = processor(images=image, return_tensors="pt")
+    
+    # Generate caption
+    with torch.no_grad():
+        outputs = model.generate(**inputs, max_length=50)
+    
+    # Decode and return caption
+    caption = processor.decode(outputs[0], skip_special_tokens=True)
+    return caption
+
+# Process all images in a directory
+import pandas as pd
+from pathlib import Path
+
+def batch_generate_captions(image_dir):
+    """Generate captions for all images in a directory"""
+    results = []
+    
+    for img_path in Path(image_dir).glob("*.png"):
+        caption = generate_caption(img_path)
+        results.append({
+            "image_path": str(img_path),
+            "auto_caption": caption
+        })
+    
+    return pd.DataFrame(results)
+
+# Save results to CSV
+captions_df = batch_generate_captions("processed_screenshots")
+captions_df.to_csv("auto_captions.csv", index=False)
+```
+
+And finally, you push it to Hugging Face with the following code [[21]](#references):
 
 ```python
 # Install the Hugging Face datasets library if you haven't already
@@ -116,11 +227,92 @@ dataset = Dataset.from_pandas(df)
 dataset.push_to_hub("your-username/your-dataset-name", private=False)
 ```
 
+When publishing your dataset, make sure to include **comprehensive documentation**:
 
-Once your dataset is published to Hugging Face Hub, it will be available for others to use and contribute to. The platform provides version control, documentation features, and community engagement metrics to help you track how your dataset is being used.
+- Purpose and intended use cases
+- Data collection methodology
+- Preprocessing steps
+- Labeling criteria and process
+- Limitations and biases
+- Example records with explanations
+- License information
+
+Once your dataset is published to [Hugging Face Hub](https://huggingface.co/datasets), it will be available for others to use and contribute to. The platform provides **version control**, **documentation features**, and **community engagement metrics** to help you track how your dataset is being used [[21]](#references).
 
 ![Screenshot of the Hugging Face Hub interface showing a published dataset with metadata, files, and community metrics](/images/how_to_create_a_visual_dataset_from_session_recordings/huggingface-hub.png)
+
+## Advanced Dataset Management Techniques
+
+Creating a dataset is just the beginning. To maintain and improve its quality over time, consider implementing these practices:
+
+### Dataset Versioning
+Track changes to your dataset over time with proper versioning [[21]](#references). This ensures **reproducibility** and allows users to select the appropriate version for their needs.
+
+### Quality Monitoring
+Regularly evaluate your dataset for issues like **class imbalance**, **mislabeled examples**, or **outdated content**. Tools like [Great Expectations](https://greatexpectations.io/) can help automate validation checks.
+
+### Metadata Enrichment
+Continuously enhance your metadata to make the dataset more searchable and usable. This might include additional tags, categories, or performance metrics.
+
+### User Feedback Integration
+Create channels for dataset users to provide feedback and report issues. This **community input** can be invaluable for identifying edge cases and improvement opportunities.
 
 ## Conclusion
 
 That's it! You now have a dataset in Hugging Face that you can use as a building block for the next steps like evaluations, fine-tuning, and training.
+
+As an AI engineer, investing time in creating **high-quality, domain-specific datasets** is one of the most impactful activities you can undertake. While it might seem tedious compared to model architecture design or hyperparameter tuning, the quality of your data fundamentally determines what your models can learn.
+
+Remember these key takeaways:
+
+1. **Data quality trumps quantity** - a smaller, well-curated dataset often outperforms larger, noisy ones
+2. **Start small and iterate** - begin with a minimal viable dataset before scaling
+3. **Automation helps but human oversight remains crucial**
+4. **Documentation is as important as the data itself**
+5. **Sharing datasets advances the entire field**
+
+By following this guide, you've taken a significant step toward becoming a more effective AI engineer - one who understands that **great models begin with great data**.
+
+## References {#references}
+
+[1] "How to Create a Visual Dataset from Session Recordings," personal blog post.
+
+[2] "How to create dataset visualization," Labguru, [https://help.labguru.com/en/articles/8741020-how-to-create-dataset-visualization](https://help.labguru.com/en/articles/8741020-how-to-create-dataset-visualization)
+
+[3] "AMI Meeting Corpus," University of Edinburgh, [https://groups.inf.ed.ac.uk/ami/corpus/](https://groups.inf.ed.ac.uk/ami/corpus/)
+
+[4] "rrweb guide," GitHub, [https://github.com/rrweb-io/rrweb/blob/master/guide.md](https://github.com/rrweb-io/rrweb/blob/master/guide.md)
+
+[5] "How to Create and Share Datasets on the Hub," YouTube, [https://www.youtube.com/watch?v=FnqsqHpakq8](https://www.youtube.com/watch?v=FnqsqHpakq8)
+
+[6] "TagGUI: A Toolkit for Creating and Managing UI Element Datasets," GitHub, [https://github.com/jhc13/taggui](https://github.com/jhc13/taggui)
+
+[7] "Using Session Recordings Dashboard in VWO," VWO Help Center, [https://help.vwo.com/hc/en-us/articles/360020622034-Using-Session-Recordings-Dashboard-in-VWO](https://help.vwo.com/hc/en-us/articles/360020622034-Using-Session-Recordings-Dashboard-in-VWO)
+
+[8] "rrweb reading recorded events not working," Stack Overflow, [https://stackoverflow.com/questions/68990002/rrweb-reading-recorded-events-not-working](https://stackoverflow.com/questions/68990002/rrweb-reading-recorded-events-not-working)
+
+[9] "Recent advances in vision-language models," arXiv, [https://arxiv.org/html/2406.10328v1](https://arxiv.org/html/2406.10328v1)
+
+[10] "Walkthrough: Creating a Dataset with the Dataset Designer," Microsoft Learn, [https://learn.microsoft.com/en-us/visualstudio/data-tools/walkthrough-creating-a-dataset-with-the-dataset-designer?view=vs-2022](https://learn.microsoft.com/en-us/visualstudio/data-tools/walkthrough-creating-a-dataset-with-the-dataset-designer?view=vs-2022)
+
+[11] "Session Recordings," VWO Insights, [https://vwo.com/insights/session-recordings/](https://vwo.com/insights/session-recordings/)
+
+[12] "rrweb Debug Tool," [https://rrwebdebug.com](https://rrwebdebug.com)
+
+[13] "View graphical event statistics," Citrix Docs, [https://docs.citrix.com/en-us/session-recording/service/view-recordings/view-graphical-event-statistics.html](https://docs.citrix.com/en-us/session-recording/service/view-recordings/view-graphical-event-statistics.html)
+
+[14] "Vision Language Models," Sachin Abeywardana's Blog, [https://sachinruk.github.io/blog/2024-08-11-vision-language-models.html](https://sachinruk.github.io/blog/2024-08-11-vision-language-models.html)
+
+[15] "Session Recordings Guide," FigPii Blog, [https://www.figpii.com/blog/session-recordings-guide/](https://www.figpii.com/blog/session-recordings-guide/)
+
+[16] "Building Vision-Language Models," YouTube, [https://www.youtube.com/watch?v=-S20nblUuNw](https://www.youtube.com/watch?v=-S20nblUuNw)
+
+[17] "XUI: A Dataset for Understanding Cross-Platform User Interfaces," Aalto University Research, [https://research.aalto.fi/files/104922183/XUI.pdf](https://research.aalto.fi/files/104922183/XUI.pdf)
+
+[18] "Steps to Create Custom Datasets for Computer Vision," CloudFactory Blog, [https://www.cloudfactory.com/blog/steps-to-create-custom-data-sets-for-computer-vision](https://www.cloudfactory.com/blog/steps-to-create-custom-data-sets-for-computer-vision)
+
+[19] "Session Recordings Guide," Matomo, [https://matomo.org/guide/reports/session-recordings/](https://matomo.org/guide/reports/session-recordings/)
+
+[20] "How it works - Generic rrweb Recorder," Telecom Paris, [https://telecom-paris.github.io/generic-rrweb-recorder/docs/how-it-works.html](https://telecom-paris.github.io/generic-rrweb-recorder/docs/how-it-works.html)
+
+[21] "Hugging Face Datasets Documentation," Hugging Face, [https://huggingface.co/docs/datasets/en/how_to](https://huggingface.co/docs/datasets/en/how_to)
