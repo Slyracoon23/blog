@@ -1,0 +1,94 @@
+---
+aliases:
+- /how-to-create-a-visual-dataset-from-session-recordings/
+categories:
+- Dataset Preparation
+date: '2025-03-09'
+image: /images/how_to_create_a_visual_dataset_from_session_recordings/thumbnail.jpg
+title: "How to Create a Visual Dataset from Session Recordings"
+subtitle: "A step-by-step guide to transforming user session recordings into valuable training data for vision models"
+format: html
+---
+
+I have been building AI application for a while now. (Over 2 years now!) Over that time I have kind of dreaded to actually do "real" machine learning an AI work. I think since I am a developer I should not worry about data and model performance but (un)fortuanlty these models really are data oriented and aligned. If you want to understand how to get strong results with LLMs and other AI/machine learning system you will eventually have to touch data and human label it. I am sorry but it's unavoidable. 
+
+Lucky for you, We will go though an exerice of how to get from a general LLM capability to an actual data label set that will grow and hopefully become used for downstream tasks like evaluations, fine-tuning and more.
+
+
+
+## Overview
+
+Before we start, I will go throught a hypothenically real example that is actualy quite a general capability that LLM have these days. We want to use the latest models that have vision and lanaguge component and use the vision component to give us captions. 
+
+Why?!
+
+As a buisness usecase it might be valuable to take screenshots on UI elements and generate html or screenshots of websites that can generate code or even search over sites that "look" similar. Either way, this turns out to be useful and therefore valuable. 
+
+Your job is to create LLM that given a screenshot of a UI eleent should output a caption/description of that image.
+
+As a high level overview we will do the following:
+
+
+1. Define the task and capabilities of the LLM (tasks, capabilties, input -> output paradigmn)
+2. Review what kind of data we need or have (collect, sythenize, etc.)
+3. Scripts and pipeline to Collection, process, clean and store data
+4. Label your data and publish your dataset
+
+Finially, we we review what we learned and have a follow up discusion about the evolution of your dataset. Like most things, it's constantly evovling and there might be new and potentialy better ways of doing things.
+
+
+Let's begin!
+
+
+## What do we want the LLM to do?
+
+Even though this LLMs are amazing machines that can take in an instruction and output something super useful, they still make mistakes and are very much unreliable. The first biggest mistake is think that these models are useless, that is simpliy not true -- they have demostrate that they are extremely usefualy but second biggest mistake is that they can do everything. I would so dearly wish they can zero-shot startups but that's just not the case. 
+
+But we want to get practical, so what is the practical thing we want to achive in this example. For this task it's quite simple, we want to give an LLM an image of a screenshot of some UI element on website and it should output description of the image. That is it. We will fixed the input prompt but really the only varible is the image.
+
+Before
+
+Let's visualize what we're trying to achieve with a simple diagram:
+
+![A simple diagram showing the input (screenshot of UI element) going into an LLM with vision capabilities, and the output being a text description of that UI element](/images/how_to_create_a_visual_dataset_from_session_recordings/simple-llm-diagram.png)
+
+This is a straightforward task: given an image input, generate a descriptive text output. The model needs to understand UI elements, their relationships, and be able to describe them accurately in natural language.
+
+## Show me the data
+
+Ok, we have established what the task is. A natrual question you should ask yourself is: what data will be good to represent the tasks I am the LLM to do. Much like people you need to teach them by have a bunch of examples with inputs and the expected output.
+
+Before we go any furhter it's good to know where you can get some free data. 
+
+[insert meme about it's free data]
+
+You can use huggingface where there are some really nice datasets already public and in the open or if you have some raw datasets lieing around from your previous project or job it might be worth clean them up.
+
+I had a bunch of rrweb json data that I turned into images so I will just use that.
+
+You can click [here] where I show you how I created if from rrweb.
+
+
+## Process and clean your data
+
+So in this case I had a screenshot of two UI elments. Since I wanted to augment my data I wanted to create a dataset from these two images.
+
+[Show an visual of the two images using pandas dataframe]
+
+Simplest, maybe longest but pre-optimiation is the root of all evil, solution is to start labeling them by hand. You really need just around 10 examples from each UI screenshot and depending on how many screenshot of UI element you want you can get from 20 - 100 examples. Don't go overboard, it's important that you start small and grow when you estabilihed a pipeline.
+
+
+So here you see me go to a site and actualy using the dev tools I created a red box or frame from my element I wanted to take a screenshot of. This was additional visual que I wanted to add to the image so that the LLM would know where to contrasin it's anwsers. This is not strictly nessary but I thought it might help. At the end of the day Data is kind of what you make of it. You do hope to be roughly around how people will use it though.
+
+
+## Label and publish
+
+Once you have a folder full of images it's time to do the other side  and focus on the labelling or the output. This is where you will bring your human intuition and supiror intelect. You need to write out what the expected output for these LLMs. That means, you need to have a reference anwser or output that you claim is the "right" anwser. You have to be opinionated. Since it's your job to know the differnce be good and bad, and right vs evil. The line is blurry but you must hold conviction and draw the line.
+
+
+You can literaly do this in excel if you must but I have created a notebook that would use an existing LLM to label it for me. I then changed it if I didn't like it. I am not saying you have to do the work yourself but you need to give it your stamp of approval.
+
+
+## Conclusion
+
+That is it, you know have a dataset in huggingface where you can use a building block for the next steps like evals, finetuning and training.
