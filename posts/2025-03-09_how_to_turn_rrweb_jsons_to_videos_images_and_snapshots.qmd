@@ -35,26 +35,48 @@ At a high level, rrweb operates through three main components:
 
 Let's look at a simple example of how to implement rrweb recording:
 
-```javascript
-import * as rrweb from 'rrweb';
+```{ojs}
+// Import rrweb from CDN
+rrweb = require('https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js')
 
 // Array to store recorded events
-let events = [];
+events = []
 
-// Start recording
-const stopFn = rrweb.record({
-  emit(event) {
-    // Save each event to our array
-    events.push(event);
-  },
-});
+// Function to start recording
+startRecording = () => {
+  // Start recording
+  const stopFn = rrweb.record({
+    emit(event) {
+      // Save each event to our array
+      events.push(event)
+    },
+  })
+  
+  return stopFn
+}
 
-// Later, when you want to stop recording
-stopFn();
-
-// Now 'events' contains all the recorded session data
-// You can save this JSON to replay later
-console.log(events);
+// Button to start/stop recording
+viewof recordingControl = {
+  const btn = html`<button>Start Recording</button>`
+  let stopFn
+  let recording = false
+  
+  btn.onclick = () => {
+    if (!recording) {
+      stopFn = startRecording()
+      btn.textContent = "Stop Recording"
+      recording = true
+    } else {
+      stopFn()
+      btn.textContent = "Start Recording"
+      recording = false
+      // Display event count
+      console.log(`Recorded ${events.length} events`)
+    }
+  }
+  
+  return btn
+}
 ```
 
 The recorded events are stored as a series of JSON objects that describe everything from mouse movements to DOM changes. A typical event might look something like this:
@@ -74,18 +96,43 @@ The recorded events are stored as a series of JSON objects that describe everyth
 
 To replay a recorded session, you can use the Replayer class:
 
-```javascript
-import { Replayer } from 'rrweb';
+```{ojs}
+// Import from CDN if not already imported above
+rrweb = rrweb || require('https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js')
 
-// Create a replayer instance
-const replayer = new Replayer(events, {
-  root: document.getElementById('replay-container'),
-  speed: 1,
-  showMouseIndicator: true,
-});
+// Create a simple replay container
+viewof replayContainer = {
+  const container = html`<div style="width: 100%; height: 400px; border: 1px solid #ccc"></div>`
+  return container
+}
 
-// Start the replay
-replayer.play();
+// Function to create and start the replayer
+viewof replayControl = {
+  const btn = html`<button>Play Replay</button>`
+  let replayer
+  
+  btn.onclick = () => {
+    if (!events || events.length === 0) {
+      btn.textContent = "No events recorded yet"
+      return
+    }
+    
+    // Create a replayer instance if it doesn't exist
+    if (!replayer) {
+      replayer = new rrweb.Replayer(events, {
+        root: replayContainer,
+        speed: 1,
+        showMouseIndicator: true,
+      })
+      btn.textContent = "Restart Replay"
+    }
+    
+    // Start the replay
+    replayer.play()
+  }
+  
+  return btn
+}
 ```
 
 This creates an interactive replay that looks exactly like the original user session, complete with mouse movements, clicks, form inputs, and page changes.
@@ -100,5 +147,168 @@ rrweb is particularly valuable for:
 - **Analytics**: Understanding user behavior through visual session replays
 
 Now that we understand what rrweb is and how it works, let's explore how to convert these JSON recordings into different visual formats.
+
+## Converting rrweb Recordings with Observable JS
+
+While there are many ways to process rrweb recordings, one particularly powerful approach is to use Observable JS (OJS) within Quarto documents. This provides an interactive environment where you can load, process, and visualize your recordings with reactive updates.
+
+### Setting Up rrweb in Observable JS
+
+To use rrweb in Quarto's OJS cells, we first need to import the library. Since Observable JS supports ES modules, we can import rrweb directly from a CDN like jsDelivr:
+
+```{ojs}
+rrweb = require('https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js')
+rrwebPlayer = require('https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.min.js')
+
+// Also import the necessary CSS for the player
+html`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/style.css">`
+```
+
+### Loading rrweb JSON Data
+
+Next, we need to load our rrweb recordings. These are typically stored as JSON files:
+
+```{ojs}
+// Load events from a JSON file
+events = FileAttachment("../data/how_to_turn_rrweb_jsons_to_videos_images_and_snapshots/sample-recording.json").json()
+```
+
+You can also create your own data processing functions in OJS to prepare the data for visualization.
+
+### Creating an Interactive Replayer
+
+Now we can create an interactive replayer in our Quarto document:
+
+```{ojs}
+viewof player = {
+  const container = html`<div style="width: 100%; height: 600px;"></div>`;
+  
+  // Create the replayer once the container is connected to the DOM
+  container.oninit = () => {
+    const replayer = new rrwebPlayer.default({
+      target: container, // The container element
+      props: {
+        events: events,
+        width: container.clientWidth,
+        height: container.clientHeight,
+        showController: true,
+        autoPlay: false,
+        speedOption: [1, 2, 4]
+      }
+    });
+  };
+  
+  return container;
+}
+```
+
+### Generating Video Snapshots
+
+One common requirement is to convert rrweb recordings into videos. While a full video export requires running rrweb in a headless browser, we can create a series of snapshots at key moments:
+
+```{ojs}
+viewof timeSlider = Inputs.range(
+  [0, events[events.length - 1].timestamp - events[0].timestamp], 
+  {label: "Timeline position (ms):", step: 100, value: 0}
+)
+
+viewof snapshotButton = Inputs.button("Take Snapshot")
+
+snapshot = {
+  const container = html`<div style="width: 100%; height: 400px; border: 1px solid #ccc; overflow: hidden;"></div>`;
+  
+  // Initialize the replayer
+  let replayer;
+  container.oninit = () => {
+    replayer = new rrweb.Replayer(events, {
+      root: container,
+      skipInactive: true,
+    });
+    // Jump to the selected time
+    replayer.pause(timeSlider + events[0].timestamp);
+  };
+  
+  // Update when the time slider changes
+  timeSlider; // Create dependency
+  snapshotButton; // Create dependency
+  if (replayer) {
+    replayer.pause(timeSlider + events[0].timestamp);
+  }
+  
+  return container;
+}
+```
+
+### Extracting HTML Snapshots
+
+We can also extract the HTML state at any point in the recording, which is useful for creating static snapshots of the session:
+
+```{ojs}
+htmlSnapshot = {
+  // Create a temporary container for the replayer
+  const tempContainer = document.createElement('div');
+  tempContainer.style.position = 'absolute';
+  tempContainer.style.left = '-9999px';
+  document.body.appendChild(tempContainer);
+  
+  // Create a replayer
+  const tempReplayer = new rrweb.Replayer(events, {
+    root: tempContainer,
+    skipInactive: true,
+  });
+  
+  // Jump to the selected time
+  tempReplayer.pause(timeSlider + events[0].timestamp);
+  
+  // Get the HTML content
+  const html = tempContainer.innerHTML;
+  
+  // Clean up
+  document.body.removeChild(tempContainer);
+  
+  // Return HTML in a pre-formatted container
+  const output = html`<div style="height: 200px; overflow: auto; border: 1px solid #ccc; padding: 10px; background: #f5f5f5; font-family: monospace; font-size: 12px;"></div>`;
+  output.textContent = html;
+  return output;
+}
+```
+
+## Practical Applications
+
+The techniques above open up several possibilities for working with rrweb data:
+
+### 1. Batch Processing Recordings
+
+Using Python or Node.js with rrweb, you can process multiple recordings in batch to generate:
+
+- Thumbnail images at key points in each session
+- Heatmaps of user interactions across sessions
+- Short video clips of important user journeys
+
+### 2. Creating Shareable Reports
+
+By embedding rrweb players and snapshots in Quarto documents, you can create:
+
+- Interactive UX research reports
+- Customer journey analyses
+- Bug reproduction documentations
+- Training materials showing real user workflows
+
+### 3. Data Analysis and Machine Learning
+
+The event data from rrweb can be analyzed to:
+
+- Detect patterns in user behavior
+- Identify common points of confusion
+- Predict where users might encounter issues
+- Segment users based on their interaction patterns
+
+## Conclusion
+
+rrweb provides a powerful way to capture detailed web sessions without traditional screen recording. By combining it with tools like Observable JS and Quarto, we can create interactive visualizations and analyses of user sessions.
+
+Whether you're debugging customer issues, conducting UX research, or analyzing user behavior at scale, the techniques in this article should give you a solid foundation for working with rrweb recordings in various formats.
+
+In the final section, we'll look at performance considerations and best practices for implementing rrweb in production environments.
 
 
