@@ -1,251 +1,104 @@
 ---
 aliases:
-- /how-to-prepare-a-vision-dataset/
+- /how-to-turn-rrweb-jsons-to-videos-images-and-snapshots/
 categories:
-- Dataset Preparation
-date: '2025-03-06'
-image: /images/how_to_prepare_a_vision_dataset/thumbnail.jpg
-title: "How to Prepare a Vision Dataset"
-subtitle: "A comprehensive guide to collecting, cleaning, and organizing image data for computer vision models"
+- Web Recording
+- Data Conversion
+date: '2025-03-09'
+image: /images/rrweb_conversion/thumbnail.jpg
+title: "How to Turn rrweb JSONs to Videos, Images, and Snapshots"
+subtitle: "A practical guide to converting rrweb session recordings into various visual formats"
 format: html
 ---
 
-The latest trend in Large Language Models (LLMs) is increasingly toward adding multi-modality, with vision becoming an especially important mode for modern AI systems. These models need to both understand and work with visual data alongside text, creating new opportunities and challenges for AI practitioners.
+I have used PostHog for a while now. They have a bunch of features like engagement funnels and user tracking. However, one of their features that particularly was of interest to me was their session replays. The session replays look like full recordings of people's browsers as they browse your website. Can you imagine my surprise when I learned that they were not capturing your screen!? So how do they do it then? How does it look exactly like how you actually "record" your screen?
 
-![A visual representation of the dataset preparation pipeline, showing the flow from raw image collection to processed dataset ready for model evaluation.](/images/how_to_prepare_a_vision_dataset/dataset_preparation_pipeline.jpg)
+![PostHog session replay interface showing user interactions on a website](https://res.cloudinary.com/dmukukwp6/image/upload/v1/posthog.com/src/components/Product/ProductAnalytics/images/screenshot-product-analytics)
 
-This post will walk you through the comprehensive process of preparing a high-quality vision dataset. I won't go much in detail how the internal of vision models work. I recommed you watch Trelis Research videos on this topic [here](https://www.youtube.com/watch?v=f-nF-48rDIM&list=PLWG1mVtuzdxcYamFhHJjQg_TmgId6tETX).
+In this article I will go over the open-source framework of rrweb and how it on a conceptual level records our screens. Next we will create some scripts that will allow us to turn those sessions into actual videos, images, and individual HTML snapshots.
 
-Instead, I'll focus on how to create effective benchmarks for evaluation, and in subsequent blog posts, we'll explore how to leverage these datasets to fine-tune and enhance multimodal LLMs.
+Let's Begin
 
-All the code used in this article is available on Google Colab [here](https://colab.research.google.com/drive/1-_966MqWZQXyX4QvQpZksvRqdZKZKZK?usp=sharing).
+## What is rrweb?
 
-## Understanding the Dataset Requirements for Vision-Language Models
+rrweb is a JavaScript library that allows you to record and replay web pages. It is a popular tool for creating interactive web recordings and is used by many companies, including PostHog. 
 
-Before we start, let's briefly understand the type of datasets that are required for vision-language models.
+Unlike traditional screen recording tools that capture pixel data, rrweb works by recording the DOM (Document Object Model) and user interactions. This approach creates lightweight, high-fidelity recordings that can be replayed with perfect visual accuracy.
 
-![A visual representation of the dataset preparation pipeline, showing the flow from raw image collection to processed dataset ready for model evaluation.](/images/how_to_prepare_a_vision_dataset/basic-vision-architecture.png)
+### How rrweb Works
 
-*Image source: Adapted from He et al. (2023) [Efficient Multimodal Learning from Data-centric Perspective](https://arxiv.org/pdf/2402.11530)*
+At a high level, rrweb operates through three main components:
 
-A basic vision-language model consists of two components:
+1. **DOM Snapshots**: rrweb takes an initial snapshot of the page's DOM structure
+2. **Event Recording**: It records all DOM mutations and user interactions as they happen
+3. **Replay**: It reconstructs the session by applying the recorded events to the initial snapshot
 
-1.  A vision encoder that extracts features from the input image.
-2.  A language model that generates a text description of the image.
+Let's look at a simple example of how to implement rrweb recording:
 
-The vision encoder is a model that takes an image with RGB values as input and outputs a vector of fixed size. Usually, this is a pre-trained model like EVA-CLIP or ViT.
+```javascript
+import * as rrweb from 'rrweb';
 
-The language model is a model that takes a text as input and outputs a next token prediction. Usually, this is a pre-trained model like LLama or Phi or Qwen models.
+// Array to store recorded events
+let events = [];
 
-There is also a projection or cross-modality projector adapter. Essentially, it's a Multi-Layer Perceptron (MLP) that takes the feature vector from the vision encoder and projects it to the same embedding space as the language model. Think of it as an adapter that needs to be trained to bridge the gap between the vision and language modalities.
+// Start recording
+const stopFn = rrweb.record({
+  emit(event) {
+    // Save each event to our array
+    events.push(event);
+  },
+});
 
-This is the basic architecture of a vision-language model.
+// Later, when you want to stop recording
+stopFn();
 
-But we are more interested in what data is needed to train this model which will in turn tell us what data is needed to create a benchmark for evaluation.
+// Now 'events' contains all the recorded session data
+// You can save this JSON to replay later
+console.log(events);
+```
 
-## Training Data
+The recorded events are stored as a series of JSON objects that describe everything from mouse movements to DOM changes. A typical event might look something like this:
 
-The training data for a vision-language model typically consists of image-text pairs. Here's a basic example of what a training sample might look like:
-
-![A visual representation of the dataset preparation pipeline, showing the flow from raw image collection to processed dataset ready for model evaluation.](/images/how_to_prepare_a_vision_dataset/hf-laion-vision-qa-captioning.png)
-
-*Image source: [Laion-AI/hf-laion-vision-qa-captioning](https://huggingface.co/datasets/Laion-AI/hf-laion-vision-qa-captioning)*
-
-And here's a basic example of what a training sample might look like:
-
-``` json
+```javascript
 {
-  "id": "sample_001",
-  "image": "path/to/image.jpg",
-  "conversations": [
-    {
-      "from": "human",
-      "value": "<image>\nWhat can you see in this image?"
-    },
-    {
-      "from": "assistant",
-      "value": "The image shows a golden retriever puppy sitting on green grass. The puppy has light golden fur and is looking directly at the camera with its tongue slightly out. There's a red ball next to it, and trees can be seen blurred in the background. The lighting suggests it's a sunny day."
-    }
-  ]
+  type: 3, // Event type (3 represents a mouse move)
+  data: {
+    source: 0, // Source of the event
+    positions: [{x: 100, y: 200, id: 1, timeOffset: 123}] // Mouse position
+  },
+  timestamp: 1615482345678 // When the event occurred
 }
 ```
 
-Where `<image>` is a special token that tells the model that we are referring to an image.
+### Replaying Sessions
 
-This basic example is from "Efficient Multimodal Learning from Data-centric Perspective" and "SVIT: Scaling up Visual Instruction Tuning", which demonstrate similar conversation formats for vision-language model training.
+To replay a recorded session, you can use the Replayer class:
 
-## Building Your Vision Dataset
+```javascript
+import { Replayer } from 'rrweb';
 
-Now we know a little bit about the training data, it's time to build your own dataset.
+// Create a replayer instance
+const replayer = new Replayer(events, {
+  root: document.getElementById('replay-container'),
+  speed: 1,
+  showMouseIndicator: true,
+});
 
-It's generally a good idea to start with a dataset that is already available on the internet. 
-
-> Before creating your own dataset from scratch, explore platforms like Hugging Face Hub, which hosts numerous vision datasets that might suit your needs or serve as a starting point. This can save significant time and resources compared to building a dataset from the ground up.
-
-In this case I will use some videos clips I used about how I turned rrweb recordings into video. 
-
-![A video clip of a rrweb recording](/images/how_to_prepare_a_vision_dataset/rrweb-to-video.png)
-
-I have 5 video clips that I will use to create a dataset.
-
-## Labeling the Dataset
-
-So now that I have my raw data, I need to label it. This is a very important step in your dataset preparation process. This is effectively the step where you define what the model will learn or want to achieve.
-
-
-Your lables should be as objective as possible. I have a few ideas in mind of what I want to achieve.
-
-#### 1. Error detection and classification (e.g. is there an error in the video?)
-
-I want to be able to detect if there is an error in the video.
-
-In this case, given a video clip, I want to be able to detect if there is an error in the video and classify what type of error it is and when it occurs.
-
-```json
-{
-  "id": "sample_001",
-  "video": "path/to/video.mp4",
-  "has_error": true,
-  "error_details": {
-    "type": "network_timeout",
-    "severity": "critical",
-    "timestamp": "00:01:24",
-    "description": "The page failed to load due to a network timeout, showing a connection error message in red text at the top of the screen.",
-    "elements_affected": ["navigation_bar", "main_content"]
-  }
-}
+// Start the replay
+replayer.play();
 ```
 
+This creates an interactive replay that looks exactly like the original user session, complete with mouse movements, clicks, form inputs, and page changes.
 
-#### 2. User action classification (e.g. what action is the user doing?)
+### Real-World Applications
 
-I want to be able to classify if the user performed a given action or not with a confidence score.
+rrweb is particularly valuable for:
 
-In this case, I want to be able, with natural language, ask whether a user performed a given action within their user session.
+- **Debugging**: Developers can see exactly what users were doing when errors occurred
+- **UX Research**: Product teams can observe how real users interact with their websites
+- **Customer Support**: Support teams can see what customers are experiencing without screen sharing
+- **Analytics**: Understanding user behavior through visual session replays
 
-For example, I have a chatbot applicaiton and I want to know whether the user had created a specific chat.
-
-Or if I have a settings page, I want to know whether the user had toggled a specific setting.
-
-```json
-{
-  "id": "session_123",
-  "video": "path/to/replay.mp4",
-  "user_actions": [
-    {
-      "timestamp": "00:00:12",
-      "action_type": "navigation",
-      "details": "Clicked on dropdown menu then selected 'Products' option",
-      "confidence": 0.95
-    },
-    {
-      "timestamp": "00:00:38",
-      "action_type": "form_interaction",
-      "details": "Started typing in search field, deleted input, then retyped",
-      "confidence": 0.87
-    }
-  ],
-  "user_classification": {
-    "experience_level": "novice",
-    "behavior_pattern": "exploratory",
-    "engagement_level": "high",
-    "goal_orientation": "task-specific"
-  }
-}
-```
+Now that we understand what rrweb is and how it works, let's explore how to convert these JSON recordings into different visual formats.
 
 
-
-
-
-
-
-
-
-------------------------------------------------------------------------
-
-## Introduction
-
--   The importance of high-quality datasets for evaluating Vision Language Models
--   Common challenges in dataset preparation
--   Overview of the dataset preparation process
-
-## Defining Your Evaluation Goals
-
--   Identifying specific capabilities to test (object recognition, OCR, reasoning, etc.)
--   Setting clear evaluation criteria
--   Determining appropriate metrics for your use case
-
-## Dataset Collection Strategies
-
--   Sourcing diverse and representative images
--   Ethical considerations and copyright issues
--   Balancing dataset size with evaluation thoroughness
--   Creating synthetic data vs. using real-world images
-
-## Image Preprocessing and Standardization
-
--   Resolution and aspect ratio considerations
--   Color space normalization
--   Handling different image formats
--   Metadata preservation
-
-## Creating Evaluation Categories
-
--   Organizing images by visual challenge type
--   Developing a taxonomy of visual tasks
--   Ensuring balanced representation across categories
--   Example category structure:
-    -   Object identification
-    -   Scene understanding
-    -   Text recognition (OCR)
-    -   Visual reasoning
-    -   Multimodal understanding
-
-## Annotation and Ground Truth
-
--   Developing clear annotation guidelines
--   Single vs. multi-annotator approaches
--   Quality control for annotations
--   Handling subjective interpretations
--   Tools and platforms for efficient annotation
-
-## Prompt Engineering for Vision Tasks
-
--   Crafting effective prompts for visual evaluation
--   Standardizing prompt templates
--   Controlling for prompt sensitivity
--   Examples of good and poor prompts
-
-## Implementation: Dataset Management Code
-
--   Directory structure and organization
--   Metadata tracking and management
--   Version control for datasets
--   Sample code for dataset processing
-
-## Evaluation Harness Setup
-
--   Creating a reproducible evaluation environment
--   Batch processing configuration
--   Result storage and analysis
--   Cross-model comparison tools
-
-## Common Pitfalls and How to Avoid Them
-
--   Biased datasets and mitigation strategies
--   Overfitting to specific visual styles
--   Handling edge cases and adversarial examples
--   Ensuring fair model comparison
-
-## Conclusion
-
--   Best practices summary
--   Resources for further learning
--   Next steps for dataset refinement
-
-## References
-
--   He, M., Liu, Y., Wu, B., Yuan, J., Wang, Y., Huang, T., & Zhao, B. (2023). Efficient Multimodal Learning from Data-centric Perspective. *arXiv preprint arXiv:2402.11530*. <https://arxiv.org/pdf/2402.11530>
-
--   Zhao, B., Wu, B., He, M., & Huang, T. (2023). SVIT: Scaling up Visual Instruction Tuning. *arXiv preprint arXiv:2307.04087*. <https://arxiv.org/pdf/2307.04087>
