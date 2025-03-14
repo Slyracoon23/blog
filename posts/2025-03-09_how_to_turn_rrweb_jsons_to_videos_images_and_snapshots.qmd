@@ -34,48 +34,174 @@ At a high level, rrweb operates through three main components:
 2.  **Event Recording**: It records all DOM mutations and user interactions as they happen
 3.  **Replay**: It reconstructs the session by applying the recorded events to the initial snapshot
 
+![rrweb architecture diagram showing the recording and replay process](https://i.imgur.com/ZhbnoJI.png)
+
 Let's dive deeper into the technical implementation of how rrweb captures these events:
 
-#### **Initial DOM Snapshot**
+| Category | Element/Interaction | Implementation |
+|----------|---------------------|----------------|
+| **DOM Structure** | HTML Elements | All DOM elements in the page via `snapshot()` function |
+| | Text Content | Text within elements via Mutation observer |
+| | Attributes | Element attributes and properties via Mutation observer |
+| | DOM Structure Changes | Elements being added or removed via Mutation observer |
+| **User Interactions** | Mouse Movements | Cursor position tracking via Mouse/touch event listeners |
+| | Mouse Clicks | Left/right clicks on elements via Mouse interaction observer |
+| | Touch Events | Touch interactions on mobile devices via Touch event listeners |
+| | Scrolling | Vertical/horizontal scrolling via Scroll observer |
+| | Input Values | Text entered in form fields via Input observer |
+| | Focus/Blur | Element focus and blur events via Mouse interaction observer |
+| | Selection | Text selection ranges via Selection observer |
+| | Checkbox/Radio Changes | State changes of form controls via Input observer |
+| **Visual Elements** | CSS Styles | Inline and external CSS via StyleSheet rule observer |
+| | CSS Changes | Dynamic style modifications via StyleDeclaration observer |
+| | Canvas 2D | Canvas drawing operations via Canvas 2D observer |
+| | WebGL Content | WebGL canvas operations via WebGL observer |
+| | Fonts | Custom font loading via Font observer |
+| **Media** | Video Controls | Play, pause, seek, volume via Media interaction observer |
+| | Audio Controls | Play, pause, seek, volume via Media interaction observer |
+| **Viewport** | Window Resize | Browser window size changes via Viewport resize observer |
+| | Page Navigation | URL changes via Meta event recording |
+| **Advanced Elements** | Shadow DOM | Elements in shadow DOM via Shadow DOM manager |
+| | Custom Elements | Web component registration and behavior via Custom element observer |
+| | iframes | Content inside same-origin iframes via iframe manager |
+| | Cross-Origin iframes | Content inside cross-origin iframes via Cross-origin iframe manager |
+| | Adopted Stylesheets | Programmatically created stylesheets via Adopted stylesheet observer |
+| **Page State** | Scroll Position | Page and element scroll positions via Scroll observer |
+| | Element Dimensions | Size and position of elements captured during DOM changes |
+| | Visibility | Element visibility changes via Attribute mutation tracking |
+| **Custom Data** | Developer Events | Custom events defined by developers via Custom event API |
+| | Plugin Data | Data from custom plugins via Plugin architecture |
 
-| Process Component | Description |
-|-------------------|-------------|
-| **Document Traversal** | Full traversal of entire document structure |
-| **Element Attributes** | All attributes and values are captured |
-| **Style Information** | CSS and computed styles are recorded |
-| **Structural Hierarchy** | DOM tree structure is preserved |
-
-*This initial snapshot creates the foundation for all subsequent changes.*
-
-#### **Event Recording System**
-
-Once the baseline is established, rrweb employs various observers to track changes:
-
-| Category | Observer Type | What It Captures |
-|----------|--------------|------------------|
-| **DOM Mutations** | MutationObserver | • Structure changes<br>• Node additions/removals<br>• Attribute modifications<br>• Text content changes<br>• Element rearrangement<br>• Inline style updates |
-| **User Interactions** | Event Listeners | • Mouse movements (with timestamps)<br>• Clicks, double-clicks, context menus<br>• Scrolling (viewport and elements)<br>• Input events (typing, form interactions)<br>• Touch events (mobile gestures) |
-| **Visual State Changes** | Custom Observers | • Viewport resizing<br>• StyleSheet rule changes<br>• Canvas operations (2D/WebGL)<br>• Media interactions (audio/video)<br>• CSS animations and transitions |
-| **Special Features** | Specialized Trackers | • Font loading events<br>• Shadow DOM content<br>• Custom elements behavior<br>• Cross-origin iframe content<br>• Text selection states<br>• Network resource timing |
-
-#### **Event Types**
-
-| Event Type | Description |
-|------------|-------------|
-| **Full Snapshots** | Complete DOM state captures |
-| **Incremental Events** | Small changes that happened between snapshots |
-| **Meta Events** | Recording metadata and configuration |
-| **Custom Events** | User-defined markers and data points |
+This comprehensive architecture allows rrweb to capture virtually every aspect of a web application, ensuring high-fidelity replays with minimal overhead. Each event is precisely timestamped and organized to maintain the exact sequence of user interactions and visual changes.
 
 ::: {.callout-note}
 This architecture captures virtually every aspect of a web application, ensuring high-fidelity replays with minimal overhead. Each event is precisely timestamped and organized to maintain the exact sequence of user interactions and visual changes.
 :::
 
+### Understanding RRWeb's Data Serialization Process
 
+All of this sophisticated capturing is made possible through rrweb's powerful data serialization system. Let's peek under the hood to understand how rrweb converts complex browser events into storable JSON formats.
+
+When rrweb records a session, it creates a sequence of serialized events. Each event is a JSON object with a specific structure:
+
+```javascript
+{
+  type: EventType, // Numeric identifier for the event type
+  data: {/* Event-specific data */},
+  timestamp: 1615482345678 // Unix timestamp when the event occurred
+  sessionId: "1234567890" // Unique identifier for the session
+}
+```
+
+Let's examine how different aspects of a web session are encoded:
+
+#### DOM Structure Serialization
+
+The initial DOM snapshot is one of the most complex parts of the recording:
+
+```javascript
+{
+  type: 2, // FullSnapshot event
+  data: {
+    node: {
+      type: 1, // Element node
+      tagName: "html",
+      attributes: {/* HTML attributes */},
+      childNodes: [/* Recursive tree of DOM nodes */]
+    },
+    initialOffset: {
+      left: 0,
+      top: 0
+    }
+  },
+  timestamp: 1615482345678,
+  sessionId: "1234567890"
+}
+```
+
+Each DOM node receives a unique ID, which is then referenced in subsequent events rather than repeating the entire node information. This "mirror system" is key to keeping data sizes manageable.
+
+#### User Interactions
+
+Mouse movements, clicks, and other user interactions are captured as incremental events:
+
+```javascript
+{
+  type: 3, // IncrementalSnapshot event
+  data: {
+    source: 1, // MouseMove event source
+    positions: [
+      {x: 100, y: 200, id: 42, timeOffset: 123} // Mouse position
+    ]
+  },
+  timestamp: 1615482345678,
+  sessionId: "1234567890"
+}
+```
+
+For high-frequency events like mouse movements, rrweb employs sampling techniques to reduce data size while maintaining visual fidelity.
+
+#### DOM Changes
+
+As users interact with the page, rrweb records only the changes to the DOM rather than full snapshots:
+
+```javascript
+{
+  type: 3, // IncrementalSnapshot event
+  data: {
+    source: 0, // Mutation event
+    adds: [/* Elements added to the DOM */],
+    removes: [/* Elements removed from the DOM */],
+    texts: [/* Text content changes */],
+    attributes: [/* Attribute modifications */]
+  },
+  timestamp: 1615482345678,
+  sessionId: "1234567890"
+}
+```
+
+This incremental update approach drastically reduces data size compared to capturing full DOM snapshots repeatedly.
+
+#### Advanced Features
+
+rrweb also handles complex browser features like Canvas operations, WebGL content, CSS changes, and Shadow DOM:
+
+```javascript
+{
+  type: 3, // IncrementalSnapshot event
+  data: {
+    source: 7, // CanvasMutation
+    id: 45, // Canvas element ID
+    commands: [
+      {
+        property: "fillStyle",
+        args: ["#ff0000"],
+        setter: true
+      },
+      {
+        property: "fillRect",
+        args: [0, 0, 100, 100]
+      }
+    ]
+  },
+  timestamp: 1615482345678,
+  sessionId: "1234567890"
+}
+```
+
+The serialization process follows a consistent pattern:
+1. Browser events trigger rrweb observer callbacks
+2. These callbacks format the data into standardized event objects
+3. Events are timestamped and wrapped as `eventWithTime` objects
+4. The data is serialized to a JSON-compatible format
+5. Optional compression may be applied
+6. Finally, the data is emitted through the provided callback
+
+This elegant serialization system is what enables rrweb to capture the complete essence of a web session with remarkably small data sizes, typically just kilobytes per minute of recording.
 
 ## Implementing rrweb in Your Project
 
-Now that we understand how rrweb works, let's implement it in a real project. We'll cover:
+Now that we understand how rrweb works and how it serializes data, let's implement it in a real project. We'll cover:
 
 1. Recording sessions
 2. Saving the recordings
