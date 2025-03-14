@@ -13,15 +13,16 @@ format: html
 
 I have used PostHog for a while now. They have a bunch of features like engagement funnels and user tracking. However, one of their features that particularly was of interest to me was their session replays. The session replays look like full recordings of people's browsers as they browse your website. Can you imagine my surprise when I learned that they were not capturing your screen!? So how do they do it then? How does it look exactly like how you actually "record" your screen?
 
-![PostHog session replay interface showing user interactions on a website](https://res.cloudinary.com/dmukukwp6/image/upload/v1/posthog.com/src/components/Product/ProductAnalytics/images/screenshot-product-analytics)
+![PostHog session replay interface showing user interactions on a website](https://posthog.com/images/og/session-replay.jpg)
 
 In this article I will go over the open-source framework of rrweb and how it on a conceptual level records our screens. Next we will create some scripts that will allow us to turn those sessions into actual videos, images, and individual HTML snapshots.
+
 
 Let's Begin
 
 ## What is rrweb?
 
-rrweb is a JavaScript library that allows you to record and replay web pages. It is a popular tool for creating interactive web recordings and is used by many companies, including PostHog. 
+[rrweb](https://github.com/rrweb-io/rrweb) is an open-source JavaScript library that allows you to record and replay web sessions with high fidelity. The name "rrweb" stands for "record and replay the web." With over 17,000 GitHub stars, it's a popular tool used by many companies including PostHog, LogRocket, FullStory, and Hotjar for their session replay features.
 
 Unlike traditional screen recording tools that capture pixel data, rrweb works by recording the DOM (Document Object Model) and user interactions. This approach creates lightweight, high-fidelity recordings that can be replayed with perfect visual accuracy.
 
@@ -29,59 +30,95 @@ Unlike traditional screen recording tools that capture pixel data, rrweb works b
 
 At a high level, rrweb operates through three main components:
 
-1. **DOM Snapshots**: rrweb takes an initial snapshot of the page's DOM structure
-2. **Event Recording**: It records all DOM mutations and user interactions as they happen
-3. **Replay**: It reconstructs the session by applying the recorded events to the initial snapshot
+1.  **DOM Snapshots**: rrweb takes an initial snapshot of the page's DOM structure
+2.  **Event Recording**: It records all DOM mutations and user interactions as they happen
+3.  **Replay**: It reconstructs the session by applying the recorded events to the initial snapshot
 
-Let's look at a simple example of how to implement rrweb recording:
+``` jsx
+// First, install the packages with:
+// npm install rrweb rrweb-player
 
-```{ojs}
-// Import rrweb from CDN
-rrweb = require('https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js')
+// In your React component:
+import { record } from 'rrweb';
+import rrwebPlayer from 'rrweb-player';
+import 'rrweb-player/dist/style.css';
+```
 
-// Array to store recorded events
-events = []
+Let's look at a simple example of how to implement rrweb recording in a React application:
 
-// Function to start recording
-startRecording = () => {
-  // Start recording
-  const stopFn = rrweb.record({
-    emit(event) {
-      // Save each event to our array
-      events.push(event)
-    },
-  })
+``` jsx
+import { useState, useEffect } from 'react';
+import { record } from 'rrweb';
+
+function RecordingComponent() {
+  const [recording, setRecording] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [eventCount, setEventCount] = useState(0);
   
-  return stopFn
-}
-
-// Button to start/stop recording
-viewof recordingControl = {
-  const btn = html`<button>Start Recording</button>`
-  let stopFn
-  let recording = false
-  
-  btn.onclick = () => {
+  // Function to handle recording
+  const toggleRecording = () => {
     if (!recording) {
-      stopFn = startRecording()
-      btn.textContent = "Stop Recording"
-      recording = true
+      // Clear previous recordings
+      setEvents([]);
+      setEventCount(0);
+      
+      // Start recording
+      const stopFn = record({
+        emit(event) {
+          setEvents(prevEvents => [...prevEvents, event]);
+        },
+      });
+      
+      // Save the stop function
+      setRecording({
+        stopFn,
+        interval: setInterval(() => {
+          setEventCount(events.length);
+        }, 1000)
+      });
     } else {
-      stopFn()
-      btn.textContent = "Start Recording"
-      recording = false
-      // Display event count
-      console.log(`Recorded ${events.length} events`)
+      // Stop recording
+      if (recording.stopFn) recording.stopFn();
+      if (recording.interval) clearInterval(recording.interval);
+      setRecording(false);
     }
-  }
+  };
   
-  return btn
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (recording && recording.stopFn) recording.stopFn();
+      if (recording && recording.interval) clearInterval(recording.interval);
+    };
+  }, [recording]);
+  
+  return (
+    <div>
+      <button 
+        onClick={toggleRecording}
+        style={{
+          backgroundColor: recording ? "#f44336" : "",
+          color: recording ? "white" : ""
+        }}
+      >
+        {recording ? "Stop Recording" : "Start Recording"}
+      </button>
+      
+      <div style={{ marginTop: '5px', fontSize: '14px', color: recording ? "#f44336" : "green" }}>
+        {recording 
+          ? `Recording in progress... (${eventCount} events)` 
+          : events.length > 0 
+            ? `Recording stopped. ${events.length} events captured.` 
+            : "Ready to record"}
+      </div>
+    </div>
+  );
 }
 ```
 
 The recorded events are stored as a series of JSON objects that describe everything from mouse movements to DOM changes. A typical event might look something like this:
 
-```javascript
+``` javascript
 {
   type: 3, // Event type (3 represents a mouse move)
   data: {
@@ -94,182 +131,340 @@ The recorded events are stored as a series of JSON objects that describe everyth
 
 ### Replaying Sessions
 
-To replay a recorded session, you can use the Replayer class:
+To replay a recorded session in React, you can use the Replayer component:
 
-```{ojs}
-// Import from CDN if not already imported above
-rrweb = rrweb || require('https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js')
+``` jsx
+import { useRef, useEffect } from 'react';
+import { Replayer } from 'rrweb';
 
-// Create a simple replay container
-viewof replayContainer = {
-  const container = html`<div style="width: 100%; height: 400px; border: 1px solid #ccc"></div>`
-  return container
-}
-
-// Function to create and start the replayer
-viewof replayControl = {
-  const btn = html`<button>Play Replay</button>`
-  let replayer
+function ReplayComponent({ events }) {
+  const replayerRef = useRef(null);
+  const containerRef = useRef(null);
   
-  btn.onclick = () => {
-    if (!events || events.length === 0) {
-      btn.textContent = "No events recorded yet"
-      return
-    }
+  useEffect(() => {
+    // Don't create the replayer if there are no events
+    if (!events || events.length === 0) return;
     
-    // Create a replayer instance if it doesn't exist
-    if (!replayer) {
-      replayer = new rrweb.Replayer(events, {
-        root: replayContainer,
-        speed: 1,
-        showMouseIndicator: true,
-      })
-      btn.textContent = "Restart Replay"
-    }
+    // Create the replayer
+    const replayer = new Replayer(events, {
+      root: containerRef.current,
+      speed: 1,
+      showMouseIndicator: true,
+    });
     
-    // Start the replay
-    replayer.play()
-  }
+    // Save reference
+    replayerRef.current = replayer;
+    
+    // Clean up
+    return () => {
+      // Cleanup if needed
+    };
+  }, [events]);
   
-  return btn
+  const handlePlay = () => {
+    if (replayerRef.current) {
+      replayerRef.current.play();
+    }
+  };
+  
+  return (
+    <div>
+      <button onClick={handlePlay}>Play Replay</button>
+      <div 
+        ref={containerRef} 
+        style={{ width: '100%', height: '400px', border: '1px solid #ccc' }}
+      />
+    </div>
+  );
 }
 ```
 
-This creates an interactive replay that looks exactly like the original user session, complete with mouse movements, clicks, form inputs, and page changes.
+For a more feature-rich player with built-in controls, you can use the rrweb-player package:
 
-### Real-World Applications
+``` jsx
+import { useRef, useEffect } from 'react';
+import rrwebPlayer from 'rrweb-player';
+import 'rrweb-player/dist/style.css';
 
-rrweb is particularly valuable for:
-
-- **Debugging**: Developers can see exactly what users were doing when errors occurred
-- **UX Research**: Product teams can observe how real users interact with their websites
-- **Customer Support**: Support teams can see what customers are experiencing without screen sharing
-- **Analytics**: Understanding user behavior through visual session replays
-
-Now that we understand what rrweb is and how it works, let's explore how to convert these JSON recordings into different visual formats.
-
-## Converting rrweb Recordings with Observable JS
-
-While there are many ways to process rrweb recordings, one particularly powerful approach is to use Observable JS (OJS) within Quarto documents. This provides an interactive environment where you can load, process, and visualize your recordings with reactive updates.
-
-### Setting Up rrweb in Observable JS
-
-To use rrweb in Quarto's OJS cells, we first need to import the library. Since Observable JS supports ES modules, we can import rrweb directly from a CDN like jsDelivr:
-
-```{ojs}
-rrweb = require('https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js')
-rrwebPlayer = require('https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.min.js')
-
-// Also import the necessary CSS for the player
-html`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/style.css">`
-```
-
-### Loading rrweb JSON Data
-
-Next, we need to load our rrweb recordings. These are typically stored as JSON files:
-
-```{ojs}
-// Load events from a JSON file
-events = FileAttachment("../data/how_to_turn_rrweb_jsons_to_videos_images_and_snapshots/sample-recording.json").json()
-```
-
-You can also create your own data processing functions in OJS to prepare the data for visualization.
-
-### Creating an Interactive Replayer
-
-Now we can create an interactive replayer in our Quarto document:
-
-```{ojs}
-viewof player = {
-  const container = html`<div style="width: 100%; height: 600px;"></div>`;
+function RRWebPlayerComponent({ events }) {
+  const containerRef = useRef(null);
   
-  // Create the replayer once the container is connected to the DOM
-  container.oninit = () => {
-    const replayer = new rrwebPlayer.default({
-      target: container, // The container element
+  useEffect(() => {
+    if (!events || events.length === 0 || !containerRef.current) return;
+    
+    // Clear the container first
+    containerRef.current.innerHTML = '';
+    
+    // Create the player
+    const player = new rrwebPlayer({
+      target: containerRef.current,
       props: {
-        events: events,
-        width: container.clientWidth,
-        height: container.clientHeight,
+        events,
+        width: containerRef.current.clientWidth,
+        height: 600,
         showController: true,
         autoPlay: false,
         speedOption: [1, 2, 4]
       }
     });
-  };
+    
+    return () => {
+      // Clean up if needed
+      if (player && player.destroy) player.destroy();
+    };
+  }, [events]);
   
-  return container;
+  return (
+    <div ref={containerRef} style={{ width: '100%' }} />
+  );
+}
+```
+
+### Real-World Applications
+
+rrweb is particularly valuable for:
+
+-   **Debugging**: Developers can see exactly what users were doing when errors occurred
+-   **UX Research**: Product teams can observe how real users interact with their websites
+-   **Customer Support**: Support teams can see what customers are experiencing without screen sharing
+-   **Analytics**: Understanding user behavior through visual session replays
+
+Now that we understand what rrweb is and how it works, let's explore how to convert these JSON recordings into different visual formats.
+
+## Converting rrweb Recordings in React Applications
+
+Let's look at how to process rrweb recordings using React components and hooks.
+
+### Loading rrweb JSON Data
+
+Here's how you might load and process rrweb events in a React application:
+
+``` jsx
+import { useState, useEffect } from 'react';
+
+function EventLoader({ url, onEventsLoaded }) {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    async function loadEvents() {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        setEvents(data);
+        if (onEventsLoaded) onEventsLoaded(data);
+      } catch (err) {
+        console.error('Error loading events:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadEvents();
+  }, [url, onEventsLoaded]);
+  
+  return (
+    <div>
+      {loading && <p>Loading events...</p>}
+      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {!loading && !error && events.length > 0 && (
+        <p>Loaded {events.length} events</p>
+      )}
+    </div>
+  );
 }
 ```
 
 ### Generating Video Snapshots
 
-One common requirement is to convert rrweb recordings into videos. While a full video export requires running rrweb in a headless browser, we can create a series of snapshots at key moments:
+Here's a React component to create snapshots at different points in the recording:
 
-```{ojs}
-viewof timeSlider = Inputs.range(
-  [0, events[events.length - 1].timestamp - events[0].timestamp], 
-  {label: "Timeline position (ms):", step: 100, value: 0}
-)
+``` jsx
+import { useState, useRef, useEffect } from 'react';
+import { Replayer } from 'rrweb';
+import html2canvas from 'html2canvas'; // You'll need to install this: npm install html2canvas
 
-viewof snapshotButton = Inputs.button("Take Snapshot")
-
-snapshot = {
-  const container = html`<div style="width: 100%; height: 400px; border: 1px solid #ccc; overflow: hidden;"></div>`;
+function SnapshotGenerator({ events }) {
+  const [currentTime, setCurrentTime] = useState(0);
+  const [timeRange, setTimeRange] = useState({ min: 0, max: 1000 });
+  const containerRef = useRef(null);
+  const replayerRef = useRef(null);
   
-  // Initialize the replayer
-  let replayer;
-  container.oninit = () => {
-    replayer = new rrweb.Replayer(events, {
-      root: container,
+  useEffect(() => {
+    if (!events || events.length === 0 || !containerRef.current) return;
+    
+    // Calculate time range
+    const startTime = events[0].timestamp;
+    const endTime = events[events.length - 1].timestamp;
+    setTimeRange({ min: 0, max: endTime - startTime });
+    
+    // Create replayer
+    const replayer = new Replayer(events, {
+      root: containerRef.current,
       skipInactive: true,
     });
-    // Jump to the selected time
-    replayer.pause(timeSlider + events[0].timestamp);
+    
+    replayerRef.current = replayer;
+    
+    // Set initial frame
+    updateSnapshot(0);
+    
+    return () => {
+      // Any cleanup needed
+    };
+  }, [events]);
+  
+  const updateSnapshot = (time) => {
+    if (!replayerRef.current || !events || events.length === 0) return;
+    
+    const absoluteTime = events[0].timestamp + parseInt(time);
+    replayerRef.current.pause(absoluteTime);
+    setCurrentTime(time);
   };
   
-  // Update when the time slider changes
-  timeSlider; // Create dependency
-  snapshotButton; // Create dependency
-  if (replayer) {
-    replayer.pause(timeSlider + events[0].timestamp);
-  }
+  const takeSnapshot = async () => {
+    if (!containerRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(containerRef.current);
+      const screenshot = canvas.toDataURL('image/png');
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `snapshot-${currentTime}.png`;
+      link.href = screenshot;
+      link.click();
+    } catch (error) {
+      console.error('Error taking snapshot:', error);
+    }
+  };
   
-  return container;
+  return (
+    <div>
+      <div>
+        <label htmlFor="timeline">Timeline position (ms): {currentTime}</label>
+        <input 
+          type="range" 
+          id="timeline" 
+          min={timeRange.min} 
+          max={timeRange.max} 
+          step="100" 
+          value={currentTime}
+          onChange={(e) => updateSnapshot(e.target.value)}
+          style={{ width: '100%' }}
+        />
+      </div>
+      
+      <button onClick={takeSnapshot} style={{ marginTop: '10px' }}>
+        Take Snapshot
+      </button>
+      
+      <div 
+        ref={containerRef} 
+        style={{ 
+          width: '100%', 
+          height: '400px', 
+          border: '1px solid #ccc',
+          marginTop: '10px',
+          overflow: 'hidden'
+        }}
+      />
+    </div>
+  );
 }
 ```
 
 ### Extracting HTML Snapshots
 
-We can also extract the HTML state at any point in the recording, which is useful for creating static snapshots of the session:
+We can also extract the HTML state at any point in the recording using React:
 
-```{ojs}
-htmlSnapshot = {
-  // Create a temporary container for the replayer
-  const tempContainer = document.createElement('div');
-  tempContainer.style.position = 'absolute';
-  tempContainer.style.left = '-9999px';
-  document.body.appendChild(tempContainer);
+``` jsx
+import { useState, useEffect } from 'react';
+import { Replayer } from 'rrweb';
+
+function HtmlExtractor({ events }) {
+  const [time, setTime] = useState(0);
+  const [htmlContent, setHtmlContent] = useState('');
   
-  // Create a replayer
-  const tempReplayer = new rrweb.Replayer(events, {
-    root: tempContainer,
-    skipInactive: true,
-  });
+  const extractHtml = () => {
+    if (!events || events.length === 0) {
+      setHtmlContent('No events available');
+      return;
+    }
+    
+    // Create a temporary container for the replayer
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    document.body.appendChild(tempContainer);
+    
+    // Calculate the absolute time
+    const startTime = events[0].timestamp;
+    const absoluteTime = startTime + parseInt(time);
+    
+    // Create a replayer
+    const tempReplayer = new Replayer(events, {
+      root: tempContainer,
+      skipInactive: true,
+    });
+    
+    // Jump to the selected time
+    tempReplayer.pause(absoluteTime);
+    
+    // Get the HTML content after a short delay to ensure rendering
+    setTimeout(() => {
+      // Get the HTML content
+      const content = tempContainer.innerHTML;
+      setHtmlContent(content);
+      
+      // Clean up
+      document.body.removeChild(tempContainer);
+    }, 100);
+  };
   
-  // Jump to the selected time
-  tempReplayer.pause(timeSlider + events[0].timestamp);
-  
-  // Get the HTML content
-  const html = tempContainer.innerHTML;
-  
-  // Clean up
-  document.body.removeChild(tempContainer);
-  
-  // Return HTML in a pre-formatted container
-  const output = html`<div style="height: 200px; overflow: auto; border: 1px solid #ccc; padding: 10px; background: #f5f5f5; font-family: monospace; font-size: 12px;"></div>`;
-  output.textContent = html;
-  return output;
+  return (
+    <div>
+      <div>
+        <label htmlFor="time-input">Time position (ms):</label>
+        <input 
+          id="time-input"
+          type="number" 
+          min="0" 
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          style={{ marginLeft: '10px' }}
+        />
+        <button 
+          onClick={extractHtml}
+          style={{ marginLeft: '10px' }}
+        >
+          Extract HTML
+        </button>
+      </div>
+      
+      {htmlContent && (
+        <pre
+          style={{
+            height: '200px',
+            overflow: 'auto',
+            border: '1px solid #ccc',
+            padding: '10px',
+            background: '#f5f5f5',
+            fontFamily: 'monospace',
+            fontSize: '12px',
+            marginTop: '10px'
+          }}
+        >
+          {htmlContent}
+        </pre>
+      )}
+    </div>
+  );
 }
 ```
 
@@ -279,36 +474,34 @@ The techniques above open up several possibilities for working with rrweb data:
 
 ### 1. Batch Processing Recordings
 
-Using Python or Node.js with rrweb, you can process multiple recordings in batch to generate:
+Using Node.js with rrweb, you can process multiple recordings in batch to generate:
 
-- Thumbnail images at key points in each session
-- Heatmaps of user interactions across sessions
-- Short video clips of important user journeys
+-   Thumbnail images at key points in each session
+-   Heatmaps of user interactions across sessions
+-   Short video clips of important user journeys
 
 ### 2. Creating Shareable Reports
 
-By embedding rrweb players and snapshots in Quarto documents, you can create:
+By embedding rrweb players and snapshots in React applications, you can create:
 
-- Interactive UX research reports
-- Customer journey analyses
-- Bug reproduction documentations
-- Training materials showing real user workflows
+-   Interactive UX research reports
+-   Customer journey analyses
+-   Bug reproduction documentations
+-   Training materials showing real user workflows
 
 ### 3. Data Analysis and Machine Learning
 
 The event data from rrweb can be analyzed to:
 
-- Detect patterns in user behavior
-- Identify common points of confusion
-- Predict where users might encounter issues
-- Segment users based on their interaction patterns
+-   Detect patterns in user behavior
+-   Identify common points of confusion
+-   Predict where users might encounter issues
+-   Segment users based on their interaction patterns
 
 ## Conclusion
 
-rrweb provides a powerful way to capture detailed web sessions without traditional screen recording. By combining it with tools like Observable JS and Quarto, we can create interactive visualizations and analyses of user sessions.
+rrweb provides a powerful way to capture detailed web sessions without traditional screen recording. By integrating it with React applications, we can create interactive visualizations and analyses of user sessions.
 
 Whether you're debugging customer issues, conducting UX research, or analyzing user behavior at scale, the techniques in this article should give you a solid foundation for working with rrweb recordings in various formats.
 
 In the final section, we'll look at performance considerations and best practices for implementing rrweb in production environments.
-
-
