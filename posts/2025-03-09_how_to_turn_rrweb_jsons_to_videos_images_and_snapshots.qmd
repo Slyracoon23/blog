@@ -36,64 +36,57 @@ At a high level, rrweb operates through three main components:
 
 Let's dive deeper into the technical implementation of how rrweb captures these events:
 
-#### Initial DOM Snapshot
+#### **Initial DOM Snapshot**
 
-When recording begins, rrweb creates a complete serialized representation of the page's DOM:
+| Process Component | Description |
+|-------------------|-------------|
+| **Document Traversal** | Full traversal of entire document structure |
+| **Element Attributes** | All attributes and values are captured |
+| **Style Information** | CSS and computed styles are recorded |
+| **Structural Hierarchy** | DOM tree structure is preserved |
 
-**DOM Serialization Process**
+*This initial snapshot creates the foundation for all subsequent changes.*
 
-* **Document Traversal**: It traverses the entire document structure
-* **Element Attributes**: Captures all element attributes and their values
-* **Style Information**: Records CSS styles and computed styles
-* **Structural Hierarchy**: Preserves the structural hierarchy of the document
-
-This initial snapshot serves as the foundation upon which all subsequent changes are applied.
-
-#### Event Recording System
+#### **Event Recording System**
 
 Once the baseline is established, rrweb employs various observers to track changes:
 
-**DOM Mutations**
+| Category | Observer Type | What It Captures |
+|----------|--------------|------------------|
+| **DOM Mutations** | MutationObserver | • Structure changes<br>• Node additions/removals<br>• Attribute modifications<br>• Text content changes<br>• Element rearrangement<br>• Inline style updates |
+| **User Interactions** | Event Listeners | • Mouse movements (with timestamps)<br>• Clicks, double-clicks, context menus<br>• Scrolling (viewport and elements)<br>• Input events (typing, form interactions)<br>• Touch events (mobile gestures) |
+| **Visual State Changes** | Custom Observers | • Viewport resizing<br>• StyleSheet rule changes<br>• Canvas operations (2D/WebGL)<br>• Media interactions (audio/video)<br>• CSS animations and transitions |
+| **Special Features** | Specialized Trackers | • Font loading events<br>• Shadow DOM content<br>• Custom elements behavior<br>• Cross-origin iframe content<br>• Text selection states<br>• Network resource timing |
 
-* Uses MutationObserver to watch all changes to DOM structure
-* Tracks node additions, removals, and attribute changes
-* Records text content modifications
-* Monitors elements being inserted, removed, or rearranged
-* Captures changes to inline styles and attributes
+#### **Event Types**
 
-**User Interactions**
+| Event Type | Description |
+|------------|-------------|
+| **Full Snapshots** | Complete DOM state captures |
+| **Incremental Events** | Small changes that happened between snapshots |
+| **Meta Events** | Recording metadata and configuration |
+| **Custom Events** | User-defined markers and data points |
 
-* **Mouse Movements**: Records cursor positions with timestamps and throttles for efficiency
-* **Mouse Events**: Captures clicks, double-clicks, context menus, focus, and blur events
-* **Scrolling**: Tracks scroll positions for the viewport and all scrollable elements
-* **Input Events**: Records typing, selections, checkboxes, radio buttons, and form interactions
-* **Touch Events**: Supports mobile touch interactions including multi-touch gestures
+::: {.callout-note}
+This architecture captures virtually every aspect of a web application, ensuring high-fidelity replays with minimal overhead. Each event is precisely timestamped and organized to maintain the exact sequence of user interactions and visual changes.
+:::
 
-**Visual State Changes**
 
-* **Viewport Resize**: Records changes to window dimensions and orientation
-* **StyleSheet Rules**: Captures additions and removals of CSS rules in stylesheets
-* **Canvas Operations**: Records drawing commands on both 2D and WebGL canvas contexts
-* **Media Interactions**: Tracks play, pause, volume, and seeking actions for audio/video elements
-* **CSS Animations**: Preserves CSS animation states and transitions
 
-**Special Features**
+## Implementing rrweb in Your Project
 
-* **Font Loading**: Monitors custom font loading to ensure text renders correctly
-* **Shadow DOM**: Captures encapsulated shadow root content while maintaining boundaries
-* **Custom Elements**: Records definitions and behaviors of web components
-* **Cross-origin Iframes**: Supports recording content in iframes (with proper configuration)
-* **Selection States**: Tracks text selection ranges and focus areas
-* **Network Resource Timing**: Records resource loading performance for key assets
+Now that we understand how rrweb works, let's implement it in a real project. We'll cover:
 
-**Event Types**
+1. Recording sessions
+2. Saving the recordings
+3. Replaying recordings
+4. Converting recordings to videos and images
 
-* **Full Snapshots**: Complete DOM state captures
-* **Incremental Events**: Small changes that happened between snapshots
-* **Meta Events**: Recording metadata and configuration
-* **Custom Events**: User-defined markers and data points
+### Basic Recording Implementation
 
-This rich event-based architecture allows rrweb to capture virtually every aspect of a web application, ensuring high-fidelity replays with minimal overhead. Each event is precisely timestamped and organized to maintain the exact sequence of user interactions and visual changes.
+First, let's set up a basic recording mechanism:
+
+
 
 ``` jsx
 // First, install the packages with:
