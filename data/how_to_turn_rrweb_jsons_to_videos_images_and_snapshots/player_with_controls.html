@@ -42,6 +42,14 @@
     #playerContainer {
       width: 100%;
       margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #ccc;
+    }
+    
+    #noEventsMessage {
+      padding: 20px;
+      text-align: center;
     }
   </style>
   <!-- Load rrweb player CSS -->
@@ -51,15 +59,15 @@
   <h1>rrweb Player with Controls</h1>
   
   <div class="container">
-    <h3>Load Events</h3>
-    <button id="loadFromStorageButton">Load from Storage</button>
-    <div>
-      <textarea id="eventsInput" placeholder="Paste rrweb events JSON here..."></textarea>
-      <button id="loadFromTextButton">Load from Text</button>
-    </div>
+    <h3>Paste rrweb events JSON:</h3>
+    <textarea id="eventsInput" placeholder="Paste rrweb events JSON here..."></textarea>
+    <button id="loadButton">Load</button>
+    <button id="playButton">Play</button>
   </div>
   
-  <div id="playerContainer"></div>
+  <div id="playerContainer">
+    <div id="noEventsMessage">No events loaded yet.</div>
+  </div>
   
   <!-- Load rrweb and rrweb-player from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js"></script>
@@ -67,10 +75,11 @@
   
   <script>
     // DOM Elements
-    const loadFromStorageButton = document.getElementById('loadFromStorageButton');
-    const loadFromTextButton = document.getElementById('loadFromTextButton');
+    const loadButton = document.getElementById('loadButton');
+    const playButton = document.getElementById('playButton');
     const eventsInput = document.getElementById('eventsInput');
     const playerContainer = document.getElementById('playerContainer');
+    const noEventsMessage = document.getElementById('noEventsMessage');
     
     // Global variables
     let player = null;
@@ -91,35 +100,21 @@
             height: 600,
             showController: true,
             autoPlay: false,
-            speedOption: [1, 2, 4]
+            speedOption: [1, 2, 4],
+            showMouseIndicator: true
           }
         });
         
         console.log('Player initialized with', eventsList.length, 'events');
       } else {
-        playerContainer.innerHTML = '<p>No events loaded. Please load events first.</p>';
-      }
-    }
-    
-    // Load from localStorage
-    function loadFromStorage() {
-      try {
-        const storedEvents = localStorage.getItem('rrweb-events');
-        if (storedEvents) {
-          events = JSON.parse(storedEvents);
-          console.log(`Loaded ${events.length} events from localStorage`);
-          initializePlayer(events);
-        } else {
-          alert('No recorded events found in localStorage');
-        }
-      } catch (e) {
-        console.error('Error loading events from localStorage:', e);
-        alert('Error loading events from localStorage');
+        // Show message if no events
+        playerContainer.innerHTML = '';
+        playerContainer.appendChild(noEventsMessage);
       }
     }
     
     // Load from text input
-    function loadFromText() {
+    function loadEvents() {
       try {
         const inputText = eventsInput.value.trim();
         if (inputText) {
@@ -135,16 +130,18 @@
       }
     }
     
-    // Event listeners
-    loadFromStorageButton.addEventListener('click', loadFromStorage);
-    loadFromTextButton.addEventListener('click', loadFromText);
-    
-    // Try to load events from localStorage on page load
-    document.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('rrweb-events')) {
-        loadFromStorage();
+    // Play replay
+    function playEvents() {
+      if (player) {
+        player.play();
+      } else {
+        alert('Please load events first');
       }
-    });
+    }
+    
+    // Event listeners
+    loadButton.addEventListener('click', loadEvents);
+    playButton.addEventListener('click', playEvents);
   </script>
 </body>
 </html> 
