@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rrweb Basic Replay Example</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    button {
+      padding: 10px 16px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      background-color: #f0f0f0;
+    }
+    
+    #replayContainer {
+      width: 100%;
+      height: 400px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      position: relative;
+    }
+    
+    #controls {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+    }
+    
+    #noEventsMessage {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    }
+    
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-top: 10px;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>rrweb Basic Replay Example</h1>
+  
+  <div>
+    <h3>Replay Controls</h3>
+    <div id="controls">
+      <button id="playButton">Play</button>
+      <button id="pauseButton">Pause</button>
+      <button id="loadFromStorageButton">Load from Storage</button>
+    </div>
+  </div>
+  
+  <div>
+    <h3>Or paste your rrweb events JSON here:</h3>
+    <textarea id="eventsInput" placeholder="Paste rrweb events JSON here..."></textarea>
+    <button id="loadFromTextButton">Load from Text</button>
+  </div>
+  
+  <div id="replayContainer">
+    <div id="noEventsMessage">No events loaded. Load events to see replay.</div>
+  </div>
+  
+  <!-- Load rrweb from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js"></script>
+  
+  <script>
+    // DOM Elements
+    const playButton = document.getElementById('playButton');
+    const pauseButton = document.getElementById('pauseButton');
+    const loadFromStorageButton = document.getElementById('loadFromStorageButton');
+    const loadFromTextButton = document.getElementById('loadFromTextButton');
+    const eventsInput = document.getElementById('eventsInput');
+    const replayContainer = document.getElementById('replayContainer');
+    const noEventsMessage = document.getElementById('noEventsMessage');
+    
+    // Global variables
+    let replayer = null;
+    let events = [];
+    
+    // Initialize replayer
+    function initializeReplayer(eventsList) {
+      // Clear previous replayer if exists
+      replayContainer.innerHTML = '';
+      if (eventsList && eventsList.length > 0) {
+        noEventsMessage.style.display = 'none';
+        
+        // Create replayer
+        replayer = new rrweb.Replayer(eventsList, {
+          root: replayContainer,
+          speed: 1,
+          showMouseIndicator: true,
+        });
+      } else {
+        // Show message if no events
+        replayContainer.innerHTML = '';
+        replayContainer.appendChild(noEventsMessage);
+        noEventsMessage.style.display = 'block';
+      }
+    }
+    
+    // Play replay
+    function playReplay() {
+      if (replayer) {
+        replayer.play();
+      }
+    }
+    
+    // Pause replay
+    function pauseReplay() {
+      if (replayer) {
+        replayer.pause();
+      }
+    }
+    
+    // Load from localStorage
+    function loadFromStorage() {
+      try {
+        const storedEvents = localStorage.getItem('rrweb-events');
+        if (storedEvents) {
+          events = JSON.parse(storedEvents);
+          console.log(`Loaded ${events.length} events from localStorage`);
+          initializeReplayer(events);
+        } else {
+          alert('No recorded events found in localStorage');
+        }
+      } catch (e) {
+        console.error('Error loading events from localStorage:', e);
+        alert('Error loading events from localStorage');
+      }
+    }
+    
+    // Load from text input
+    function loadFromText() {
+      try {
+        const inputText = eventsInput.value.trim();
+        if (inputText) {
+          events = JSON.parse(inputText);
+          console.log(`Loaded ${events.length} events from text input`);
+          initializeReplayer(events);
+        } else {
+          alert('Please paste valid rrweb events JSON');
+        }
+      } catch (e) {
+        console.error('Error parsing events from text input:', e);
+        alert('Invalid JSON format. Please check your input.');
+      }
+    }
+    
+    // Event listeners
+    playButton.addEventListener('click', playReplay);
+    pauseButton.addEventListener('click', pauseReplay);
+    loadFromStorageButton.addEventListener('click', loadFromStorage);
+    loadFromTextButton.addEventListener('click', loadFromText);
+    
+    // Try to load events from localStorage on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('rrweb-events')) {
+        loadFromStorage();
+      }
+    });
+  </script>
+</body>
+</html> 
