@@ -3,27 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>rrweb Basic Replay Example</title>
+  <title>Simple rrweb Player</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      font-family: sans-serif;
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
     }
     
     button {
-      padding: 10px 16px;
-      font-size: 16px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      cursor: pointer;
+      padding: 8px 12px;
       margin-right: 10px;
-      transition: all 0.3s;
-    }
-    
-    button:hover {
-      background-color: #f0f0f0;
+      cursor: pointer;
     }
     
     #replayContainer {
@@ -32,50 +24,49 @@
       border: 1px solid #ccc;
       margin-top: 20px;
       position: relative;
+      overflow: hidden;
     }
     
-    #controls {
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
+    .replayer-mouse {
+      position: absolute;
+      z-index: 100;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+    }
+    
+    #replayContainer iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin: 10px 0;
     }
     
     #noEventsMessage {
       padding: 20px;
       text-align: center;
-      color: #666;
-    }
-    
-    textarea {
-      width: 100%;
-      height: 150px;
-      margin-top: 10px;
-      padding: 8px;
-      font-family: monospace;
-      font-size: 12px;
     }
   </style>
 </head>
 <body>
-  <h1>rrweb Basic Replay Example</h1>
+  <h1>Simple rrweb Player</h1>
   
   <div>
-    <h3>Replay Controls</h3>
-    <div id="controls">
-      <button id="playButton">Play</button>
-      <button id="pauseButton">Pause</button>
-      <button id="loadFromStorageButton">Load from Storage</button>
-    </div>
-  </div>
-  
-  <div>
-    <h3>Or paste your rrweb events JSON here:</h3>
+    <h3>Paste rrweb events JSON:</h3>
     <textarea id="eventsInput" placeholder="Paste rrweb events JSON here..."></textarea>
-    <button id="loadFromTextButton">Load from Text</button>
+    <button id="loadButton">Load</button>
+    <button id="playButton">Play</button>
   </div>
   
   <div id="replayContainer">
-    <div id="noEventsMessage">No events loaded. Load events to see replay.</div>
+    <div id="noEventsMessage">No events loaded yet.</div>
   </div>
   
   <!-- Load rrweb from CDN -->
@@ -84,96 +75,58 @@
   <script>
     // DOM Elements
     const playButton = document.getElementById('playButton');
-    const pauseButton = document.getElementById('pauseButton');
-    const loadFromStorageButton = document.getElementById('loadFromStorageButton');
-    const loadFromTextButton = document.getElementById('loadFromTextButton');
+    const loadButton = document.getElementById('loadButton');
     const eventsInput = document.getElementById('eventsInput');
     const replayContainer = document.getElementById('replayContainer');
     const noEventsMessage = document.getElementById('noEventsMessage');
     
-    // Global variables
+    // Global variable for replayer
     let replayer = null;
-    let events = [];
     
     // Initialize replayer
-    function initializeReplayer(eventsList) {
-      // Clear previous replayer if exists
+    function initializeReplayer(events) {
+      // Clear previous replayer
       replayContainer.innerHTML = '';
-      if (eventsList && eventsList.length > 0) {
-        noEventsMessage.style.display = 'none';
-        
-        // Create replayer
-        replayer = new rrweb.Replayer(eventsList, {
+      
+      if (events && events.length > 0) {
+        // Create replayer with improved options
+        replayer = new rrweb.Replayer(events, {
           root: replayContainer,
-          speed: 1,
           showMouseIndicator: true,
+          mouseTail: {
+            strokeStyle: 'rgba(75, 151, 255, 0.5)', // Light blue mouse trail
+            lineWidth: 2,
+            duration: 500 // Duration of the trail in ms
+          }
         });
       } else {
         // Show message if no events
         replayContainer.innerHTML = '';
         replayContainer.appendChild(noEventsMessage);
-        noEventsMessage.style.display = 'block';
       }
     }
     
-    // Play replay
-    function playReplay() {
-      if (replayer) {
-        replayer.play();
-      }
-    }
-    
-    // Pause replay
-    function pauseReplay() {
-      if (replayer) {
-        replayer.pause();
-      }
-    }
-    
-    // Load from localStorage
-    function loadFromStorage() {
-      try {
-        const storedEvents = localStorage.getItem('rrweb-events');
-        if (storedEvents) {
-          events = JSON.parse(storedEvents);
-          console.log(`Loaded ${events.length} events from localStorage`);
-          initializeReplayer(events);
-        } else {
-          alert('No recorded events found in localStorage');
-        }
-      } catch (e) {
-        console.error('Error loading events from localStorage:', e);
-        alert('Error loading events from localStorage');
-      }
-    }
-    
-    // Load from text input
-    function loadFromText() {
+    // Load events from textarea
+    loadButton.addEventListener('click', () => {
       try {
         const inputText = eventsInput.value.trim();
         if (inputText) {
-          events = JSON.parse(inputText);
-          console.log(`Loaded ${events.length} events from text input`);
+          const events = JSON.parse(inputText);
           initializeReplayer(events);
         } else {
           alert('Please paste valid rrweb events JSON');
         }
       } catch (e) {
-        console.error('Error parsing events from text input:', e);
         alert('Invalid JSON format. Please check your input.');
       }
-    }
+    });
     
-    // Event listeners
-    playButton.addEventListener('click', playReplay);
-    pauseButton.addEventListener('click', pauseReplay);
-    loadFromStorageButton.addEventListener('click', loadFromStorage);
-    loadFromTextButton.addEventListener('click', loadFromText);
-    
-    // Try to load events from localStorage on page load
-    document.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('rrweb-events')) {
-        loadFromStorage();
+    // Play replay
+    playButton.addEventListener('click', () => {
+      if (replayer) {
+        replayer.play();
+      } else {
+        alert('Please load events first');
       }
     });
   </script>

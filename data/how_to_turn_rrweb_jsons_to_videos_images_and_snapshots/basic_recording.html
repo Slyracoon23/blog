@@ -38,17 +38,55 @@
     .stopped-status {
       color: green;
     }
+    
+    #eventsJson {
+      height: 400px;
+      overflow: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background: #f5f5f5;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    #copyButton {
+      margin-top: 0;
+      background-color: #4285f4;
+      color: white;
+      border-color: #2a75f3;
+    }
+    
+    #copyButton:hover {
+      background-color: #2a75f3;
+    }
+    
+    .copy-success {
+      color: green;
+      margin-left: 10px;
+      display: inline-block;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .copy-success.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
   <h1>rrweb Recording Example</h1>
   
-  <button id="recordButton">Start Recording</button>
+  <div style="display: flex; align-items: center;">
+    <button id="recordButton">Start Recording</button>
+    <button id="copyButton" style="display: none; margin-left: 10px;">Copy to Clipboard</button>
+    <span id="copySuccess" class="copy-success">Copied!</span>
+  </div>
   <div id="status">Ready to record</div>
   
   <div id="eventsOutput" style="margin-top: 20px; display: none;">
     <h3>Recorded Events (JSON):</h3>
-    <pre id="eventsJson" style="height: 200px; overflow: auto; border: 1px solid #ccc; padding: 10px; background: #f5f5f5;"></pre>
+    <pre id="eventsJson"></pre>
   </div>
   
   <!-- Load rrweb from CDN -->
@@ -66,6 +104,33 @@
     const statusElement = document.getElementById('status');
     const eventsOutput = document.getElementById('eventsOutput');
     const eventsJson = document.getElementById('eventsJson');
+    const copyButton = document.getElementById('copyButton');
+    const copySuccess = document.getElementById('copySuccess');
+    
+    // Function to copy JSON to clipboard
+    function copyToClipboard() {
+      // Create a temporary textarea to copy from
+      const textarea = document.createElement('textarea');
+      textarea.value = JSON.stringify(events, null, 2);
+      document.body.appendChild(textarea);
+      textarea.select();
+      
+      try {
+        // Execute copy command
+        document.execCommand('copy');
+        // Show success message
+        copySuccess.classList.add('show');
+        setTimeout(() => {
+          copySuccess.classList.remove('show');
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy to clipboard');
+      }
+      
+      // Remove temporary textarea
+      document.body.removeChild(textarea);
+    }
     
     // Function to toggle recording state
     function toggleRecording() {
@@ -78,6 +143,7 @@
         recordButton.classList.add('recording');
         statusElement.textContent = 'Recording in progress... (0 events)';
         statusElement.className = 'recording-status';
+        copyButton.style.display = 'none';
         
         // Start rrweb recording
         stopFn = rrweb.record({
@@ -113,7 +179,10 @@
         // Display captured events
         if (events.length > 0) {
           eventsOutput.style.display = 'block';
-          eventsJson.textContent = JSON.stringify(events, null, 2).substring(0, 1000) + '... (truncated)';
+          eventsJson.textContent = JSON.stringify(events, null, 2);
+          
+          // Show copy button
+          copyButton.style.display = 'inline-block';
           
           // Store in localStorage (optional)
           try {
@@ -130,6 +199,7 @@
     
     // Event listeners
     recordButton.addEventListener('click', toggleRecording);
+    copyButton.addEventListener('click', copyToClipboard);
     
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
