@@ -93,6 +93,60 @@ When rrweb records a session, it creates a sequence of serialized events. Each e
 }
 ```
 
+#### RRWeb Event Type Numerical Values
+
+To make the serialized data more compact, rrweb uses numerical values instead of strings to identify different types of events. Here's what these numbers represent:
+
+```javascript
+// Main event types
+{
+  DomContentLoaded: 0,
+  Load: 1,
+  FullSnapshot: 2,
+  IncrementalSnapshot: 3,
+  Meta: 4,
+  Custom: 5,
+  Plugin: 6
+}
+
+// Incremental snapshot sources (used when type = 3)
+{
+  Mutation: 0,           // DOM changes
+  MouseMove: 1,          // Mouse movement
+  MouseInteraction: 2,   // Mouse clicks, focus, blur, etc.
+  Scroll: 3,             // Scrolling
+  ViewportResize: 4,     // Window resizing
+  Input: 5,              // Input field changes
+  TouchMove: 6,          // Touch screen movement
+  MediaInteraction: 7,   // Video/audio player interactions
+  StyleSheetRule: 8,     // CSS rule changes
+  CanvasMutation: 9,     // Canvas drawing operations
+  Font: 10,              // Font loading
+  Log: 11,               // Console logs
+  Drag: 12,              // Drag and drop
+  StyleDeclaration: 13,  // Inline style changes
+  Selection: 14,         // Text selection
+  AdoptedStyleSheet: 15, // Constructed stylesheets
+  CustomElement: 16      // Web Components
+}
+
+// Mouse interaction types (used when source = 2)
+{
+  MouseUp: 0,
+  MouseDown: 1,
+  Click: 2,
+  ContextMenu: 3,
+  DblClick: 4,
+  Focus: 5,
+  Blur: 6,
+  TouchStart: 7,
+  TouchEnd: 9,
+  TouchCancel: 10
+}
+```
+
+These numerical identifiers appear throughout the serialized events and are crucial for correctly interpreting the recording data during replay.
+
 Let's examine how different aspects of a web session are encoded:
 
 #### DOM Structure Serialization
@@ -190,6 +244,7 @@ rrweb also handles complex browser features like Canvas operations, WebGL conten
 ```
 
 The serialization process follows a consistent pattern:
+
 1. Browser events trigger rrweb observer callbacks
 2. These callbacks format the data into standardized event objects
 3. Events are timestamped and wrapped as `eventWithTime` objects
@@ -199,9 +254,124 @@ The serialization process follows a consistent pattern:
 
 This elegant serialization system is what enables rrweb to capture the complete essence of a web session with remarkably small data sizes, typically just kilobytes per minute of recording.
 
+### Understanding RRWeb's Deserialization Process
+
+After recording and storing these events, rrweb needs to transform them back into a visual experience. Let's examine how the deserialization and replay process works.
+
+#### How RRWeb Deserializes and Replays Events
+
+The replay process involves several sophisticated steps:
+
+##### 1. Initialization and Setup
+
+When creating a Replayer instance, the following happens:
+
+```javascript
+const replayer = new Replayer(events, options);
+```
+
+- An iframe is created to serve as an isolated environment for the replay
+- A "mirror" system is initialized to map serialized node IDs to actual DOM nodes
+- Events are sorted chronologically by timestamp
+- Timers are prepared to handle the playback timing
+
+##### 2. Initial DOM Reconstruction
+
+The first critical step is rebuilding the DOM from the initial snapshot:
+
+```javascript
+// Conceptual code of what happens internally
+function rebuildFullSnapshot(event) {
+  // Create DOM nodes from the serialized snapshot
+  const rootNode = createFromSerializedNode(event.data.node);
+  
+  // Insert into the iframe document
+  iframeDocument.documentElement.replaceWith(rootNode);
+  
+  // Restore initial scroll position
+  iframeWindow.scrollTo(event.data.initialOffset);
+}
+```
+
+This process recursively builds actual DOM elements from the serialized node tree, preserving all attributes, text content, and parent-child relationships.
+
+##### 3. Incremental Event Application
+
+Once the DOM is established, the replayer processes each incremental event based on its type:
+
+- **DOM Mutations**: Adds, removes, or modifies elements in the DOM
+- **Mouse Movements**: Updates cursor position and hover states
+- **Inputs**: Changes form field values
+- **Scrolling**: Adjusts scroll positions
+- **Canvas Operations**: Reapplies drawing commands to canvas elements
+
+For example, a mouse movement event is processed like this:
+
+```javascript
+// Simplified internal processing
+function applyMouseMove(event) {
+  const { positions } = event.data;
+  
+  positions.forEach(position => {
+    // Move the mouse cursor visual element
+    mouseCursor.style.left = `${position.x}px`;
+    mouseCursor.style.top = `${position.y}px`;
+    
+    // Update hover state if needed
+    if (position.id) {
+      const targetElement = mirror.getNode(position.id);
+      if (targetElement) {
+        // Simulate hover effects
+        updateElementHoverState(targetElement);
+      }
+    }
+  });
+}
+```
+
+##### 4. Timing and Playback Control
+
+A sophisticated timing system ensures events are replayed with the correct timing relationships:
+
+```javascript
+// Simplified timer mechanism
+function scheduleEvents(events) {
+  const baseTime = events[0].timestamp;
+  
+  events.forEach(event => {
+    const delay = event.timestamp - baseTime;
+    setTimeout(() => applyEvent(event), delay * playbackSpeed);
+  });
+}
+```
+
+This allows for features like:
+- Variable playback speed (1x, 2x, 4x)
+- Pausing at specific timestamps
+- Jumping to particular points in the recording
+
+##### 5. Special Case Handling
+
+Several types of content require special handling:
+
+- **Images**: Recreated from encoded data or loaded from URLs
+- **Canvas**: Drawing commands are reapplied to the canvas context
+- **Stylesheets**: CSS rules are reinserted in the correct order
+- **Iframes**: Content is rebuilt within nested browsing contexts
+- **Input Masking**: Sensitive data might be masked during replay
+
+##### 6. Optimization Techniques
+
+For performance, especially during fast-forwarding, the replayer uses several optimizations:
+
+- **Virtual DOM**: Can apply events to a lightweight virtual representation first
+- **Batched Updates**: Groups DOM operations for better performance
+- **Lazy Loading**: Defers loading of non-essential resources
+- **Event Sampling**: May skip redundant events during high-speed playback
+
 ## Implementing rrweb in Your Project
 
-Now that we understand how rrweb works and how it serializes data, let's implement it in a real project. We'll cover:
+Now that we understand how rrweb works, how it serializes data, and how it replays sessions, let's implement it in a real project. We'll cover:
 
 1. Recording sessions
 2. Saving the recordings
