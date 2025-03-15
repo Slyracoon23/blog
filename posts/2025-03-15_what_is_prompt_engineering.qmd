@@ -95,6 +95,30 @@ Here are some key prompt engineering techniques that can significantly improve y
 
 As LLMs continue to evolve, these fundamental techniques provide a solid foundation for effectively leveraging these powerful tools across various applications.
 
+## Interactive Prompt Engineering Demo
+
+To help illustrate the dramatic impact different prompt engineering techniques can have on model outputs, I've created an interactive demo that you can run locally. This demo allows you to:
+
+1. Compare multiple prompt engineering techniques side-by-side
+2. Test the same query across different free LLMs via OpenRouter
+3. See in real-time how varying your prompts affects model outputs
+4. Learn about various prompt engineering strategies and when to use them
+
+![Screenshot of the Prompt Engineering Demo](../images/what_is_prompt_engineering/demo_screenshot.jpg)
+
+### Try It Yourself
+
+The demo is available in the [data/what_is_prompt_engineering](https://github.com/yourusername/blog/tree/main/data/what_is_prompt_engineering) directory of this blog's repository. To run it:
+
+1. Clone the repository
+2. Navigate to the demo directory
+3. Install the required dependencies: `pip install -r requirements.txt`
+4. Get a free API key from [OpenRouter](https://openrouter.ai/)
+5. Create a `.env` file with your API key
+6. Run `python prompt_engineering_demo.py`
+
+This hands-on experience allows you to experiment with different prompt techniques and see for yourself how small changes in prompt formulation can lead to substantially different outputs.
+
 ## Drawbacks and Limitations of Prompt Engineering
 
 While prompt engineering offers powerful capabilities, it also comes with significant limitations and challenges:
