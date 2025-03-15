@@ -446,7 +446,7 @@ First, let's set up a basic recording mechanism. Here's the HTML code for a simp
 
 Try it out yourself:
 
-<iframe src="/data/how_to_turn_rrweb_jsons_to_videos_images_and_snapshots/basic_recording.html" width="100%" height="500px" frameborder="0">
+<iframe src="/data/what_is_rrweb/basic_recording.html" width="100%" height="500px" frameborder="0">
 
 </iframe>
 
@@ -532,7 +532,7 @@ To replay a recorded session, you can use a basic replayer like this:
 
 See it in action:
 
-<iframe src="/data/how_to_turn_rrweb_jsons_to_videos_images_and_snapshots/basic_replay.html" width="100%" height="650px" frameborder="0">
+<iframe src="/data/what_is_rrweb/basic_replay.html" width="100%" height="650px" frameborder="0">
 
 </iframe>
 
