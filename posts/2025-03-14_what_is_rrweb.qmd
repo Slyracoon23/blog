@@ -1,0 +1,617 @@
+---
+aliases:
+- /what-is-rrweb/
+categories:
+- Web Recording
+- Data Conversion
+date: '2025-03-14'
+image: /images/what_is_rrweb/thumbnail.png
+title: "What is rrweb?"
+subtitle: "A practical guide to understanding rrweb, a JavaScript library for recording and replaying web sessions"
+format: html
+---
+
+I have used PostHog for a while now. They have a bunch of features like engagement funnels and user tracking. However, one of their features that particularly was of interest to me was their session replays. The session replays look like full recordings of people's browsers as they browse your website. Can you imagine my surprise when I learned that they were not capturing your screen!? So how do they do it then? How does it look exactly like how you actually "record" your screen?
+
+![PostHog session replay interface showing user interactions on a website](https://posthog.com/images/og/session-replay.jpg)
+
+In this article I will go over the open-source framework of rrweb and how it on a conceptual level records our screens. Next we will create some scripts that will allow us to turn those sessions into actual videos, images, and individual HTML snapshots.
+
+
+Let's Begin
+
+## What is rrweb?
+
+[rrweb](https://github.com/rrweb-io/rrweb) is an open-source JavaScript library that allows you to record and replay web sessions with high fidelity. The name "rrweb" stands for "record and replay the web." With over 17,000 GitHub stars, it's a popular tool used by many companies including PostHog, LogRocket, FullStory, and Hotjar for their session replay features.
+
+Unlike traditional screen recording tools that capture pixel data, rrweb works by recording the DOM (Document Object Model) and user interactions. This approach creates lightweight, high-fidelity recordings that can be replayed with perfect visual accuracy.
+
+### How rrweb Works
+
+At a high level, rrweb operates through three main components:
+
+1.  **DOM Snapshots**: rrweb takes an initial snapshot of the page's DOM structure
+2.  **Event Recording**: It records all DOM mutations and user interactions as they happen
+3.  **Replay**: It reconstructs the session by applying the recorded events to the initial snapshot
+
+![rrweb architecture diagram showing the recording and replay process](https://i.imgur.com/ZhbnoJI.png)
+
+Let's dive deeper into the technical implementation of how rrweb captures these events:
+
+| Category | Element/Interaction | Implementation |
+|----------|---------------------|----------------|
+| **DOM Structure** | HTML Elements | All DOM elements in the page via `snapshot()` function |
+| | Text Content | Text within elements via Mutation observer |
+| | Attributes | Element attributes and properties via Mutation observer |
+| | DOM Structure Changes | Elements being added or removed via Mutation observer |
+| **User Interactions** | Mouse Movements | Cursor position tracking via Mouse/touch event listeners |
+| | Mouse Clicks | Left/right clicks on elements via Mouse interaction observer |
+| | Touch Events | Touch interactions on mobile devices via Touch event listeners |
+| | Scrolling | Vertical/horizontal scrolling via Scroll observer |
+| | Input Values | Text entered in form fields via Input observer |
+| | Focus/Blur | Element focus and blur events via Mouse interaction observer |
+| | Selection | Text selection ranges via Selection observer |
+| | Checkbox/Radio Changes | State changes of form controls via Input observer |
+| **Visual Elements** | CSS Styles | Inline and external CSS via StyleSheet rule observer |
+| | CSS Changes | Dynamic style modifications via StyleDeclaration observer |
+| | Canvas 2D | Canvas drawing operations via Canvas 2D observer |
+| | WebGL Content | WebGL canvas operations via WebGL observer |
+| | Fonts | Custom font loading via Font observer |
+| **Media** | Video Controls | Play, pause, seek, volume via Media interaction observer |
+| | Audio Controls | Play, pause, seek, volume via Media interaction observer |
+| **Viewport** | Window Resize | Browser window size changes via Viewport resize observer |
+| | Page Navigation | URL changes via Meta event recording |
+| **Advanced Elements** | Shadow DOM | Elements in shadow DOM via Shadow DOM manager |
+| | Custom Elements | Web component registration and behavior via Custom element observer |
+| | iframes | Content inside same-origin iframes via iframe manager |
+| | Cross-Origin iframes | Content inside cross-origin iframes via Cross-origin iframe manager |
+| | Adopted Stylesheets | Programmatically created stylesheets via Adopted stylesheet observer |
+| **Page State** | Scroll Position | Page and element scroll positions via Scroll observer |
+| | Element Dimensions | Size and position of elements captured during DOM changes |
+| | Visibility | Element visibility changes via Attribute mutation tracking |
+| **Custom Data** | Developer Events | Custom events defined by developers via Custom event API |
+| | Plugin Data | Data from custom plugins via Plugin architecture |
+
+This comprehensive architecture allows rrweb to capture virtually every aspect of a web application, ensuring high-fidelity replays with minimal overhead. Each event is precisely timestamped and organized to maintain the exact sequence of user interactions and visual changes.
+
+::: {.callout-note}
+This architecture captures virtually every aspect of a web application, ensuring high-fidelity replays with minimal overhead. Each event is precisely timestamped and organized to maintain the exact sequence of user interactions and visual changes.
+:::
+
+### Understanding RRWeb's Data Serialization Process
+
+All of this sophisticated capturing is made possible through rrweb's powerful data serialization system. Let's peek under the hood to understand how rrweb converts complex browser events into storable JSON formats.
+
+When rrweb records a session, it creates a sequence of serialized events. Each event is a JSON object with a specific structure:
+
+```javascript
+{
+  type: EventType, // Numeric identifier for the event type
+  data: {/* Event-specific data */},
+  timestamp: 1615482345678 // Unix timestamp when the event occurred
+  sessionId: "1234567890" // Unique identifier for the session
+}
+```
+
+#### RRWeb Event Type Numerical Values
+
+To make the serialized data more compact, rrweb uses numerical values instead of strings to identify different types of events. Here's what these numbers represent:
+
+```javascript
+// Main event types
+{
+  DomContentLoaded: 0,
+  Load: 1,
+  FullSnapshot: 2,
+  IncrementalSnapshot: 3,
+  Meta: 4,
+  Custom: 5,
+  Plugin: 6
+}
+
+// Incremental snapshot sources (used when type = 3)
+{
+  Mutation: 0,           // DOM changes
+  MouseMove: 1,          // Mouse movement
+  MouseInteraction: 2,   // Mouse clicks, focus, blur, etc.
+  Scroll: 3,             // Scrolling
+  ViewportResize: 4,     // Window resizing
+  Input: 5,              // Input field changes
+  TouchMove: 6,          // Touch screen movement
+  MediaInteraction: 7,   // Video/audio player interactions
+  StyleSheetRule: 8,     // CSS rule changes
+  CanvasMutation: 9,     // Canvas drawing operations
+  Font: 10,              // Font loading
+  Log: 11,               // Console logs
+  Drag: 12,              // Drag and drop
+  StyleDeclaration: 13,  // Inline style changes
+  Selection: 14,         // Text selection
+  AdoptedStyleSheet: 15, // Constructed stylesheets
+  CustomElement: 16      // Web Components
+}
+
+// Mouse interaction types (used when source = 2)
+{
+  MouseUp: 0,
+  MouseDown: 1,
+  Click: 2,
+  ContextMenu: 3,
+  DblClick: 4,
+  Focus: 5,
+  Blur: 6,
+  TouchStart: 7,
+  TouchEnd: 9,
+  TouchCancel: 10
+}
+```
+
+These numerical identifiers appear throughout the serialized events and are crucial for correctly interpreting the recording data during replay.
+
+Let's examine how different aspects of a web session are encoded:
+
+#### DOM Structure Serialization
+
+The initial DOM snapshot is one of the most complex parts of the recording:
+
+```javascript
+{
+  type: 2, // FullSnapshot event
+  data: {
+    node: {
+      type: 1, // Element node
+      tagName: "html",
+      attributes: {/* HTML attributes */},
+      childNodes: [/* Recursive tree of DOM nodes */]
+    },
+    initialOffset: {
+      left: 0,
+      top: 0
+    }
+  },
+  timestamp: 1615482345678,
+  sessionId: "1234567890"
+}
+```
+
+Each DOM node receives a unique ID, which is then referenced in subsequent events rather than repeating the entire node information. This "mirror system" is key to keeping data sizes manageable.
+
+#### User Interactions
+
+Mouse movements, clicks, and other user interactions are captured as incremental events:
+
+```javascript
+{
+  type: 3, // IncrementalSnapshot event
+  data: {
+    source: 1, // MouseMove event source
+    positions: [
+      {x: 100, y: 200, id: 42, timeOffset: 123} // Mouse position
+    ]
+  },
+  timestamp: 1615482345678,
+  sessionId: "1234567890"
+}
+```
+
+For high-frequency events like mouse movements, rrweb employs sampling techniques to reduce data size while maintaining visual fidelity.
+
+#### DOM Changes
+
+As users interact with the page, rrweb records only the changes to the DOM rather than full snapshots:
+
+```javascript
+{
+  type: 3, // IncrementalSnapshot event
+  data: {
+    source: 0, // Mutation event
+    adds: [/* Elements added to the DOM */],
+    removes: [/* Elements removed from the DOM */],
+    texts: [/* Text content changes */],
+    attributes: [/* Attribute modifications */]
+  },
+  timestamp: 1615482345678,
+  sessionId: "1234567890"
+}
+```
+
+This incremental update approach drastically reduces data size compared to capturing full DOM snapshots repeatedly.
+
+#### Advanced Features
+
+rrweb also handles complex browser features like Canvas operations, WebGL content, CSS changes, and Shadow DOM:
+
+```javascript
+{
+  type: 3, // IncrementalSnapshot event
+  data: {
+    source: 7, // CanvasMutation
+    id: 45, // Canvas element ID
+    commands: [
+      {
+        property: "fillStyle",
+        args: ["#ff0000"],
+        setter: true
+      },
+      {
+        property: "fillRect",
+        args: [0, 0, 100, 100]
+      }
+    ]
+  },
+  timestamp: 1615482345678,
+  sessionId: "1234567890"
+}
+```
+
+The serialization process follows a consistent pattern:
+
+1. Browser events trigger rrweb observer callbacks
+2. These callbacks format the data into standardized event objects
+3. Events are timestamped and wrapped as `eventWithTime` objects
+4. The data is serialized to a JSON-compatible format
+5. Optional compression may be applied
+6. Finally, the data is emitted through the provided callback
+
+This elegant serialization system is what enables rrweb to capture the complete essence of a web session with remarkably small data sizes, typically just kilobytes per minute of recording.
+
+### Understanding RRWeb's Deserialization Process
+
+After recording and storing these events, rrweb needs to transform them back into a visual experience. Let's examine how the deserialization and replay process works.
+
+#### How RRWeb Deserializes and Replays Events
+
+The replay process involves several sophisticated steps:
+
+##### 1. Initialization and Setup
+
+When creating a Replayer instance, the following happens:
+
+```javascript
+const replayer = new Replayer(events, options);
+```
+
+- An iframe is created to serve as an isolated environment for the replay
+- A "mirror" system is initialized to map serialized node IDs to actual DOM nodes
+- Events are sorted chronologically by timestamp
+- Timers are prepared to handle the playback timing
+
+##### 2. Initial DOM Reconstruction
+
+The first critical step is rebuilding the DOM from the initial snapshot:
+
+```javascript
+// Conceptual code of what happens internally
+function rebuildFullSnapshot(event) {
+  // Create DOM nodes from the serialized snapshot
+  const rootNode = createFromSerializedNode(event.data.node);
+  
+  // Insert into the iframe document
+  iframeDocument.documentElement.replaceWith(rootNode);
+  
+  // Restore initial scroll position
+  iframeWindow.scrollTo(event.data.initialOffset);
+}
+```
+
+This process recursively builds actual DOM elements from the serialized node tree, preserving all attributes, text content, and parent-child relationships.
+
+##### 3. Incremental Event Application
+
+Once the DOM is established, the replayer processes each incremental event based on its type:
+
+- **DOM Mutations**: Adds, removes, or modifies elements in the DOM
+- **Mouse Movements**: Updates cursor position and hover states
+- **Inputs**: Changes form field values
+- **Scrolling**: Adjusts scroll positions
+- **Canvas Operations**: Reapplies drawing commands to canvas elements
+
+For example, a mouse movement event is processed like this:
+
+```javascript
+// Simplified internal processing
+function applyMouseMove(event) {
+  const { positions } = event.data;
+  
+  positions.forEach(position => {
+    // Move the mouse cursor visual element
+    mouseCursor.style.left = `${position.x}px`;
+    mouseCursor.style.top = `${position.y}px`;
+    
+    // Update hover state if needed
+    if (position.id) {
+      const targetElement = mirror.getNode(position.id);
+      if (targetElement) {
+        // Simulate hover effects
+        updateElementHoverState(targetElement);
+      }
+    }
+  });
+}
+```
+
+##### 4. Timing and Playback Control
+
+A sophisticated timing system ensures events are replayed with the correct timing relationships:
+
+```javascript
+// Simplified timer mechanism
+function scheduleEvents(events) {
+  const baseTime = events[0].timestamp;
+  
+  events.forEach(event => {
+    const delay = event.timestamp - baseTime;
+    setTimeout(() => applyEvent(event), delay * playbackSpeed);
+  });
+}
+```
+
+This allows for features like:
+- Variable playback speed (1x, 2x, 4x)
+- Pausing at specific timestamps
+- Jumping to particular points in the recording
+
+##### 5. Special Case Handling
+
+Several types of content require special handling:
+
+- **Images**: Recreated from encoded data or loaded from URLs
+- **Canvas**: Drawing commands are reapplied to the canvas context
+- **Stylesheets**: CSS rules are reinserted in the correct order
+- **Iframes**: Content is rebuilt within nested browsing contexts
+- **Input Masking**: Sensitive data might be masked during replay
+
+##### 6. Optimization Techniques
+
+For performance, especially during fast-forwarding, the replayer uses several optimizations:
+
+- **Virtual DOM**: Can apply events to a lightweight virtual representation first
+- **Batched Updates**: Groups DOM operations for better performance
+- **Lazy Loading**: Defers loading of non-essential resources
+- **Event Sampling**: May skip redundant events during high-speed playback
+
+## Implementing rrweb in Your Project
+
+Now that we understand how rrweb works, how it serializes data, and how it replays sessions, let's implement it in a real project. We'll cover:
+
+1. Recording sessions
+2. Saving the recordings
+3. Replaying recordings
+4. Converting recordings to videos and images
+
+### Basic Recording Implementation
+
+First, let's set up a basic recording mechanism. Here's the HTML code for a simple recording component:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>rrweb Recording Example</title>
+  <style>
+    .recording {
+      background-color: #f44336;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>rrweb Recording Example</h1>
+  
+  <button id="recordButton">Start Recording</button>
+  <div id="status">Ready to record</div>
+  
+  <!-- Load rrweb from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js"></script>
+  
+  <script>
+    // Global variables
+    let events = [];
+    let stopFn = null;
+    let isRecording = false;
+    
+    // DOM Elements
+    const recordButton = document.getElementById('recordButton');
+    const statusElement = document.getElementById('status');
+    
+    // Function to toggle recording state
+    function toggleRecording() {
+      if (!isRecording) {
+        // Start recording
+        events = []; // Clear previous events
+        
+        // Start rrweb recording
+        stopFn = rrweb.record({
+          emit(event) {
+            events.push(event);
+          },
+        });
+        
+        isRecording = true;
+      } else {
+        // Stop recording
+        if (stopFn) {
+          stopFn();
+          stopFn = null;
+        }
+        
+        // Store in localStorage
+        localStorage.setItem('rrweb-events', JSON.stringify(events));
+        
+        isRecording = false;
+      }
+    }
+    
+    // Event listeners
+    recordButton.addEventListener('click', toggleRecording);
+  </script>
+</body>
+</html>
+```
+
+Try it out yourself:
+
+<iframe src="/data/how_to_turn_rrweb_jsons_to_videos_images_and_snapshots/basic_recording.html" width="100%" height="500px" frameborder="0"></iframe>
+
+The recorded events are stored as a series of JSON objects that describe everything from mouse movements to DOM changes. A typical event might look something like this:
+
+``` javascript
+{
+  type: 3, // Event type (3 represents a mouse move)
+  data: {
+    source: 0, // Source of the event
+    positions: [{x: 100, y: 200, id: 1, timeOffset: 123}] // Mouse position
+  },
+  timestamp: 1615482345678 // When the event occurred
+}
+```
+
+### Replaying Sessions
+
+To replay a recorded session, you can use a basic replayer like this:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>rrweb Replay Example</title>
+  <style>
+    #replayContainer {
+      width: 100%;
+      height: 400px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>rrweb Replay Example</h1>
+  
+  <div>
+    <button id="playButton">Play</button>
+    <button id="pauseButton">Pause</button>
+    <button id="loadFromStorageButton">Load from Storage</button>
+  </div>
+  
+  <div id="replayContainer"></div>
+  
+  <!-- Load rrweb from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js"></script>
+  
+  <script>
+    // DOM Elements
+    const playButton = document.getElementById('playButton');
+    const pauseButton = document.getElementById('pauseButton');
+    const loadButton = document.getElementById('loadFromStorageButton');
+    const replayContainer = document.getElementById('replayContainer');
+    
+    // Global variables
+    let replayer = null;
+    let events = [];
+    
+    // Load from localStorage
+    function loadFromStorage() {
+      const storedEvents = localStorage.getItem('rrweb-events');
+      if (storedEvents) {
+        events = JSON.parse(storedEvents);
+        
+        // Create replayer
+        replayer = new rrweb.Replayer(events, {
+          root: replayContainer,
+          speed: 1,
+          showMouseIndicator: true,
+        });
+      }
+    }
+    
+    // Event listeners
+    playButton.addEventListener('click', () => replayer && replayer.play());
+    pauseButton.addEventListener('click', () => replayer && replayer.pause());
+    loadButton.addEventListener('click', loadFromStorage);
+  </script>
+</body>
+</html>
+```
+
+See it in action:
+
+<iframe src="/data/how_to_turn_rrweb_jsons_to_videos_images_and_snapshots/basic_replay.html" width="100%" height="650px" frameborder="0"></iframe>
+
+For a more feature-rich player with built-in controls, you can use the rrweb-player:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>rrweb Player with Controls</title>
+  <!-- Load rrweb player CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/style.css">
+  <style>
+    #playerContainer {
+      width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>rrweb Player with Controls</h1>
+  
+  <button id="loadFromStorageButton">Load from Storage</button>
+  <div id="playerContainer"></div>
+  
+  <!-- Load rrweb and rrweb-player from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.js"></script>
+  
+  <script>
+    // DOM Elements
+    const loadButton = document.getElementById('loadFromStorageButton');
+    const playerContainer = document.getElementById('playerContainer');
+    
+    // Load from localStorage
+    function loadFromStorage() {
+      const storedEvents = localStorage.getItem('rrweb-events');
+      if (storedEvents) {
+        const events = JSON.parse(storedEvents);
+        
+        // Create player
+        new rrwebPlayer({
+          target: playerContainer,
+          props: {
+            events,
+            width: playerContainer.clientWidth,
+            height: 600,
+            showController: true,
+            autoPlay: false,
+            speedOption: [1, 2, 4]
+          }
+        });
+      }
+    }
+    
+    // Event listeners
+    loadButton.addEventListener('click', loadFromStorage);
+  </script>
+</body>
+</html>
+```
+
+See the enhanced player in action:
+
+<iframe src="/data/what_is_rrweb/player_with_controls.html" width="100%" height="750px" frameborder="0"></iframe>
+
+### Real-World Applications
+
+rrweb is particularly valuable for:
+
+-   **Debugging**: Developers can see exactly what users were doing when errors occurred
+-   **UX Research**: Product teams can observe how real users interact with their websites
+-   **Customer Support**: Support teams can see what customers are experiencing without screen sharing
+-   **Analytics**: Understanding user behavior through visual session replays
+
+## Conclusion
+
+rrweb provides a powerful way to capture detailed web sessions without traditional screen recording. By integrating it with standard HTML and JavaScript, we can create interactive visualizations and analyses of user sessions.
+
+Whether you're debugging customer issues, conducting UX research, or analyzing user behavior at scale, rrweb offers a sophisticated solution for web session recording and replay.
+
+In the final section, we'll look at performance considerations and best practices for implementing rrweb in production environments.
