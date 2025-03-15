@@ -1,0 +1,23 @@
+---
+aliases:
+- /what-is-prompt-engineering/
+categories:
+- Large Language Models
+date: '2024-03-05'
+image: /images/what_is_prompt_engineering/thumbnail.jpg
+title: "What is Prompt Engineering?"
+subtitle: "Understanding the art and science of crafting effective prompts for large language models"
+format: html
+---
+
+I recently had an enlightening experience at work. I was assigned to a project that required using a large language model (specifically Gemini 2.0 Flash) to extract information from a series of documents.
+
+My first instinct was to break the task down into its individual parts or develop some basic building blocks that could help me understand the components of the task. This seemed like a sensible approach—one that would have been considered best practice just a couple of years ago. However, in today's world of advanced LLMs, despite their often opaque and inexplicable mechanisms, I was encouraged to try something much simpler yet paradoxically more challenging.
+
+A colleague suggested: "Why don't you just throw all the data into Gemini and prompt the model directly?"
+
+Surprised, I responded: "You want me to zero-shot this complex task with just plain English?"
+
+They casually replied: "Yeah."
+
+# What is Prompt Engineering?
