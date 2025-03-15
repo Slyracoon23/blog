@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rrweb HTML Extractor</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .container {
+      margin-bottom: 20px;
+    }
+    
+    button {
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    
+    input[type="number"] {
+      padding: 8px;
+      width: 100px;
+    }
+    
+    .control-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .control-group label {
+      margin-right: 10px;
+    }
+    
+    pre {
+      height: 300px;
+      overflow: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background: #f5f5f5;
+      font-family: monospace;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    
+    .download-options {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>rrweb HTML Extractor</h1>
+  
+  <div class="container">
+    <h3>Load rrweb Events</h3>
+    <button id="loadFromStorageButton">Load from localStorage</button>
+    <p id="eventsInfo">No events loaded</p>
+  </div>
+  
+  <div id="extractorContainer" style="display: none;">
+    <h3>Extract HTML at Specific Time</h3>
+    <div class="control-group">
+      <label for="timeInput">Time position (ms):</label>
+      <input type="number" id="timeInput" min="0" value="0">
+      <button id="extractButton">Extract HTML</button>
+    </div>
+    
+    <div id="htmlContainer" style="display: none;">
+      <h4>Extracted HTML</h4>
+      <pre id="htmlContent"></pre>
+      
+      <div class="download-options">
+        <button id="downloadButton">Download HTML</button>
+        <button id="copyButton">Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Load rrweb from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js"></script>
+  
+  <script>
+    // DOM Elements
+    const loadFromStorageButton = document.getElementById('loadFromStorageButton');
+    const eventsInfo = document.getElementById('eventsInfo');
+    const extractorContainer = document.getElementById('extractorContainer');
+    const timeInput = document.getElementById('timeInput');
+    const extractButton = document.getElementById('extractButton');
+    const htmlContainer = document.getElementById('htmlContainer');
+    const htmlContent = document.getElementById('htmlContent');
+    const downloadButton = document.getElementById('downloadButton');
+    const copyButton = document.getElementById('copyButton');
+    
+    // Global variables
+    let events = [];
+    let startTime = 0;
+    let duration = 0;
+    let extractedHtml = '';
+    
+    // Load events from localStorage
+    function loadFromStorage() {
+      try {
+        const storedEvents = localStorage.getItem('rrweb-events');
+        if (storedEvents) {
+          events = JSON.parse(storedEvents);
+          console.log(`Loaded ${events.length} events from localStorage`);
+          
+          // Calculate time range
+          startTime = events[0].timestamp;
+          const endTime = events[events.length - 1].timestamp;
+          duration = endTime - startTime;
+          
+          // Update time input max value
+          timeInput.max = duration;
+          
+          // Show extractor controls
+          extractorContainer.style.display = 'block';
+          
+          // Update info
+          eventsInfo.textContent = `Loaded ${events.length} events. Recording duration: ${Math.round(duration / 1000)} seconds`;
+        } else {
+          alert('No recorded events found in localStorage');
+        }
+      } catch (e) {
+        console.error('Error loading events from localStorage:', e);
+        alert('Error loading events from localStorage');
+      }
+    }
+    
+    // Extract HTML at specified time
+    function extractHtml() {
+      if (events.length === 0) {
+        alert('No events available');
+        return;
+      }
+      
+      // Get time from input
+      const time = parseInt(timeInput.value);
+      
+      // Create a temporary container
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      document.body.appendChild(tempContainer);
+      
+      // Calculate absolute time
+      const absoluteTime = startTime + time;
+      
+      try {
+        // Create a replayer
+        const tempReplayer = new rrweb.Replayer(events, {
+          root: tempContainer,
+          skipInactive: true,
+        });
+        
+        // Jump to the selected time
+        tempReplayer.pause(absoluteTime);
+        
+        // Get the HTML content after a short delay to ensure rendering
+        setTimeout(() => {
+          try {
+            // Get iframe content if available (modern rrweb versions)
+            const iframe = tempContainer.querySelector('iframe');
+            let content = '';
+            
+            if (iframe && iframe.contentDocument) {
+              content = iframe.contentDocument.documentElement.outerHTML;
+            } else {
+              // Fallback to container content
+              content = tempContainer.innerHTML;
+            }
+            
+            // Store the extracted HTML
+            extractedHtml = content;
+            
+            // Display the HTML
+            htmlContainer.style.display = 'block';
+            htmlContent.textContent = extractedHtml;
+            
+            // Cleanup
+            document.body.removeChild(tempContainer);
+          } catch (err) {
+            console.error('Error extracting HTML content:', err);
+            alert('Error extracting HTML content: ' + err.message);
+            document.body.removeChild(tempContainer);
+          }
+        }, 300);
+      } catch (error) {
+        console.error('Error creating replayer:', error);
+        alert('Error creating replayer: ' + error.message);
+        document.body.removeChild(tempContainer);
+      }
+    }
+    
+    // Download HTML as file
+    function downloadHtml() {
+      if (!extractedHtml) {
+        alert('No HTML content to download');
+        return;
+      }
+      
+      const blob = new Blob([extractedHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.download = `rrweb-snapshot-${timeInput.value}.html`;
+      link.href = url;
+      link.click();
+      
+      URL.revokeObjectURL(url);
+    }
+    
+    // Copy HTML to clipboard
+    function copyToClipboard() {
+      if (!extractedHtml) {
+        alert('No HTML content to copy');
+        return;
+      }
+      
+      navigator.clipboard.writeText(extractedHtml)
+        .then(() => {
+          alert('HTML copied to clipboard');
+        })
+        .catch(err => {
+          console.error('Failed to copy text: ', err);
+          alert('Failed to copy HTML to clipboard');
+        });
+    }
+    
+    // Event listeners
+    loadFromStorageButton.addEventListener('click', loadFromStorage);
+    extractButton.addEventListener('click', extractHtml);
+    downloadButton.addEventListener('click', downloadHtml);
+    copyButton.addEventListener('click', copyToClipboard);
+    
+    // Try to load events from localStorage on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('rrweb-events')) {
+        loadFromStorage();
+      }
+    });
+  </script>
+</body>
+</html> 

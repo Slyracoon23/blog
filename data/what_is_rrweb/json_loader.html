@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rrweb JSON Data Loader</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .loader-container {
+      margin-bottom: 20px;
+    }
+    
+    input[type="text"] {
+      width: 70%;
+      padding: 8px;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    
+    button {
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    
+    #status {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    
+    .loading {
+      background-color: #fff9c4;
+    }
+    
+    .error {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    .success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    pre {
+      max-height: 300px;
+      overflow: auto;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>rrweb JSON Data Loader</h1>
+  
+  <div class="loader-container">
+    <h3>Load rrweb JSON Data from URL</h3>
+    <input type="text" id="urlInput" placeholder="Enter URL to rrweb JSON file" value="./sample-events.json">
+    <button id="loadButton">Load Events</button>
+    <div id="status"></div>
+  </div>
+  
+  <div id="eventsInfo" style="display: none;">
+    <h3>Events Information</h3>
+    <div id="eventsInfoContent"></div>
+  </div>
+  
+  <div id="sampleEvents" style="display: none;">
+    <h3>Sample Event Data (first event)</h3>
+    <pre id="sampleEventContent"></pre>
+  </div>
+  
+  <!-- Load rrweb from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js"></script>
+  
+  <script>
+    // DOM Elements
+    const urlInput = document.getElementById('urlInput');
+    const loadButton = document.getElementById('loadButton');
+    const status = document.getElementById('status');
+    const eventsInfo = document.getElementById('eventsInfo');
+    const eventsInfoContent = document.getElementById('eventsInfoContent');
+    const sampleEvents = document.getElementById('sampleEvents');
+    const sampleEventContent = document.getElementById('sampleEventContent');
+    
+    // Global variables
+    let events = [];
+    
+    // Update status message
+    function updateStatus(message, type) {
+      status.textContent = message;
+      status.className = type;
+    }
+    
+    // Load events from URL
+    async function loadEvents() {
+      const url = urlInput.value.trim();
+      
+      if (!url) {
+        updateStatus('Please enter a valid URL', 'error');
+        return;
+      }
+      
+      try {
+        // Show loading state
+        updateStatus('Loading events...', 'loading');
+        eventsInfo.style.display = 'none';
+        sampleEvents.style.display = 'none';
+        
+        // Fetch the events
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!Array.isArray(data)) {
+          throw new Error('Loaded data is not an array of events');
+        }
+        
+        // Store events and update UI
+        events = data;
+        updateStatus(`Successfully loaded ${events.length} events`, 'success');
+        
+        // Store in localStorage for other examples to use
+        localStorage.setItem('rrweb-events', JSON.stringify(events));
+        
+        // Display events info
+        displayEventsInfo();
+      } catch (error) {
+        console.error('Error loading events:', error);
+        updateStatus(`Error: ${error.message}`, 'error');
+      }
+    }
+    
+    // Display events information
+    function displayEventsInfo() {
+      if (events.length === 0) return;
+      
+      // Show events section
+      eventsInfo.style.display = 'block';
+      
+      // Calculate session duration
+      const firstEvent = events[0];
+      const lastEvent = events[events.length - 1];
+      const durationMs = lastEvent.timestamp - firstEvent.timestamp;
+      const durationSec = Math.round(durationMs / 1000);
+      
+      // Count event types
+      const eventTypes = {};
+      events.forEach(event => {
+        const type = event.type;
+        eventTypes[type] = (eventTypes[type] || 0) + 1;
+      });
+      
+      // Create HTML for event info
+      const infoHTML = `
+        <p><strong>Total Events:</strong> ${events.length}</p>
+        <p><strong>Session Duration:</strong> ${durationSec} seconds</p>
+        <p><strong>Start Time:</strong> ${new Date(firstEvent.timestamp).toLocaleString()}</p>
+        <p><strong>End Time:</strong> ${new Date(lastEvent.timestamp).toLocaleString()}</p>
+        <p><strong>Event Types:</strong></p>
+        <ul>
+          ${Object.entries(eventTypes).map(([type, count]) => 
+            `<li>Type ${type}: ${count} events</li>`
+          ).join('')}
+        </ul>
+      `;
+      
+      eventsInfoContent.innerHTML = infoHTML;
+      
+      // Show sample event
+      sampleEvents.style.display = 'block';
+      sampleEventContent.textContent = JSON.stringify(events[0], null, 2);
+    }
+    
+    // Event listeners
+    loadButton.addEventListener('click', loadEvents);
+    
+    // Handle Enter key in URL input
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        loadEvents();
+      }
+    });
+  </script>
+  
+  <div style="margin-top: 20px; padding: 10px; background-color: #e3f2fd; border-left: 4px solid #2196f3;">
+    <h3>📝 How to Create a Sample JSON File</h3>
+    <p>To test this example, create a file named <code>sample-events.json</code> in the same directory with this content:</p>
+    <pre style="background-color: #f8f9fa; padding: 10px; overflow: auto;">[
+  {
+    "type": 2,
+    "data": { "node": { /* DOM node data */ }, "initialOffset": { "left": 0, "top": 0 } },
+    "timestamp": 1615482345678
+  },
+  {
+    "type": 3,
+    "data": { "source": 1, "positions": [{"x": 100, "y": 200, "id": 1, "timeOffset": 123}] },
+    "timestamp": 1615482346000
+  }
+]</pre>
+    <p>Or use the data saved from the recording example.</p>
+  </div>
+</body>
+</html> 

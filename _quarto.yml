@@ -42,6 +42,11 @@ website:
           contents:
             - text: "Building ChatGPT from Scratch"
               href: posts/2025-02-19_building_chatgpt_from_scratch.html
+        - text: "---"
+        - section: "🌐 **Web Technologies**"
+          contents:
+            - text: "What is rrweb?"
+              href: posts/2025-03-14_what_is_rrweb.html
 
     - id: notes
       title: "Notes"
