@@ -3,4 +3,11 @@
 /_freeze/
 .vscode
 
+# Python notebook files
+.ipynb_checkpoints/
+*.ipynb
+__pycache__/
+*.py[cod]
+*$py.class
+
 .env
