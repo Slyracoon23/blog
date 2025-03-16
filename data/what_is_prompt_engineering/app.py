@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get API key from environment variable
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 # OpenRouter API endpoint
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
