@@ -104,20 +104,34 @@ To help illustrate the dramatic impact different prompt engineering techniques c
 3. See in real-time how varying your prompts affects model outputs
 4. Learn about various prompt engineering strategies and when to use them
 
-![Screenshot of the Prompt Engineering Demo](../images/what_is_prompt_engineering/demo_screenshot.jpg)
+![Screenshot of the Prompt Engineering Demo](https://i.imgur.com/d6FUlu0.png)
 
-### Try It Yourself
+### Interactive Demo
 
-The demo is available in the [data/what_is_prompt_engineering](https://github.com/yourusername/blog/tree/main/data/what_is_prompt_engineering) directory of this blog's repository. To run it:
+You can try the interactive demo right here in your browser:
 
-1. Clone the repository
-2. Navigate to the demo directory
-3. Install the required dependencies: `pip install -r requirements.txt`
-4. Get a free API key from [OpenRouter](https://openrouter.ai/)
-5. Create a `.env` file with your API key
-6. Run `python prompt_engineering_demo.py`
+<iframe
+src="https://slyracoon23-what-is-prompt-engineering.hf.space"
+frameborder="0"
+width="100%"
+height="800px"
+data-external=1
+></iframe>
+
+### Try It on Hugging Face Spaces
+
+You can also access the demo directly on Hugging Face Spaces at [https://huggingface.co/spaces/Slyracoon23/what-is-prompt-engineering](https://huggingface.co/spaces/Slyracoon23/what-is-prompt-engineering). 
 
 This hands-on experience allows you to experiment with different prompt techniques and see for yourself how small changes in prompt formulation can lead to substantially different outputs.
+
+If you'd like to customize or build upon this demo:
+
+1. Visit the Hugging Face Space link above
+2. Click the "Duplicate this Space" button in the top right
+3. Follow the prompts to create your own fork of the demo
+4. You can then modify the code, experiment with different models, or adapt it to your specific use case
+
+This is a great option if you want to try the demo without setting up a local environment or if you want to build upon it for your own projects.
 
 ## Drawbacks and Limitations of Prompt Engineering
 
