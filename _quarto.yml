@@ -42,6 +42,8 @@ website:
           contents:
             - text: "Building ChatGPT from Scratch"
               href: posts/2025-02-19_building_chatgpt_from_scratch.html
+            - text: "What is Prompt Engineering?"
+              href: posts/2025-03-15_what_is_prompt_engineering.html
         - text: "---"
         - section: "🌐 **Web Technologies**"
           contents:
