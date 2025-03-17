@@ -100,6 +100,34 @@
 # 3. **Technical Implementation**: SigLIP 2 models use the Gemma tokenizer with a vocabulary size of 256,000 tokens, allowing for better representation of diverse languages
 
 # %% [markdown]
+# #### Beyond Simple Cosine Similarity: Advanced Similarity Computation
+# 
+# While many discussions of image embeddings focus on simple cosine similarity between vectors, SigLIP 2's similarity computation is actually much more sophisticated. This advanced approach leads to more accurate and nuanced similarity scores:
+# 
+# 1. **Multi-head Attention Pooling (MAP)**: Unlike simpler models that use average pooling to aggregate token representations, SigLIP 2 employs a more sophisticated attention-based pooling mechanism:
+#    - The MAP head learns to focus on the most relevant parts of the image or text
+#    - It assigns different weights to different regions or tokens based on their importance
+#    - This selective attention mechanism produces more contextually relevant embeddings that capture important details while ignoring noise
+# 
+# 2. **Temperature Scaling**: SigLIP 2 applies a learned temperature parameter (τ) to scale similarity scores:
+#    - Raw cosine similarities are divided by this temperature: sim(i,j)/τ
+#    - Lower temperature values make the distribution more "peaked," emphasizing differences between high and low similarity pairs
+#    - Higher temperature values make the distribution more uniform
+#    - The temperature parameter is learned during training to optimize the model's discrimination ability
+# 
+# 3. **Bias Term Adjustment**: The similarity calculation includes a learned bias term:
+#    - sim'(i,j) = sim(i,j)/τ + b, where b is the learned bias
+#    - This bias helps counteract the inherent imbalance between positive and negative pairs during training
+#    - It acts as a calibration factor, adjusting the similarity scores to better reflect true semantic relationships
+# 
+# 4. **Sigmoid Activation**: Unlike models that use softmax normalization (like CLIP), SigLIP 2 applies a sigmoid function to the adjusted similarity scores:
+#    - p(i,j) = sigmoid(sim'(i,j)) = 1/(1+exp(-(sim(i,j)/τ + b)))
+#    - This transforms the unbounded similarity scores into well-calibrated probability-like values in the range [0,1]
+#    - The sigmoid function allows each image-text pair to be evaluated independently, which is more appropriate for retrieval tasks
+# 
+# These components work together to ensure that SigLIP 2's similarity calculations go far beyond simple vector dot products. When using SigLIP 2, it's crucial to use the model's built-in comparison mechanism (`logits_per_image` followed by sigmoid activation) rather than manually computing cosine similarity on raw embeddings, as the former incorporates all these learned parameters and transformations that were optimized during training.
+
+# %% [markdown]
 # #### Architecture Variants
 # 
 # SigLIP 2 is available in several architectural variants to accommodate different computational constraints and use cases:
@@ -188,7 +216,15 @@ model_name = "google/siglip2-so400m-patch14-384"
 
 # Define a function to extract embeddings from an image
 def get_image_embedding(image_path_or_url, model, processor):
-    """Extract embeddings from an image file or URL"""
+    """Extract embeddings from an image file or URL
+    
+    NOTE: For most SigLIP applications, you should NOT extract embeddings separately.
+    Instead, use the model to process image-text pairs together via model(**inputs)
+    to get direct similarity scores through the model's logits_per_image.
+    
+    This function is provided for educational purposes or for specific use cases
+    where you need the raw embeddings.
+    """
     # Load image from URL or local path
     if isinstance(image_path_or_url, str):
         if image_path_or_url.startswith(('http://', 'https://')):
@@ -287,6 +323,7 @@ plt.show()
 
 # %%
 # Load the model and processor
+from transformers import AutoModel, AutoProcessor
 model = AutoModel.from_pretrained(model_name)
 processor = AutoProcessor.from_pretrained(model_name)
 
@@ -324,19 +361,28 @@ plt.show()
 
 # Text descriptions
 texts = [
-    "a wild animal",
+    "a wild bear",
     "a train on tracks",
     "a person with an umbrella",
     "a child's toy",
     "a stop sign",
-    "a bedroom",
-    "a timepiece",
-    "a vehicle for transportation"
+    "a picture of a bedroom",
+    "Cozy bedroom retreat filled with books, plants, and warm natural light",
+    "a picture of a timepiece",
+    "a picture of a vehicle for transportation"
 ]
 
 # Get text embeddings using the processor and model
 def get_text_embedding(text, model, processor):
-    """Extract text embedding from a text string"""
+    """Extract text embedding from a text string
+    
+    NOTE: For most SigLIP applications, you should NOT extract embeddings separately.
+    Instead, use the model to process image-text pairs together via model(**inputs)
+    to get direct similarity scores through the model's logits_per_image.
+    
+    This function is provided for educational purposes or for specific use cases
+    where you need the raw embeddings.
+    """
     inputs = processor(text=text, return_tensors="pt", padding=True)
     
     with torch.no_grad():
@@ -353,13 +399,44 @@ for i, query in enumerate(texts):
     text_embeddings.append(get_text_embedding(query, model, processor))
 text_embeddings = np.array(text_embeddings)
 print(f"Embedded {len(text_embeddings)} text queries. Embedding shape: {text_embeddings.shape}")
+print("NOTE: While we extracted text embeddings separately, for similarity calculations")
+print("we'll use the model's native capability to process image-text pairs together")
 
 # %%
 # Compute similarity between our images and texts
-similarity_matrix = np.zeros((len(images), len(texts)))
-for i in range(len(images)):
-    for j in range(len(texts)):
-        similarity_matrix[i, j] = np.dot(embeddings[i], text_embeddings[j])
+# Instead of computing dot product manually, let's use the model's built-in functionality
+
+# Create a function to compute similarity between images and texts using the model directly
+def compute_image_text_similarity(images, texts, model, processor):
+    """Compute similarity between images and texts using the model's native capabilities"""
+    similarity_matrix = np.zeros((len(images), len(texts)))
+    
+    for i, image in enumerate(images):
+        # Process each image with all text descriptions
+        inputs = processor(
+            text=texts, 
+            images=image, 
+            return_tensors="pt", 
+            padding="max_length", 
+            max_length=64
+        )
+        
+        with torch.no_grad():
+            outputs = model(**inputs)
+            # The model directly computes logits_per_image which represents similarity
+            logits = outputs.logits_per_image
+            # Convert to probabilities
+            probs = torch.sigmoid(logits)
+            
+            # Store the similarity scores for this image
+            similarity_matrix[i] = probs[0].detach().numpy()
+    
+    return similarity_matrix
+
+# Compute similarity using the model's native capabilities
+print("Computing image-text similarity using the model's built-in functionality...")
+similarity_matrix = compute_image_text_similarity(images, texts, model, processor)
+print("Similarity computation complete.")
 
 # Display similarity matrix
 plt.figure(figsize=(10, 8))
@@ -382,155 +459,188 @@ plt.show()
 # %% [markdown]
 # ### Example 3: Visualizing Embeddings with Clustering
 # 
-# Let's use clustering to group our images based on their semantic content.
+# Let's use clustering to group our images based on their semantic content. For a more meaningful analysis, we'll use a larger set of images from the COCO dataset and visualize them using UMAP before clustering.
 
 # %%
-# We'll need more images for meaningful clustering
-# For demonstration, we'll use a smaller set but in practice you'd want more
+# Import additional libraries for enhanced visualization
+from umap import UMAP
+import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import numpy as np
+from tqdm.notebook import tqdm
 
-# Let's use K-means clustering on our embeddings
-if len(embeddings) >= 3:  # Only cluster if we have enough images
-    n_clusters = min(3, len(embeddings))  # Use at most 3 clusters
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-    clusters = kmeans.fit_predict(embeddings)
-    
-    # Display images by cluster
-    for cluster_id in range(n_clusters):
-        # Get indices of images in this cluster
-        cluster_indices = np.where(clusters == cluster_id)[0]
-        n_images_in_cluster = len(cluster_indices)
-        
-        if n_images_in_cluster > 0:
-            # Display the images in this cluster
-            fig, axes = plt.subplots(1, n_images_in_cluster, figsize=(15, 5))
-            if n_images_in_cluster == 1:
-                axes = [axes]  # Make it iterable when there's only one image
-                
-            plt.suptitle(f'Cluster {cluster_id+1} Images')
-            
-            for i, idx in enumerate(cluster_indices):
-                axes[i].imshow(images[idx])
-                axes[i].set_title(f"Image {idx+1}")
-                axes[i].axis('off')
-                
-            plt.tight_layout(rect=[0, 0, 1, 0.95])  # Adjust for the suptitle
-            plt.show()
-else:
-    print("Not enough images for clustering. Add more images for meaningful clusters.")
+# Define a larger set of sample images from COCO dataset
+coco_image_urls = [
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000285.jpg",  # bear
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000632.jpg",  # train
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000724.jpg",  # umbrella
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000776.jpg",  # teddy bear
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000785.jpg",  # clock
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000802.jpg",  # train
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000872.jpg",  # person with umbrella
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000885.jpg",  # dining table
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000934.jpg",  # person
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001000.jpg",  # zebra
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001296.jpg",  # sheep
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001425.jpg",  # airplane
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001490.jpg",  # giraffe
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001503.jpg",  # bird
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001532.jpg",  # dog
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001584.jpg",  # boat
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001675.jpg",  # person on bike
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001761.jpg",  # cat
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000001818.jpg",  # horse
+    "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000002153.jpg",  # car
+]
+
+# Extract embeddings for all images
+print("Extracting embeddings for all images...")
+large_embeddings = []
+large_images = []
+
+for i, url in enumerate(tqdm(coco_image_urls)):
+    try:
+        embedding, image = get_image_embedding(url, model, processor)
+        large_embeddings.append(embedding)
+        large_images.append(image)
+    except Exception as e:
+        print(f"Error processing image {i+1}: {e}")
+
+# Convert to numpy array
+large_embeddings = np.array(large_embeddings)
+print(f"Successfully embedded {len(large_embeddings)} images. Embedding shape: {large_embeddings.shape}")
 
 # %% [markdown]
-# ### Example 4: Using SigLIP 2 for Image Embedding Extraction
-# 
-# One of the most common applications of models like SigLIP 2 is extracting image embeddings for downstream tasks such as clustering, similarity search, or fine-tuning classifiers. Let's see how to extract embeddings from sample images.
+# ### Visualizing High-Dimensional Embeddings with UMAP
 
 # %%
-# We already did this in our get_image_embedding function
-# Let's visualize the first 20 dimensions of each embedding
+# Apply UMAP for dimensionality reduction to visualize embeddings in 2D
+print("Applying UMAP dimensionality reduction...")
+umap_model = UMAP(n_components=2, n_neighbors=5, min_dist=0.1, metric='cosine', random_state=42)
+umap_embeddings = umap_model.fit_transform(large_embeddings)
 
-# Print shape of embeddings
-print(f"Shape of image embeddings: {embeddings.shape}")
+# Function to plot images on UMAP projection
+def plot_images_on_umap(embeddings_2d, images, figsize=(20, 20), image_zoom=0.5):
+    """Plot images on a 2D projection (like UMAP or t-SNE)"""
+    fig, ax = plt.subplots(figsize=figsize)
+    
+    # First scatter the points to see the overall distribution
+    ax.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], alpha=0.5, s=10)
+    
+    # Then plot small versions of each image at its 2D location
+    for i, (x, y) in enumerate(embeddings_2d):
+        img = images[i]
+        # Resize image for better visualization
+        width, height = img.size
+        new_width = int(width * image_zoom)
+        new_height = int(height * image_zoom)
+        img = img.resize((new_width, new_height))
+        
+        # Convert PIL image to a format matplotlib can use
+        img_box = OffsetImage(img, zoom=0.1)
+        ab = AnnotationBbox(img_box, (x, y), frameon=True, pad=0.1)
+        ax.add_artist(ab)
+    
+    # Set axis limits a bit beyond the data limits to see all images
+    ax.set_xlim(embeddings_2d[:, 0].min() - 1, embeddings_2d[:, 0].max() + 1)
+    ax.set_ylim(embeddings_2d[:, 1].min() - 1, embeddings_2d[:, 1].max() + 1)
+    
+    plt.title("UMAP Projection of Image Embeddings")
+    plt.tight_layout()
+    return fig, ax
 
-# Visualize the first 20 dimensions of each embedding
-plt.figure(figsize=(12, 6))
-for i in range(len(images)):
-    plt.plot(embeddings[i, :20], label=f"Image {i+1}")
-plt.xlabel('Embedding Dimension')
-plt.ylabel('Value')
-plt.title('First 20 Dimensions of Image Embeddings')
-plt.legend()
-plt.grid(True)
+# Visualize the UMAP embedding
+print("Visualizing UMAP projection with images...")
+fig, ax = plot_images_on_umap(umap_embeddings, large_images)
 plt.show()
 
 # %% [markdown]
-# ### Example 5: Computing Image-to-Image Similarity
+# ### Using K-means Clustering on Embeddings
 # 
-# Now that we have embeddings for our images, we can easily compute the similarity between them.
+# Now that we've visualized our embeddings in 2D space, let's use K-means clustering to identify groups of semantically similar images.
 
 # %%
-# Compute pairwise cosine similarity between images
-image_sim = np.matmul(embeddings, embeddings.T)
+# Apply K-means clustering on the original high-dimensional embeddings
+n_clusters = 5  # Increase the number of clusters for a more nuanced analysis
+kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+clusters = kmeans.fit_predict(large_embeddings)
 
-# Visualize the similarity matrix
-plt.figure(figsize=(8, 6))
-plt.imshow(image_sim, vmin=-1, vmax=1, cmap='coolwarm')
-plt.colorbar(label='Cosine Similarity')
-plt.xticks(np.arange(len(images)), [f"Image {i+1}" for i in range(len(images))])
-plt.yticks(np.arange(len(images)), [f"Image {i+1}" for i in range(len(images))])
-plt.title('Image-to-Image Similarity Matrix')
-for i in range(len(images)):
-    for j in range(len(images)):
-        plt.text(j, i, f'{image_sim[i, j]:.2f}', 
-                 ha='center', va='center', 
-                 color='white' if abs(image_sim[i, j]) > 0.5 else 'black')
+# Visualize clustering results on the UMAP projection
+plt.figure(figsize=(15, 12))
+scatter = plt.scatter(umap_embeddings[:, 0], umap_embeddings[:, 1], 
+                     c=clusters, cmap='viridis', s=100, alpha=0.8)
+plt.colorbar(scatter, label='Cluster')
+plt.title(f'UMAP Projection with K-means Clustering (k={n_clusters})')
 plt.tight_layout()
 plt.show()
 
 # %% [markdown]
-# ### Example 6: Building a Simple Image Search Engine
+# ### Visualizing Images by Cluster
 # 
-# Let's demonstrate how to build a simple image search engine using SigLIP 2 embeddings.
+# Let's visualize the actual images in each cluster to see what semantic groupings the model has identified.
 
 # %%
-def search_similar_images(query_image_idx, embeddings, images, top_k=2):
-    """Find the most similar images to a query image"""
-    query_embedding = embeddings[query_image_idx]
+# Display images by cluster
+for cluster_id in range(n_clusters):
+    # Get indices of images in this cluster
+    cluster_indices = np.where(clusters == cluster_id)[0]
+    n_images_in_cluster = len(cluster_indices)
     
-    # Compute similarities
-    similarities = np.dot(embeddings, query_embedding)
-    
-    # Sort by similarity (excluding the query image itself)
-    similarities[query_image_idx] = -1  # Exclude the query image
-    most_similar_indices = np.argsort(similarities)[::-1][:top_k]
-    
-    # Display results
-    plt.figure(figsize=(15, 5))
-    
-    # Show query image
-    plt.subplot(1, top_k+1, 1)
-    plt.imshow(images[query_image_idx])
-    plt.title(f"Query Image {query_image_idx+1}")
-    plt.axis('off')
-    
-    # Show similar images
-    for i, idx in enumerate(most_similar_indices):
-        plt.subplot(1, top_k+1, i+2)
-        plt.imshow(images[idx])
-        plt.title(f"Similar {i+1}: Image {idx+1}\nSimilarity: {similarities[idx]:.4f}")
-        plt.axis('off')
-    
-    plt.tight_layout()
-    plt.show()
-
-# Search for similar images using different query images
-if len(images) >= 3:
-    search_similar_images(0, embeddings, images, top_k=2)  # Using the first image as query
-else:
-    print("Not enough images for meaningful similarity search. Add more images for better results.")
+    if n_images_in_cluster > 0:
+        # Calculate grid layout dimensions
+        grid_cols = min(5, n_images_in_cluster)
+        grid_rows = (n_images_in_cluster + grid_cols - 1) // grid_cols
+        
+        fig, axes = plt.subplots(grid_rows, grid_cols, figsize=(grid_cols * 3, grid_rows * 3))
+        plt.suptitle(f'Cluster {cluster_id+1}: {n_images_in_cluster} Images')
+        
+        # Flatten axes array for easy iteration
+        if grid_rows == 1 and grid_cols == 1:
+            axes = np.array([axes])
+        elif grid_rows == 1 or grid_cols == 1:
+            axes = axes.flatten()
+            
+        # Plot each image in the cluster
+        for i, idx in enumerate(cluster_indices):
+            if i < len(axes):
+                row, col = i // grid_cols, i % grid_cols
+                if grid_rows == 1 and grid_cols == 1:
+                    ax = axes[0]
+                elif grid_rows == 1 or grid_cols == 1:
+                    ax = axes[i]
+                else:
+                    ax = axes[row, col]
+                    
+                ax.imshow(large_images[idx])
+                ax.set_title(f"Image {idx+1}")
+                ax.axis('off')
+        
+        # Hide unused subplots
+        for i in range(n_images_in_cluster, grid_rows * grid_cols):
+            row, col = i // grid_cols, i % grid_cols
+            if grid_rows == 1 and grid_cols == 1:
+                pass  # No unused subplots in a 1x1 grid
+            elif grid_rows == 1 or grid_cols == 1:
+                if i < len(axes):
+                    axes[i].axis('off')
+            else:
+                if row < grid_rows and col < grid_cols:
+                    axes[row, col].axis('off')
+                
+        plt.tight_layout(rect=[0, 0, 1, 0.95])  # Adjust for the suptitle
+        plt.show()
 
 # %% [markdown]
-# ## Guidelines for Choosing the Right SigLIP 2 Variant
+# ### Analysis of Semantic Clustering
 # 
-# When selecting a SigLIP 2 variant for your application, consider these guidelines:
+# The clusters formed above demonstrate how SigLIP 2's embeddings group images based on semantic content rather than just visual similarity. This type of semantic clustering is valuable for:
 # 
-# ### For Resource-Constrained Environments:
-# - **Use Base models**: The ViT-B (86M) models provide a good balance between performance and efficiency
-# - **Stick with 224px/256px resolution**: This minimizes memory usage and computation
-# - **Consider quantization**: SigLIP 2 models can be quantized for further efficiency
+# 1. **Content organization**: Automatically categorizing large collections of images
+# 2. **Recommendation systems**: Finding semantically related content
+# 3. **Anomaly detection**: Identifying images that don't fit expected semantic patterns
+# 4. **Dataset exploration**: Understanding the distribution of semantic concepts
 # 
-# ### For Production Applications with Balanced Requirements:
-# - **SigLIP 2 So400m variants**: These shape-optimized models provide excellent accuracy without the computational demands of the largest models
-# - **384px resolution**: A good balance between detail capture and resource usage
-# - **Standard (non-NaFlex) variants**: Unless you specifically need aspect ratio preservation
-# 
-# ### For Maximum Quality:
-# - **SigLIP 2 Giant (g) models**: These 1B parameter models provide the highest accuracy
-# - **512px resolution**: Maximizes detail capture for complex scenes
-# - **NaFlex variant**: If working with documents or aspect-sensitive content
-# 
-# ### For Document Understanding or OCR:
-# - **NaFlex variants**: Essential for preserving text layout and aspect ratios
-# - **Higher resolutions**: Crucial for legibility of small text
-# - **Consider So400m or Large models**: These capture more fine-grained details
+# The UMAP visualization provides insight into how the high-dimensional embedding space is organized, while K-means clustering identifies discrete groups within this space. Together, they offer a powerful way to explore and understand the semantic relationships captured by SigLIP 2's image embeddings.
 
 # %% [markdown]
 # ## Conclusion
@@ -552,3 +662,66 @@ else:
 # 
 # The multilingual capabilities and enhanced training methodology of SigLIP 2 make it particularly valuable for building more inclusive and accurate AI systems that can understand visual content across different languages and cultures.
 
+# %% [markdown]
+# ## Conclusion: The Power and Versatility of Image Embeddings
+# 
+# In this notebook, we've explored the concept of image embeddings with a focus on SigLIP 2, Google's advanced multilingual vision-language encoder. We've seen how these sophisticated representations go far beyond simple vector spaces, incorporating advanced mechanisms that significantly enhance their utility.
+# 
+# ### Key Takeaways
+# 
+# 1. **Advanced Similarity Computation**: SigLIP 2 doesn't just rely on simple cosine similarity between embeddings. It incorporates:
+#    - MAP head pooling for better representation aggregation
+#    - Temperature scaling to control similarity sharpness
+#    - Bias terms to adjust for training imbalances
+#    - Sigmoid activation to convert similarities to probabilities
+# 
+# 2. **Powerful Applications**: These sophisticated embeddings enable a wide range of applications:
+#    - Visualization and exploration through clustering
+#    - Unsupervised grouping based on semantic content
+#    - Cross-modal understanding between images and text
+#    - Semantic search engines with high precision
+#    - Fine-grained recognition of subtle differences and similarities
+# 
+# 3. **Proper Usage**: As we've demonstrated, to get the most out of SigLIP 2, it's crucial to use the model's built-in similarity calculation mechanisms rather than trying to manually compute cosine similarity on raw embeddings.
+# 
+# The quality of SigLIP 2's embeddings makes these applications more accurate and robust than ever before. Its multilingual capabilities and improved semantic understanding make it particularly valuable for diverse global applications.
+# 
+# As image embedding models continue to evolve, we can expect even more powerful capabilities that further bridge the gap between visual content and natural language understanding. These embeddings form the foundation of modern computer vision systems and are becoming increasingly important in multimodal AI applications that combine vision, language, and other modalities.
+# 
+# Whether you're building a visual search engine, a content recommendation system, or a multimodal understanding application, image embeddings like those produced by SigLIP 2 provide a solid foundation for bringing semantic understanding to your visual data—just be sure to leverage their full capabilities by using the model's built-in similarity mechanisms!
+
+# %% [markdown]
+# ### Important Note on Processing Image-Text Pairs
+# 
+# An important detail when working with vision-language models like SigLIP is understanding how to properly compute similarity between images and text.
+# 
+# #### The Proper Way: Process Image-Text Pairs Together
+# 
+# While it's possible to extract image and text embeddings separately (as we did in some examples for educational purposes), the proper way to compute image-text similarity is to use the model's native capability to process image-text pairs together:
+# 
+# ```python
+# # The right way to compute image-text similarity with vision-language models
+# inputs = processor(text=texts, images=image, return_tensors="pt")
+# outputs = model(**inputs)
+# logits = outputs.logits_per_image  # Direct similarity scores
+# probabilities = torch.sigmoid(logits)  # Convert to probabilities
+# ```
+# 
+# #### Why This Matters
+# 
+# Vision-language models like SigLIP are specifically trained to compute similarity between image-text pairs in a particular way. When we extract embeddings separately and then compute similarity using dot products, we're not fully leveraging the model's capabilities.
+# 
+# The model's native `logits_per_image` output includes any internal transformations, normalization, or calibration that the model has learned during training. This leads to more accurate similarity scores compared to taking embeddings separately and computing similarity manually.
+# 
+# #### When to Use Direct Embeddings
+# 
+# There are still valid use cases for extracting embeddings directly:
+# 
+# 1. **Image-to-image similarity**: When comparing within the same modality
+# 2. **Building search indices**: For efficient retrieval systems
+# 3. **Transfer learning**: Using the embeddings as input features for downstream tasks
+# 
+# However, for direct image-text similarity comparisons, always prefer the model's built-in methods for processing the pairs together.
+
+
+# %%
