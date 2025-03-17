@@ -149,8 +149,12 @@
 
 # %%
 # First, let's install the necessary libraries
-!pip install pillow requests matplotlib numpy
-!pip install git+https://github.com/huggingface/transformers@v4.49.0-SigLIP-2
+import sys
+import subprocess
+
+# Install required packages
+subprocess.check_call([sys.executable, "-m", "pip", "install", "pillow", "requests", "matplotlib", "numpy"])
+subprocess.check_call([sys.executable, "-m", "pip", "install", "git+https://github.com/huggingface/transformers@v4.49.0-SigLIP-2"])
 
 # %%
 # Import the required libraries
@@ -234,41 +238,71 @@ plt.show()
 model = AutoModel.from_pretrained(model_name)
 processor = AutoProcessor.from_pretrained(model_name)
 
-# Download additional sample images
-image_urls = [
-    "http://images.cocodataset.org/val2017/000000039769.jpg",  # cats
-    "http://images.cocodataset.org/val2017/000000252219.jpg",  # dog
-    "http://images.cocodataset.org/val2017/000000578967.jpg"   # person on bicycle
+# Import PIL for local image handling
+from PIL import Image
+import os
+
+# Define function to load local and remote images
+def load_local_image(file_path):
+    if os.path.exists(file_path):
+        return Image.open(file_path)
+    else:
+        print(f"Warning: Local file not found: {file_path}")
+        return None
+
+# Local image paths - the specific files you identified
+local_image_paths = [
+    "/Users/earlpotters/Documents/decipher/rrvideo/element-highlights/snapshot_0_1739844581278/element_1.png",
+    "/Users/earlpotters/Documents/decipher/rrvideo/element-highlights/snapshot_445_1739845549649/element_1.png"
 ]
 
-images = [load_image(url) for url in image_urls]
+# Load local images
+local_images = []
+local_image_names = []
+for i, path in enumerate(local_image_paths):
+    img = load_local_image(path)
+    if img is not None:
+        local_images.append(img)
+        # Extract filename for better labeling
+        filename = os.path.basename(path)
+        local_image_names.append(f"Local {i+1}: {filename}")
 
-# Display the images
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-for i, (ax, img) in enumerate(zip(axes, images)):
-    ax.imshow(img)
-    ax.set_title(f"Image {i+1}")
-    ax.axis('off')
-plt.tight_layout()
-plt.show()
+# Display local images
+if local_images:
+    fig, axes = plt.subplots(1, len(local_images), figsize=(15, 5))
+    if len(local_images) == 1:
+        axes = [axes]  # Make axes indexable if there's only one image
+    plt.suptitle("Local Images")
+    for i, (ax, img, name) in enumerate(zip(axes, local_images, local_image_names)):
+        ax.imshow(img)
+        ax.set_title(name)
+        ax.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+# All images for further processing - only using local images
+all_images = local_images
 
 # Text descriptions
 texts = [
-    "two cats lying together",
-    "two cats sleeping",
-    # "two tabby cats one wearing a green collar sprawled out and relaxed on a bright pink surface",
-    "a dog in the grass",
-    "a person riding a bicycle",
-    "a car on the street"
+    "A remote control for a television",
+    "A UI element",
+    "A quickstart UI element",
+    "404 error page",
+    "A button on a webpage",
+    "A navigation menu",
+    "A logo or icon"
 ]
 
+# %%
+
 # %% [markdown]
-# Let's compute the similarity between all these images and texts:
+# Let's compute the similarity between our local images and texts:
 
 # %%
 # Create input for multiple image-text pairs
 inputs = {
-    "images": images,
+    "images": all_images,
     "texts": texts,
 }
 
@@ -280,7 +314,7 @@ zero_shot = pipeline(
 outputs = zero_shot(inputs["images"], candidate_labels=inputs["texts"])
 
 # Create a similarity matrix
-similarity_matrix = np.zeros((len(images), len(texts)))
+similarity_matrix = np.zeros((len(all_images), len(texts)))
 for i, result in enumerate(outputs):
     for j, item in enumerate(result):
         similarity_matrix[i, j] = item["score"]
@@ -290,11 +324,11 @@ plt.figure(figsize=(10, 8))
 plt.imshow(similarity_matrix, vmin=0, vmax=1, cmap='viridis')
 plt.colorbar(label='Similarity Score')
 plt.xticks(np.arange(len(texts)), texts, rotation=45, ha='right')
-plt.yticks(np.arange(len(images)), [f"Image {i+1}" for i in range(len(images))])
-plt.title('Image-Text Similarity Matrix')
+plt.yticks(np.arange(len(all_images)), local_image_names if local_image_names else [f"Image {i+1}" for i in range(len(all_images))])
+plt.title('Local Image-Text Similarity Matrix')
 
 # Add text annotations with the score values
-for i in range(len(images)):
+for i in range(len(all_images)):
     for j in range(len(texts)):
         plt.text(j, i, f'{similarity_matrix[i, j]:.2f}', 
                  ha='center', va='center', 
@@ -308,11 +342,11 @@ plt.show()
 # %% [markdown]
 # ### Example 3: Using SigLIP 2 for Image Embedding Extraction
 # 
-# One of the most common applications of models like SigLIP 2 is extracting image embeddings for downstream tasks such as clustering, similarity search, or fine-tuning classifiers. Let's see how to extract embeddings from our sample images.
+# One of the most common applications of models like SigLIP 2 is extracting image embeddings for downstream tasks such as clustering, similarity search, or fine-tuning classifiers. Let's see how to extract embeddings from our local sample images.
 
 # %%
 # Process images
-inputs = processor(images=images, return_tensors="pt")
+inputs = processor(images=all_images, return_tensors="pt")
 
 # Extract embeddings
 image_embeddings = model.get_image_features(**inputs)
@@ -326,11 +360,11 @@ print(f"Shape of image embeddings: {image_embeddings_np.shape}")
 
 # Visualize the first 20 dimensions of each embedding
 plt.figure(figsize=(12, 6))
-for i in range(len(images)):
-    plt.plot(image_embeddings_np[i, :20], label=f"Image {i+1}")
+for i in range(len(all_images)):
+    plt.plot(image_embeddings_np[i, :20], label=local_image_names[i] if i < len(local_image_names) else f"Image {i+1}")
 plt.xlabel('Embedding Dimension')
 plt.ylabel('Value')
-plt.title('First 20 Dimensions of Image Embeddings')
+plt.title('First 20 Dimensions of Local Image Embeddings')
 plt.legend()
 plt.grid(True)
 plt.show()
@@ -338,7 +372,7 @@ plt.show()
 # %% [markdown]
 # ### Example 4: Computing Image-to-Image Similarity
 # 
-# Now that we have embeddings for our images, we can easily compute the similarity between them.
+# Now that we have embeddings for our local images, we can easily compute the similarity between them.
 
 # %%
 # Compute pairwise cosine similarity between images
@@ -348,11 +382,11 @@ image_sim = np.matmul(image_embeddings_np, image_embeddings_np.T)
 plt.figure(figsize=(8, 6))
 plt.imshow(image_sim, vmin=-1, vmax=1, cmap='coolwarm')
 plt.colorbar(label='Cosine Similarity')
-plt.xticks(np.arange(len(images)), [f"Image {i+1}" for i in range(len(images))])
-plt.yticks(np.arange(len(images)), [f"Image {i+1}" for i in range(len(images))])
-plt.title('Image-to-Image Similarity Matrix')
-for i in range(len(images)):
-    for j in range(len(images)):
+plt.xticks(np.arange(len(all_images)), local_image_names if local_image_names else [f"Image {i+1}" for i in range(len(all_images))])
+plt.yticks(np.arange(len(all_images)), local_image_names if local_image_names else [f"Image {i+1}" for i in range(len(all_images))])
+plt.title('Local Image-to-Image Similarity Matrix')
+for i in range(len(all_images)):
+    for j in range(len(all_images)):
         plt.text(j, i, f'{image_sim[i, j]:.2f}', 
                  ha='center', va='center', 
                  color='white' if abs(image_sim[i, j]) > 0.5 else 'black')
