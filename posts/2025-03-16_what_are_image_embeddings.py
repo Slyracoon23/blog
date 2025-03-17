@@ -1,28 +1,15 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.16.7
-# ---
-
 # %% [raw]
-# {
-#   "aliases": ["/what-are-image-embeddings/"],
-#   "categories": ["Computer Vision", "Machine Learning"],
-#   "date": "2024-03-16",
-#   "image": "/images/what_are_image_embeddings/thumbnail.jpg",
-#   "title": "What are Image Embeddings?",
-#   "subtitle": "Understanding how images are represented as numerical vectors for AI applications",
-#   "format": "html"
-# }
+# ---
+# aliases: ["/what-are-image-embeddings/"]
+# categories: ["Computer Vision", "Machine Learning"]
+# date: "2024-03-16"
+# image: "/images/what_are_image_embeddings/thumbnail.jpg"
+# title: "What are Image Embeddings?"
+# subtitle: "Understanding how images are represented as numerical vectors for AI applications"
+# format: "html"
+# ---
 
 # %% [markdown]
-# # What are Image Embeddings?
 # This notebook explores the concept of image embeddings, how they work, and their applications in AI. We'll focus on Google's SigLIP 2, a state-of-the-art multilingual vision-language encoder, and demonstrate its practical applications through visualization, clustering, and text-image similarity analysis.
 
 # %% [markdown]
