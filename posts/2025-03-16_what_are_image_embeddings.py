@@ -2,8 +2,8 @@
 # ---
 # aliases: ["/what-are-image-embeddings/"]
 # categories: ["Computer Vision", "Machine Learning"]
-# date: "2024-03-16"
-# image: "/images/what_are_image_embeddings/thumbnail.jpg"
+# date: "2025-03-16"
+# image: "/images/what_are_image_embeddings/thumbnail.png"
 # title: "What are Image Embeddings?"
 # subtitle: "Understanding how images are represented as numerical vectors for AI applications"
 # format: "html"
