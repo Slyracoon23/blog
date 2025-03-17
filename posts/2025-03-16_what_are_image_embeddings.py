@@ -77,6 +77,8 @@
 # 
 # 1. **CLIP and ALIGN**: These pioneered the approach of jointly training image and text encoders to understand the semantic relationship between visual data and natural language
 # 
+# ![Contrast function comparison between CLIP and SigLIP](https://i.imgur.com/GH9sai5.png)
+# 
 # 2. **SigLIP (1st generation)**: Improved upon CLIP by replacing its contrastive loss function with a simpler pairwise sigmoid loss. Instead of requiring a global view of pairwise similarities for normalization (as in contrastive learning), the sigmoid loss operated only on image-text pairs, allowing for better scaling and improved performance even with smaller batch sizes
 # 
 # 3. **SigLIP 2**: Extends this foundation by incorporating several additional training techniques into a unified recipe, creating more powerful and versatile vision-language encoders that outperform their predecessors across all model scales
@@ -147,68 +149,25 @@
 
 # %%
 # First, let's install the necessary libraries
-!pip install torch transformers pillow requests matplotlib numpy
+!pip install pillow requests matplotlib numpy
+!pip install git+https://github.com/huggingface/transformers@v4.49.0-SigLIP-2
 
 # %%
 # Import the required libraries
-import torch
-from transformers import AutoProcessor, AutoModel
-from PIL import Image
+from transformers import pipeline, AutoModel, AutoProcessor
+from transformers.image_utils import load_image
 import requests
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Set device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
-
 # %% [markdown]
 # ### Loading the SigLIP 2 Model
 # 
-# We'll use the base variant of SigLIP 2 for our examples. The model we're loading is the multilingual version (i18n) with a ViT-Base backbone.
+# We'll use the base variant of SigLIP 2 for our examples. The most recent models are available with the "google/siglip2-" prefix.
 
 # %%
-# Load the SigLIP 2 model and processor
-model_name = "google/siglip-base-patch16-256-i18n"
-
-try:
-    processor = AutoProcessor.from_pretrained(model_name)
-    model = AutoModel.from_pretrained(model_name).to(device)
-    print(f"Successfully loaded {model_name}")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    print("Using a placeholder for demonstration purposes.")
-    # This is just for demonstration if the actual model can't be loaded
-    class DummyModel:
-        def __call__(self, **kwargs):
-            class DummyOutput:
-                def __init__(self):
-                    batch_size = kwargs.get('pixel_values', torch.ones(1, 3, 224, 224)).shape[0]
-                    text_batch_size = kwargs.get('input_ids', torch.ones(1, 10)).shape[0]
-                    self.logits_per_image = torch.rand(batch_size, text_batch_size)
-                    self.logits_per_text = self.logits_per_image.T
-            return DummyOutput()
-    
-    class DummyProcessor:
-        def __call__(self, text=None, images=None, return_tensors=None, padding=None, max_length=None):
-            result = {}
-            if images is not None:
-                if isinstance(images, list):
-                    batch_size = len(images)
-                else:
-                    batch_size = 1
-                result['pixel_values'] = torch.ones(batch_size, 3, 224, 224)
-            if text is not None:
-                if isinstance(text, list):
-                    batch_size = len(text)
-                else:
-                    batch_size = 1
-                result['input_ids'] = torch.ones(batch_size, 10, dtype=torch.long)
-                result['attention_mask'] = torch.ones(batch_size, 10, dtype=torch.long)
-            return result
-    
-    processor = DummyProcessor()
-    model = DummyModel()
+# We'll use the SO400M model which offers good performance
+model_name = "google/siglip2-so400m-patch14-384"
 
 # %% [markdown]
 # ### Example 1: Zero-Shot Image Classification
@@ -216,48 +175,53 @@ except Exception as e:
 # Let's use SigLIP 2 for zero-shot image classification. We'll load an image and classify it against different text prompts.
 
 # %%
-# Download a sample image
-image_url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-image = Image.open(requests.get(image_url, stream=True).raw)
+# Set up the zero-shot classification pipeline
+from transformers import pipeline
 
-# Display the image
-plt.figure(figsize=(8, 8))
-plt.imshow(image)
-plt.axis('off')
-plt.title("Sample image")
-plt.show()
+ckpt = "google/siglip2-so400m-patch14-384"
+# SigLIP 2 uses the Gemma tokenizer which requires specific parameters
+pipe = pipeline(
+    model=ckpt, 
+    task="zero-shot-image-classification",
+)
 
-# Define potential classes as text prompts
-candidate_labels = [
-    "a photo of a cat",
-    "a photo of a dog",
-    "a photo of a bird",
-    "a photo of a car",
-    "a photo of a person"
-]
+inputs = {
+    "images": [
+        "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000285.jpg", # bear
+        "https://huggingface.co/datasets/merve/coco/resolve/main/val2017/000000000776.jpg", # teddy bear
+    ],
+    "texts": [
+        "bear looking into the camera",
+        "bear looking away from the camera",
+        "a bunch of teddy bears",
+        "two teddy bears",
+        "three teddy bears"
+    ],
+}
 
-# Process the inputs
-inputs = processor(text=candidate_labels, images=image, return_tensors="pt")
-inputs = {k: v.to(device) for k, v in inputs.items()}
+outputs = pipe(inputs["images"], candidate_labels=inputs["texts"])
 
-# Get model predictions
-with torch.no_grad():
-    outputs = model(**inputs)
-    logits_per_image = outputs.logits_per_image  # this is the image-text similarity score
-    probs = torch.sigmoid(logits_per_image)  # convert to probabilities
-
-# Display the results
-probs_np = probs.cpu().numpy()[0]
-for label, prob in zip(candidate_labels, probs_np):
-    print(f"{label}: {prob:.4f}")
+# Display the outputs
+for i, output in enumerate(outputs):
+    print(f"Image {i+1} results:")
+    for result in output:
+        print(f"{result['label']}: {result['score']:.4f}")
+    print()
 
 # Visualize the results
-plt.figure(figsize=(10, 6))
-plt.bar([label.replace("a photo of a ", "") for label in candidate_labels], probs_np)
-plt.xlabel('Category')
-plt.ylabel('Probability')
-plt.title('Zero-Shot Classification Results')
-plt.ylim(0, 1)
+fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+for i, output in enumerate(outputs):
+    labels = [result['label'] for result in output]
+    scores = [result['score'] for result in output]
+    
+    axes[i].bar(range(len(labels)), scores)
+    axes[i].set_xticks(range(len(labels)))
+    axes[i].set_xticklabels(labels, rotation=45, ha='right')
+    axes[i].set_ylim(0, 1)
+    axes[i].set_title(f"Image {i+1} Classification Results")
+    axes[i].set_ylabel("Probability")
+
+plt.tight_layout()
 plt.show()
 
 # %% [markdown]
@@ -266,6 +230,10 @@ plt.show()
 # Now let's explore how we can use SigLIP 2 to compute similarity between multiple images and texts.
 
 # %%
+# Load the model and processor
+model = AutoModel.from_pretrained(model_name)
+processor = AutoProcessor.from_pretrained(model_name)
+
 # Download additional sample images
 image_urls = [
     "http://images.cocodataset.org/val2017/000000039769.jpg",  # cats
@@ -273,7 +241,7 @@ image_urls = [
     "http://images.cocodataset.org/val2017/000000578967.jpg"   # person on bicycle
 ]
 
-images = [Image.open(requests.get(url, stream=True).raw) for url in image_urls]
+images = [load_image(url) for url in image_urls]
 
 # Display the images
 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
@@ -287,6 +255,8 @@ plt.show()
 # Text descriptions
 texts = [
     "two cats lying together",
+    "two cats sleeping",
+    # "two tabby cats one wearing a green collar sprawled out and relaxed on a bright pink surface",
     "a dog in the grass",
     "a person riding a bicycle",
     "a car on the street"
@@ -296,43 +266,44 @@ texts = [
 # Let's compute the similarity between all these images and texts:
 
 # %%
-# Process all images
-image_inputs = processor(images=images, return_tensors="pt")
-image_inputs = {k: v.to(device) for k, v in image_inputs.items()}
+# Create input for multiple image-text pairs
+inputs = {
+    "images": images,
+    "texts": texts,
+}
 
-# Process all texts
-text_inputs = processor(text=texts, return_tensors="pt", padding=True)
-text_inputs = {k: v.to(device) for k, v in text_inputs.items()}
+# Use the pipeline for batch processing
+zero_shot = pipeline(
+    model=model_name, 
+    task="zero-shot-image-classification",
+)
+outputs = zero_shot(inputs["images"], candidate_labels=inputs["texts"])
 
-# Compute embeddings
-with torch.no_grad():
-    # Get image embeddings
-    image_embeds = model.get_image_features(**{k: v for k, v in image_inputs.items() 
-                                             if k in ['pixel_values']})
-    
-    # Get text embeddings
-    text_embeds = model.get_text_features(**{k: v for k, v in text_inputs.items()
-                                           if k in ['input_ids', 'attention_mask']})
-    
-    # Normalize embeddings
-    image_embeds = torch.nn.functional.normalize(image_embeds, dim=1)
-    text_embeds = torch.nn.functional.normalize(text_embeds, dim=1)
-    
-    # Compute similarity
-    similarity = torch.matmul(image_embeds, text_embeds.T)
-    sigmoid_sim = torch.sigmoid(similarity)
+# Create a similarity matrix
+similarity_matrix = np.zeros((len(images), len(texts)))
+for i, result in enumerate(outputs):
+    for j, item in enumerate(result):
+        similarity_matrix[i, j] = item["score"]
 
 # Display similarity matrix
-similarity_np = sigmoid_sim.cpu().numpy()
-
 plt.figure(figsize=(10, 8))
-plt.imshow(similarity_np, vmin=0, vmax=1, cmap='viridis')
-plt.colorbar(label='Similarity (sigmoid)')
+plt.imshow(similarity_matrix, vmin=0, vmax=1, cmap='viridis')
+plt.colorbar(label='Similarity Score')
 plt.xticks(np.arange(len(texts)), texts, rotation=45, ha='right')
 plt.yticks(np.arange(len(images)), [f"Image {i+1}" for i in range(len(images))])
 plt.title('Image-Text Similarity Matrix')
+
+# Add text annotations with the score values
+for i in range(len(images)):
+    for j in range(len(texts)):
+        plt.text(j, i, f'{similarity_matrix[i, j]:.2f}', 
+                 ha='center', va='center', 
+                 color='white' if similarity_matrix[i, j] < 0.5 else 'black')
+
 plt.tight_layout()
 plt.show()
+
+# %%
 
 # %% [markdown]
 # ### Example 3: Using SigLIP 2 for Image Embedding Extraction
@@ -340,16 +311,15 @@ plt.show()
 # One of the most common applications of models like SigLIP 2 is extracting image embeddings for downstream tasks such as clustering, similarity search, or fine-tuning classifiers. Let's see how to extract embeddings from our sample images.
 
 # %%
-# Extract embeddings from our sample images
-with torch.no_grad():
-    image_embeddings = model.get_image_features(**{k: v for k, v in image_inputs.items() 
-                                                 if k in ['pixel_values']})
-    
-    # Normalize the embeddings
-    image_embeddings = torch.nn.functional.normalize(image_embeddings, dim=1)
+# Process images
+inputs = processor(images=images, return_tensors="pt")
+
+# Extract embeddings
+image_embeddings = model.get_image_features(**inputs)
+image_embeddings = image_embeddings / image_embeddings.norm(dim=1, keepdim=True)  # Normalize
 
 # Convert to numpy for easier analysis
-image_embeddings_np = image_embeddings.cpu().numpy()
+image_embeddings_np = image_embeddings.detach().numpy()
 
 # Print shape of embeddings
 print(f"Shape of image embeddings: {image_embeddings_np.shape}")
@@ -372,7 +342,7 @@ plt.show()
 
 # %%
 # Compute pairwise cosine similarity between images
-image_sim = torch.matmul(image_embeddings, image_embeddings.T).cpu().numpy()
+image_sim = np.matmul(image_embeddings_np, image_embeddings_np.T)
 
 # Visualize the similarity matrix
 plt.figure(figsize=(8, 6))
