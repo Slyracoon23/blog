@@ -40,22 +40,30 @@ def siglip_detector(image, texts):
         sg1_outputs = siglip1_model(**sg1_inputs)
         sg2_outputs = siglip2_model(**sg2_inputs)
         
-        print("\nSigLIP 1 output keys:", sg1_outputs.keys())
-        print("SigLIP 2 output keys:", sg2_outputs.keys())
-        
         sg1_logits_per_image = sg1_outputs.logits_per_image
         sg2_logits_per_image = sg2_outputs.logits_per_image
         
-        print("\nSigLIP 1 logits shape:", sg1_logits_per_image.shape)
-        print("SigLIP 1 raw logits:", sg1_logits_per_image)
-        print("SigLIP 2 logits shape:", sg2_logits_per_image.shape)
-        print("SigLIP 2 raw logits:", sg2_logits_per_image)
+        # Print detailed logits for each text description
+        print("\n--- Image-Text Pair Logits ---")
+        for i, text in enumerate(texts):
+            print(f"Text: '{text}'")
+            print(f"  SigLIP 1 logit: {sg1_logits_per_image[0][i].item():.4f}")
+            print(f"  SigLIP 2 logit: {sg2_logits_per_image[0][i].item():.4f}")
+        
+        # You can modify logits here if needed
+        # For example, to boost certain logits:
+        # sg1_logits_per_image[0][0] *= 1.2  # Boost first text match by 20%
         
         sg1_probs = torch.sigmoid(sg1_logits_per_image)
         sg2_probs = torch.sigmoid(sg2_logits_per_image)
         
-        print("\nSigLIP 1 probabilities:", sg1_probs)
-        print("SigLIP 2 probabilities:", sg2_probs)
+        # Print resulting probabilities
+        print("\n--- Image-Text Pair Probabilities ---")
+        for i, text in enumerate(texts):
+            print(f"Text: '{text}'")
+            print(f"  SigLIP 1 probability: {sg1_probs[0][i].item():.4f}")
+            print(f"  SigLIP 2 probability: {sg2_probs[0][i].item():.4f}")
+        
         print("-" * 80)
     
     return sg1_probs, sg2_probs
