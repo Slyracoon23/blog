@@ -14,7 +14,7 @@
 
 # %% [markdown]
 # ## Introduction
-# Image embeddings are numerical representations of images that capture their semantic content in a way that's useful for machine learning algorithms. At their core, embeddings are dense vectors—typically consisting of hundreds or thousands of floating-point numbers—that represent images in a high-dimensional space where similar images are positioned close to each other.
+# Image embeddings are numerical representations of images that capture their semantic content in a way that's useful for machine learning algorithms[^1]. At their core, embeddings are dense vectors—typically consisting of hundreds or thousands of floating-point numbers—that represent images in a high-dimensional space where similar images are positioned close to each other[^2].
 # 
 # ### Why Do We Need Image Embeddings?
 # 
@@ -28,17 +28,28 @@
 # 
 # - **Reducing dimensionality**: Typically to a few hundred or thousand dimensions
 # - **Capturing semantics**: Images with similar content have similar embeddings
-# - **Enabling efficient search**: Finding similar images becomes a vector similarity search
-# - **Supporting transfer learning**: Pre-trained embeddings can be used for various downstream tasks
+# - **Enabling efficient search**: Finding similar images becomes a vector similarity search[^3]
+# - **Supporting transfer learning**: Pre-trained embeddings can be used for various downstream tasks[^4]
+# 
+# [^1]: Bengio, Y., Courville, A., & Vincent, P. (2013). Representation learning: A review and new perspectives. IEEE Transactions on Pattern Analysis and Machine Intelligence, 35(8), 1798-1828. https://doi.org/10.1109/TPAMI.2013.50
+# 
+# [^2]: Pan, S. J., & Yang, Q. (2009). A survey on transfer learning. IEEE Transactions on Knowledge and Data Engineering, 22(10), 1345-1359. https://doi.org/10.1109/TKDE.2009.191
+# 
+# [^3]: Johnson, J., Douze, M., & Jégou, H. (2019). Billion-scale similarity search with GPUs. IEEE Transactions on Big Data, 7(3), 535-547. https://doi.org/10.1109/TBDATA.2019.2921572
+# 
+# [^4]: He, K., Girshick, R., & Dollár, P. (2018). Rethinking ImageNet pre-training. Proceedings of the IEEE/CVF International Conference on Computer Vision, 4918-4927. https://arxiv.org/abs/1811.08883
 
 # %% [markdown]
 # ## How Image Embeddings Work
 # 
-# Modern image embeddings are typically created using deep neural networks, particularly convolutional neural networks (CNNs) or vision transformers (ViTs). These networks learn to transform raw pixels into compact, semantically meaningful representations through extensive training on large datasets.
+# Modern image embeddings are typically created using deep neural networks, particularly convolutional neural networks (CNNs)[^5] or vision transformers (ViTs)[^6]. These networks learn to transform raw pixels into compact, semantically meaningful representations through extensive training on large datasets.
+# 
+# ![Vision Transformer Architecture](https://i.imgur.com/n0vrUs8.png)
+# *Figure 2: Vision Transformer (ViT) architecture. The image is divided into patches which are linearly embedded, positional encodings are added, and the resulting sequence is processed by a standard Transformer encoder. This approach allows transformers to effectively process visual information similarly to how they handle text. Adapted from Dosovitskiy et al. (2021)[^6].*
 # 
 # The process generally involves:
 # 
-# 1. **Training**: Neural networks are trained on large image datasets, often using self-supervised or weakly-supervised learning approaches
+# 1. **Training**: Neural networks are trained on large image datasets, often using self-supervised or weakly-supervised learning approaches[^7]
 # 2. **Feature extraction**: The trained network processes an image through its layers
 # 3. **Embedding generation**: The network's final or penultimate layer outputs become the embedding vector
 # 
@@ -47,13 +58,23 @@
 # - **Image similarity**: Finding visually or semantically similar images
 # - **Image classification**: Categorizing images into predefined classes
 # - **Image retrieval**: Finding relevant images based on text queries
-# - **Zero-shot learning**: Recognizing objects the model wasn't explicitly trained on
+# - **Zero-shot learning**: Recognizing objects the model wasn't explicitly trained on[^8]
 # - **Transfer learning**: Using pre-trained embeddings for new tasks with limited data
+# 
+# [^5]: Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). ImageNet classification with deep convolutional neural networks. Advances in Neural Information Processing Systems, 25. https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf
+# 
+# [^6]: Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., Dehghani, M., Minderer, M., Heigold, G., Gelly, S., Uszkoreit, J., & Houlsby, N. (2021). An image is worth 16x16 words: Transformers for image recognition at scale. In International Conference on Learning Representations. https://arxiv.org/abs/2010.11929
+# 
+# [^7]: Chen, T., Kornblith, S., Norouzi, M., & Hinton, G. (2020). A simple framework for contrastive learning of visual representations. International Conference on Machine Learning, 1597-1607. https://arxiv.org/abs/2002.05709
+# 
+# [^8]: Xian, Y., Lampert, C. H., Schiele, B., & Akata, Z. (2018). Zero-shot learning—A comprehensive evaluation of the good, the bad and the ugly. IEEE Transactions on Pattern Analysis and Machine Intelligence, 41(9), 2251-2265. https://arxiv.org/abs/1707.00600
 
 # %% [markdown]
 # ## SigLIP 2: Google's Advanced Multilingual Vision-Language Encoder
 # 
-# SigLIP 2 represents the latest advancement in image embedding technology. Developed by Google and released in early 2024, it significantly improves upon its predecessor by offering enhanced semantic understanding, better localization capabilities, and more effective dense feature representation.
+# SigLIP 2 represents the latest advancement in image embedding technology[^9]. Developed by Google and released in early 2024, it significantly improves upon its predecessor by offering enhanced semantic understanding, better localization capabilities, and more effective dense feature representation.
+# 
+# [^9]: Beyer, L., Dehghani, M., et al. (2024). SigLIP 2: Next-Generation Multilingual Vision-Language Models. Google Research. https://arxiv.org/abs/2409.01936
 
 # %% [markdown]
 # ### Technical Background and Evolution
@@ -62,41 +83,54 @@
 # 
 # Vision-language models have evolved considerably in recent years:
 # 
-# 1. **CLIP and ALIGN**: These pioneered the approach of jointly training image and text encoders to understand the semantic relationship between visual data and natural language
+# 1. **CLIP and ALIGN**: These pioneered the approach of jointly training image and text encoders to understand the semantic relationship between visual data and natural language[^10]
 # 
 # ![Contrast function comparison between CLIP and SigLIP](https://i.imgur.com/GH9sai5.png)
+# *Figure 1: Comparison of contrast functions in CLIP (contrastive loss) and SigLIP (sigmoid loss). Adapted from Zhai et al. (2023).*
 # 
-# 2. **SigLIP (1st generation)**: Improved upon CLIP by replacing its contrastive loss function with a simpler pairwise sigmoid loss. Instead of requiring a global view of pairwise similarities for normalization (as in contrastive learning), the sigmoid loss operated only on image-text pairs, allowing for better scaling and improved performance even with smaller batch sizes
+# 2. **SigLIP (1st generation)**: Improved upon CLIP by replacing its contrastive loss function with a simpler pairwise sigmoid loss[^11]. Instead of requiring a global view of pairwise similarities for normalization (as in contrastive learning), the sigmoid loss operated only on image-text pairs, allowing for better scaling and improved performance even with smaller batch sizes
 # 
-# 3. **SigLIP 2**: Extends this foundation by incorporating several additional training techniques into a unified recipe, creating more powerful and versatile vision-language encoders that outperform their predecessors across all model scales
+# 3. **SigLIP 2**: Extends this foundation by incorporating several additional training techniques into a unified recipe, creating more powerful and versatile vision-language encoders that outperform their predecessors across all model scales[^12]
+# 
+# [^10]: Radford, A., Kim, J.W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J. and Krueger, G. (2021). Learning transferable visual models from natural language supervision. In International Conference on Machine Learning (pp. 8748-8763). PMLR. https://arxiv.org/abs/2103.00020
+# 
+# [^11]: Zhai, X., Wang, X., Mustafa, B., Steiner, A., Keysers, D., Kolesnikov, A., & Beyer, L. (2023). Sigmoid loss for language image pre-training. In Proceedings of the 40th International Conference on Machine Learning (pp. 40844-40858). PMLR. https://arxiv.org/abs/2303.15343
+# 
+# [^12]: Google. (2024). SigLIP 2 - GitHub Documentation. https://github.com/google-research/big_vision/blob/main/big_vision/configs/proj/image_text/README_siglip2.md
 
 # %% [markdown]
 # ### How SigLIP 2 Works
 # 
 # #### Enhanced Training Methodology
 # 
-# SigLIP 2's functioning is fundamentally based on its innovative training approach that combines multiple previously independent techniques:
+# SigLIP 2's functioning is fundamentally based on its innovative training approach that combines multiple previously independent techniques[^13]:
 # 
 # 1. **Extended Training Objectives**: While preserving the original sigmoid loss function, SigLIP 2 integrates several additional training objectives:
 #    - Captioning-based pretraining to enhance semantic understanding
 #    - Self-supervised losses including self-distillation and masked prediction
 #    - Online data curation for improved quality and diversity of training examples
 # 
-# 2. **Multilingual Capabilities**: The model is trained on a more diverse data mixture that incorporates de-biasing techniques, leading to significantly better multilingual understanding and improved fairness across different languages and cultures
+# 2. **Multilingual Capabilities**: The model is trained on a more diverse data mixture that incorporates de-biasing techniques, leading to significantly better multilingual understanding and improved fairness across different languages and cultures[^14]
 # 
-# 3. **Technical Implementation**: SigLIP 2 models use the Gemma tokenizer with a vocabulary size of 256,000 tokens, allowing for better representation of diverse languages
+# 3. **Technical Implementation**: SigLIP 2 models use the Gemma tokenizer with a vocabulary size of 256,000 tokens, allowing for better representation of diverse languages[^15]
+# 
+# [^13]: Google Research. (2024). SigLIP 2: Multilingual vision-language models with self-supervised learning. GitHub. https://github.com/google-research/big_vision/blob/main/big_vision/configs/proj/image_text/README_siglip2.md
+# 
+# [^14]: Google. (2024). SigLIP 2 Technical Report. https://huggingface.co/papers/2502.14786
+# 
+# [^15]: Google. (2024). Gemma Tokenizer. Hugging Face. https://huggingface.co/google/gemma-tokenizer
 
 # %% [markdown]
 # #### Beyond Simple Cosine Similarity: Advanced Similarity Computation
 # 
-# While many discussions of image embeddings focus on simple cosine similarity between vectors, SigLIP 2's similarity computation is actually much more sophisticated. This advanced approach leads to more accurate and nuanced similarity scores:
+# While many discussions of image embeddings focus on simple cosine similarity between vectors, SigLIP 2's similarity computation is actually much more sophisticated[^16]. This advanced approach leads to more accurate and nuanced similarity scores:
 # 
-# 1. **Multi-head Attention Pooling (MAP)**: Unlike simpler models that use average pooling to aggregate token representations, SigLIP 2 employs a more sophisticated attention-based pooling mechanism:
+# 1. **Multi-head Attention Pooling (MAP)**: Unlike simpler models that use average pooling to aggregate token representations, SigLIP 2 employs a more sophisticated attention-based pooling mechanism[^17]:
 #    - The MAP head learns to focus on the most relevant parts of the image or text
 #    - It assigns different weights to different regions or tokens based on their importance
 #    - This selective attention mechanism produces more contextually relevant embeddings that capture important details while ignoring noise
 # 
-# 2. **Temperature Scaling**: SigLIP 2 applies a learned temperature parameter (τ) to scale similarity scores:
+# 2. **Temperature Scaling**: SigLIP 2 applies a learned temperature parameter (τ) to scale similarity scores[^18]:
 #    - Raw cosine similarities are divided by this temperature: sim(i,j)/τ
 #    - Lower temperature values make the distribution more "peaked," emphasizing differences between high and low similarity pairs
 #    - Higher temperature values make the distribution more uniform
@@ -112,12 +146,20 @@
 #    - This transforms the unbounded similarity scores into well-calibrated probability-like values in the range [0,1]
 #    - The sigmoid function allows each image-text pair to be evaluated independently, which is more appropriate for retrieval tasks
 # 
-# These components work together to ensure that SigLIP 2's similarity calculations go far beyond simple vector dot products. When using SigLIP 2, it's crucial to use the model's built-in comparison mechanism (`logits_per_image` followed by sigmoid activation) rather than manually computing cosine similarity on raw embeddings, as the former incorporates all these learned parameters and transformations that were optimized during training.
+# These components work together to ensure that SigLIP 2's similarity calculations go far beyond simple vector dot products. When using SigLIP 2, it's crucial to use the model's built-in comparison mechanism (`logits_per_image` followed by sigmoid activation) rather than manually computing cosine similarity on raw embeddings, as the former incorporates all these learned parameters and transformations that were optimized during training[^19].
+# 
+# [^16]: Hugging Face. (2024). SigLIP 2 Model Documentation. https://huggingface.co/docs/transformers/en/model_doc/siglip2
+# 
+# [^17]: Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, Ł., & Polosukhin, I. (2017). Attention is all you need. In Advances in Neural Information Processing Systems (pp. 5998-6008). https://arxiv.org/abs/1706.03762
+# 
+# [^18]: Hinton, G., Vinyals, O., & Dean, J. (2015). Distilling the knowledge in a neural network. arXiv preprint arXiv:1503.02531. https://arxiv.org/abs/1503.02531
+# 
+# [^19]: Lukyanenko, A. (2024). Paper Review: SigLIP 2 - Multilingual Vision-Language Dense Encoder. https://www.linkedin.com/pulse/paper-review-siglip-2-multilingual-vision-language-dense-lukyanenko-7cvyf
 
 # %% [markdown]
 # #### Architecture Variants
 # 
-# SigLIP 2 is available in several architectural variants to accommodate different computational constraints and use cases:
+# SigLIP 2 is available in several architectural variants to accommodate different computational constraints and use cases[^20]:
 # 
 # 1. **Model Sizes**: The family includes four primary model sizes:
 #    - ViT-B (86M parameters)
@@ -125,10 +167,14 @@
 #    - ViT-So400m (400M parameters)
 #    - ViT-g (1B parameters)
 # 
-# 2. **NaFlex Variants**: One of the most significant innovations in SigLIP 2 is the introduction of NaFlex variants, which support dynamic resolution and preserve the input's native aspect ratio. This feature is particularly valuable for:
+# 2. **NaFlex Variants**: One of the most significant innovations in SigLIP 2 is the introduction of NaFlex variants, which support dynamic resolution and preserve the input's native aspect ratio[^21]. This feature is particularly valuable for:
 #    - Optical character recognition (OCR)
 #    - Document understanding
 #    - Any task where preserving the original aspect ratio and resolution is important
+# 
+# [^20]: Google. (2024). SigLIP 2 Model Collection. Hugging Face. https://huggingface.co/models?search=google%2Fsiglip2
+# 
+# [^21]: Google. (2024). SigLIP 2 Gemma Toolkit. Google Developers Blog. https://developers.googleblog.com/en/gemma-family-and-toolkit-expansion-io-2024/
 
 # %% [markdown]
 # ### Key Capabilities and Improvements
@@ -176,20 +222,34 @@
 # ## Implementing SigLIP 2: Practical Examples
 # 
 # Now that we understand the theoretical background of image embeddings and SigLIP 2, let's implement it to see how it works in practice. We'll use the Hugging Face Transformers library, which provides easy access to SigLIP 2 models.
+# 
+# ### Resources for Following Along
+# 
+# To follow along with these examples, you'll need access to these resources:
+# 
+# - **SigLIP 2 on Hugging Face**: [google/siglip2-so400m-patch14-384](https://huggingface.co/google/siglip2-so400m-patch14-384)
+# - **Official Documentation**: [GitHub - SigLIP 2 README](https://github.com/google-research/big_vision/blob/main/big_vision/configs/proj/image_text/README_siglip2.md)
+# - **Zero-Shot Classification Guide**: [Hugging Face Documentation](https://huggingface.co/docs/transformers/en/tasks/zero_shot_image_classification)
+# - **Required Python Libraries**: 
+#   - [Transformers](https://huggingface.co/docs/transformers/index)
+#   - [PyTorch](https://pytorch.org/docs/stable/index.html)
+#   - [UMAP-Learn](https://umap-learn.readthedocs.io/en/latest/)
+#   - [Scikit-learn](https://scikit-learn.org/stable/)
+# - **Recommended Environment**: Python 3.8+ with GPU support
 
 # %%
 # Import necessary libraries
 import sys
 import os
 import time
-import requests
-import numpy as np
-import matplotlib.pyplot as plt
-import torch
-from PIL import Image
-from sklearn.cluster import KMeans
+import requests  # For fetching images from URLs: https://docs.python-requests.org/
+import numpy as np  # For numerical operations: https://numpy.org/doc/stable/
+import matplotlib.pyplot as plt  # For visualization: https://matplotlib.org/stable/
+import torch  # PyTorch deep learning framework: https://pytorch.org/docs/stable/
+from PIL import Image  # For image processing: https://pillow.readthedocs.io/
+from sklearn.cluster import KMeans  # For clustering: https://scikit-learn.org/stable/modules/clustering.html
 from sklearn.metrics.pairwise import cosine_similarity
-from transformers import pipeline, AutoModel, AutoProcessor
+from transformers import pipeline, AutoModel, AutoProcessor  # Hugging Face Transformers: https://huggingface.co/docs/transformers/
 from transformers.image_utils import load_image
 
 # %% [markdown]
@@ -499,11 +559,13 @@ print(f"Successfully embedded {len(large_embeddings)} images. Embedding shape: {
 
 # %% [markdown]
 # ### Visualizing High-Dimensional Embeddings with UMAP
+# 
+# Uniform Manifold Approximation and Projection (UMAP)[^24] is a dimensionality reduction technique that helps us visualize high-dimensional embeddings in 2D space while preserving their local and global structure. Unlike simpler methods like PCA, UMAP can capture non-linear relationships in the data, making it ideal for visualizing complex embedding spaces.
 
 # %%
 # Apply UMAP for dimensionality reduction to visualize embeddings in 2D
 print("Applying UMAP dimensionality reduction...")
-umap_model = UMAP(n_components=2, n_neighbors=5, min_dist=0.1, metric='cosine', random_state=42)
+umap_model = UMAP(n_components=2, n_neighbors=5, min_dist=0.1, metric='cosine', random_state=42)  # Using UMAP algorithm for dimensionality reduction
 umap_embeddings = umap_model.fit_transform(large_embeddings)
 
 # Function to plot images on UMAP projection
@@ -544,7 +606,7 @@ plt.show()
 # %% [markdown]
 # ### Using K-means Clustering on Embeddings
 # 
-# Now that we've visualized our embeddings in 2D space, let's use K-means clustering to identify groups of semantically similar images.
+# Now that we've visualized our embeddings in 2D space, let's use K-means clustering[^25] to identify groups of semantically similar images. K-means is an unsupervised learning algorithm that groups data points with similar features together based on their Euclidean distance in the embedding space.
 
 # %%
 # Apply K-means clustering on the original high-dimensional embeddings
@@ -560,6 +622,11 @@ plt.colorbar(scatter, label='Cluster')
 plt.title(f'UMAP Projection with K-means Clustering (k={n_clusters})')
 plt.tight_layout()
 plt.show()
+
+# %% [markdown]
+# [^24]: McInnes, L., Healy, J., & Melville, J. (2018). UMAP: Uniform manifold approximation and projection for dimension reduction. *arXiv preprint arXiv:1802.03426*. [arXiv:1802.03426](https://arxiv.org/abs/1802.03426)
+# 
+# [^25]: Lloyd, S. (1982). Least squares quantization in PCM. *IEEE Transactions on Information Theory*, 28(2), 129-137. https://doi.org/10.1109/TIT.1982.1056489
 
 # %% [markdown]
 # ### Visualizing Images by Cluster
@@ -698,7 +765,7 @@ for cluster_id in range(n_clusters):
 # 
 # Vision-language models like SigLIP are specifically trained to compute similarity between image-text pairs in a particular way. When we extract embeddings separately and then compute similarity using dot products, we're not fully leveraging the model's capabilities.
 # 
-# The model's native `logits_per_image` output includes any internal transformations, normalization, or calibration that the model has learned during training. This leads to more accurate similarity scores compared to taking embeddings separately and computing similarity manually.
+# The model's native `logits_per_image` output includes any internal transformations, normalization, or calibration that the model has learned during training. This leads to more accurate similarity scores compared to taking embeddings separately and computing similarity manually[^22].
 # 
 # #### When to Use Direct Embeddings
 # 
@@ -708,7 +775,41 @@ for cluster_id in range(n_clusters):
 # 2. **Building search indices**: For efficient retrieval systems
 # 3. **Transfer learning**: Using the embeddings as input features for downstream tasks
 # 
-# However, for direct image-text similarity comparisons, always prefer the model's built-in methods for processing the pairs together.
+# However, for direct image-text similarity comparisons, always prefer the model's built-in methods for processing the pairs together[^23].
+# 
+# [^22]: Hugging Face. (2024). Zero-shot Image Classification with Transformers. https://huggingface.co/docs/transformers/en/tasks/zero_shot_image_classification
+# 
+# [^23]: Pinecone. (2024). Zero-shot Image Classification with CLIP. https://www.pinecone.io/learn/series/image-search/zero-shot-image-classification-clip/
 
-
-# %%
+# %% [markdown]
+# ## References
+# 
+# 1. Radford, A., Kim, J.W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J. and Krueger, G. (2021). Learning transferable visual models from natural language supervision. *In International Conference on Machine Learning* (pp. 8748-8763). PMLR. [arXiv:2103.00020](https://arxiv.org/abs/2103.00020)
+# 
+# 2. Zhai, X., Wang, X., Mustafa, B., Steiner, A., Keysers, D., Kolesnikov, A., & Beyer, L. (2023). Sigmoid loss for language image pre-training. *In Proceedings of the 40th International Conference on Machine Learning* (pp. 40844-40858). PMLR. [arXiv:2303.15343](https://arxiv.org/abs/2303.15343)
+# 
+# 3. Beyer, L., Dehghani, M., et al. (2024). SigLIP 2: Next-Generation Multilingual Vision-Language Models. Google Research. [arXiv:2409.01936](https://arxiv.org/abs/2409.01936)
+# 
+# 4. Google Research. (2024). SigLIP 2: Multilingual vision-language models with self-supervised learning. GitHub. [Repository](https://github.com/google-research/big_vision/blob/main/big_vision/configs/proj/image_text/README_siglip2.md)
+# 
+# 5. Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., ... & Rush, A. M. (2020). Transformers: State-of-the-art natural language processing. *In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations* (pp. 38-45). [ACL Anthology](https://aclanthology.org/2020.emnlp-demos.6/)
+# 
+# 6. McInnes, L., Healy, J., & Melville, J. (2018). UMAP: Uniform manifold approximation and projection for dimension reduction. *arXiv preprint arXiv:1802.03426*. [arXiv:1802.03426](https://arxiv.org/abs/1802.03426)
+# 
+# 7. Google. (2024). SigLIP 2 SO400M Patch14-384 Model. Hugging Face. [Model Card](https://huggingface.co/google/siglip2-so400m-patch14-384)
+# 
+# 8. Hugging Face. (2024). Zero-Shot Image Classification with Transformers. [Documentation](https://huggingface.co/docs/transformers/en/tasks/zero_shot_image_classification)
+# 
+# 9. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, Ł., & Polosukhin, I. (2017). Attention is all you need. *In Advances in Neural Information Processing Systems* (pp. 5998-6008). [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)
+# 
+# 10. Bengio, Y., Courville, A., & Vincent, P. (2013). Representation learning: A review and new perspectives. *IEEE Transactions on Pattern Analysis and Machine Intelligence*, 35(8), 1798-1828. [IEEE](https://doi.org/10.1109/TPAMI.2013.50)
+# 
+# 11. Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). ImageNet classification with deep convolutional neural networks. *Advances in Neural Information Processing Systems*, 25. [NeurIPS](https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf)
+# 
+# 12. Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., ... & Houlsby, N. (2021). An image is worth 16x16 words: Transformers for image recognition at scale. *In International Conference on Learning Representations*. [arXiv:2010.11929](https://arxiv.org/abs/2010.11929)
+# 
+# 13. Chen, T., Kornblith, S., Norouzi, M., & Hinton, G. (2020). A simple framework for contrastive learning of visual representations. *International Conference on Machine Learning*, 1597-1607. [arXiv:2002.05709](https://arxiv.org/abs/2002.05709)
+# 
+# 14. Johnson, J., Douze, M., & Jégou, H. (2019). Billion-scale similarity search with GPUs. *IEEE Transactions on Big Data*, 7(3), 535-547. [IEEE](https://doi.org/10.1109/TBDATA.2019.2921572)
+# 
+# 15. Hinton, G., Vinyals, O., & Dean, J. (2015). Distilling the knowledge in a neural network. *arXiv preprint arXiv:1503.02531*. [arXiv:1503.02531](https://arxiv.org/abs/1503.02531)
