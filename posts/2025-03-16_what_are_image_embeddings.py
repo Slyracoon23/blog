@@ -6,11 +6,14 @@
 # image: "/images/what_are_image_embeddings/thumbnail.png"
 # title: "What are Image Embeddings?"
 # subtitle: "Understanding how images are represented as numerical vectors for AI applications"
+# colab: '<a href="https://colab.research.google.com/drive/1T66Ae_EcUo7KqcQcuAftcJ1oJiVZv5YO?usp=sharing"><img src="images/colab.svg" alt="Open In Colab"></a>'
 # format: "html"
 # ---
 
 # %% [markdown]
 # This notebook explores the concept of image embeddings, how they work, and their applications in AI. We'll focus on Google's SigLIP 2, a state-of-the-art multilingual vision-language encoder, and demonstrate its practical applications through visualization, clustering, and text-image similarity analysis.
+# 
+# > **Note:** The complete code for this article is available in this [Colab notebook](https://colab.research.google.com/drive/1T66Ae_EcUo7KqcQcuAftcJ1oJiVZv5YO?usp=sharing).
 
 # %% [markdown]
 # ## Introduction
@@ -1020,9 +1023,9 @@ for cluster_id in range(n_clusters):
 # %% [markdown]
 # ## References
 # 
-# 1. Radford, A., Kim, J.W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J. and Krueger, G. (2021). Learning transferable visual models from natural language supervision. *In International Conference on Machine Learning* (pp. 8748-8763). PMLR. [arXiv:2103.00020](https://arxiv.org/abs/2103.00020)
+# 1. Radford, A., Kim, J.W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J. and Krueger, G. (2021). Learning transferable visual models from natural language supervision. In International Conference on Machine Learning (pp. 8748-8763). PMLR. [arXiv:2103.00020](https://arxiv.org/abs/2103.00020)
 # 
-# 2. Zhai, X., Wang, X., Mustafa, B., Steiner, A., Keysers, D., Kolesnikov, A., & Beyer, L. (2023). Sigmoid loss for language image pre-training. *In Proceedings of the 40th International Conference on Machine Learning* (pp. 40844-40858). PMLR. [arXiv:2303.15343](https://arxiv.org/abs/2303.15343)
+# 2. Zhai, X., Wang, X., Mustafa, B., Steiner, A., Keysers, D., Kolesnikov, A., & Beyer, L. (2023). Sigmoid loss for language image pre-training. In Proceedings of the 40th International Conference on Machine Learning (pp. 40844-40858). PMLR. [arXiv:2303.15343](https://arxiv.org/abs/2303.15343)
 # 
 # 3. Beyer, L., Dehghani, M., et al. (2024). SigLIP 2: Next-Generation Multilingual Vision-Language Models. Google Research. [arXiv:2409.01936](https://arxiv.org/abs/2409.01936)
 # 
