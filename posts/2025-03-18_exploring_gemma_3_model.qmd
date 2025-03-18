@@ -54,6 +54,11 @@ Gemma 3 introduces several impressive capabilities:
 ### Multimodal Processing
 All models except the 1B variant can process both images and text, enabling applications that analyze visual content alongside textual data. The models can handle **text, images, and even short videos**, making them versatile tools for content analysis as noted on [Google's Blog](https://blog.google/technology/developers/gemma-3/) and [Perplexity AI](https://www.perplexity.ai/page/google-unveils-gemma-3-ai-mode-.cGGCsMoSo2X_pTrtcBw_Q).
 
+::: {.callout-note}
+## Video Processing Approach
+While Gemma 3 can process videos, it's worth noting that its video understanding works by processing linearly spaced image frames sampled from the video. The model typically samples a fixed number of frames at regular intervals throughout the video, then analyzes these frames using its vision capabilities and integrates information across them to understand temporal relationships. This approach allows Gemma 3 to handle video content without requiring specialized video-specific architecture components.
+:::
+
 ### Extensive Language Support
 The 4B, 12B, and 27B models support over **140+ languages**, while the 1B model focuses on English only. This multilingual capability makes Gemma 3 suitable for global applications and diverse user bases.
 
