@@ -340,11 +340,12 @@ for i, output in enumerate(outputs):
     print()
 
 # Visualize the results with images on top
-fig, axes = plt.subplots(2, 2, figsize=(15, 10), gridspec_kw={'height_ratios': [1, 2]})
+fig, axes = plt.subplots(2, 2, figsize=(15, 8), gridspec_kw={'height_ratios': [0.6, 1]})
 
 # Display the images in the top row
 for i, img in enumerate(display_images):
-    axes[0, i].imshow(img)
+    # Use 'equal' instead of 'auto' to maintain the correct aspect ratio
+    axes[0, i].imshow(img, aspect='equal')
     axes[0, i].set_title(f"Image {i+1}")
     axes[0, i].axis('off')
 
@@ -400,7 +401,7 @@ print(f"Embedded {len(embeddings)} images. Embedding shape: {embeddings.shape}")
 # Display the images
 fig, axes = plt.subplots(1, len(images), figsize=(15, 5))
 for i, (image, ax) in enumerate(zip(images, axes)):
-    ax.imshow(image)
+    ax.imshow(image, aspect='equal')
     ax.set_title(f"Image {i+1}")
     ax.axis('off')
 plt.tight_layout()
@@ -448,6 +449,158 @@ text_embeddings = np.array(text_embeddings)
 print(f"Embedded {len(text_embeddings)} text queries. Embedding shape: {text_embeddings.shape}")
 print("NOTE: While we extracted text embeddings separately, for similarity calculations")
 print("we'll use the model's native capability to process image-text pairs together")
+
+# %% [markdown]
+# ### Understanding Embeddings: A Closer Look at the Numbers
+# 
+# What exactly are these embedding vectors we've been generating? Let's take a closer look at what these numbers actually represent:
+# 
+# #### Anatomy of an Embedding Vector
+# 
+# Both image and text embeddings in SigLIP 2 are **1152-dimensional vectors** - essentially long lists of 1152 floating-point numbers. Each number typically ranges from -1 to 1 after normalization. These numbers represent:
+# 
+# - **For images**: Abstract visual features like shapes, textures, objects, spatial arrangements, and semantic concepts
+# - **For text**: Linguistic features, semantic meanings, and conceptual relationships between words
+# 
+# #### Reading the Numbers
+# 
+# When you look at an embedding vector like `[0.1253, -0.0891, 0.0332, ...]`:
+# 
+# - **Each position** (dimension) captures a specific latent feature that the model learned during training
+# - **The value** at each position indicates how strongly that feature is present in the image or text
+# - **Positive vs. negative values** represent different aspects of the same feature dimension
+# - **The magnitude** (absolute value) shows the strength of that feature's presence
+# 
+# #### Pattern Recognition
+# 
+# Two similar images (like two different bears) will have similar patterns in their embedding vectors because:
+# 
+# - They share many of the same visual features
+# - The model has learned to map similar semantic content to similar regions in the embedding space
+# 
+# This is why a photo of a bear and the text "a wild bear" would have some similarities in their embedding patterns, despite being different modalities.
+# 
+# #### Dimensionality
+# 
+# Why 1152 dimensions? This specific size represents a balance between:
+# 
+# - Being **large enough** to capture complex visual and textual nuances
+# - Being **small enough** to be computationally efficient (compared to raw pixels)
+# - Following the **architectural decisions** made when designing the ViT (Vision Transformer) backbone
+# 
+# When we visualize only the first 10 dimensions below, we're seeing just a tiny slice (less than 1%) of the full representation, but it gives us an intuitive sense of how these embeddings work.
+
+# %%
+# Visualizing truncated embeddings to better understand their structure
+print("Displaying truncated embeddings to visualize their structure:")
+
+# Function to display truncated embedding values
+def display_truncated_embedding(embedding, title, n_values=10):
+    """Format and display a truncated embedding vector"""
+    truncated = embedding[:n_values]
+    formatted = [f"{value:.4f}" for value in truncated]
+    print(f"\n{title} embedding (first {n_values} values):")
+    print("[" + ", ".join(formatted) + ", ...]")
+    print(f"Shape: {embedding.shape} (full embedding)")
+    return truncated
+
+# Visualize the first few values of each image embedding
+print("\n=== IMAGE EMBEDDINGS ===")
+for i, embedding in enumerate(embeddings):
+    display_truncated_embedding(embedding, f"Image {i+1}")
+
+# Visualize the first few values of select text embeddings
+print("\n=== TEXT EMBEDDINGS ===")
+for i, text in enumerate(texts[:5]):  # Just show first 5 text embeddings
+    display_truncated_embedding(text_embeddings[i], f"'{text}'")
+
+# Create a visual representation of embeddings alongside images
+fig, axes = plt.subplots(len(images), 2, figsize=(12, 4*len(images)), 
+                         gridspec_kw={'width_ratios': [1, 2]})
+
+for i, (image, embedding) in enumerate(zip(images, embeddings)):
+    # Display the image
+    axes[i, 0].imshow(image, aspect='equal')
+    axes[i, 0].set_title(f"Image {i+1}")
+    axes[i, 0].axis('off')
+    
+    # Display a truncated embedding as a bar chart
+    truncated = embedding[:10]  # First 10 values
+    axes[i, 1].bar(range(len(truncated)), truncated)
+    axes[i, 1].set_title(f"Truncated Embedding (first 10 of {len(embedding)} values)")
+    axes[i, 1].set_xlabel("Dimension")
+    axes[i, 1].set_ylabel("Value")
+    axes[i, 1].set_ylim(-0.5, 0.5)  # Set consistent y limits
+    
+    # Add text annotation
+    embedding_text = ", ".join([f"{x:.3f}" for x in truncated[:5]]) + "..."
+    axes[i, 1].text(0.5, 0.9, f"[{embedding_text}]", 
+                   transform=axes[i, 1].transAxes, 
+                   ha='center', va='center',
+                   bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8))
+
+plt.tight_layout()
+plt.show()
+
+# Also visualize a few text embeddings for comparison
+fig, axes = plt.subplots(3, 1, figsize=(10, 6))
+text_indices = [0, 1, 2]  # First 3 text embeddings
+
+for i, idx in enumerate(text_indices):
+    text = texts[idx]
+    embedding = text_embeddings[idx]
+    truncated = embedding[:10]  # First 10 values
+    
+    axes[i].bar(range(len(truncated)), truncated)
+    axes[i].set_title(f"Text: '{text}'")
+    axes[i].set_xlabel("Dimension")
+    axes[i].set_ylabel("Value")
+    axes[i].set_ylim(-0.5, 0.5)  # Set consistent y limits
+    
+    # Add text annotation
+    embedding_text = ", ".join([f"{x:.3f}" for x in truncated[:5]]) + "..."
+    axes[i].text(0.5, 0.9, f"[{embedding_text}]", 
+                 transform=axes[i].transAxes, 
+                 ha='center', va='center',
+                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8))
+
+plt.tight_layout()
+plt.show()
+
+# %% [markdown]
+# ### Interpreting the Embedding Visualizations
+# 
+# Looking at the truncated embedding visualizations above, we can make several important observations:
+# 
+# #### What We're Seeing
+# 
+# The bar charts show the first 10 dimensions of embedding vectors that are actually 1152 dimensions long. Think of these as the first few "notes" in a much longer "melody" that represents each image or text.
+# 
+# #### Image Embedding Patterns
+# 
+# In the image embeddings above:
+# 
+# 1. **Different images have different patterns** - Notice how the bear image has a different pattern of positive and negative values compared to the room or stop sign
+# 
+# 2. **Magnitude variations** - Some dimensions have larger values than others, indicating their importance in representing the image
+# 
+# 3. **Sign patterns** - The pattern of positive and negative values across dimensions forms a unique "signature" for each image
+# 
+# #### Text Embedding Patterns
+# 
+# For the text embeddings:
+# 
+# 1. **Semantic encoding** - Each text query ("a wild bear", "a train on tracks", etc.) produces a unique pattern reflecting its semantic meaning
+# 
+# 2. **Comparable with images** - These text embeddings live in the same 1152-dimensional space as the image embeddings, which is what allows the model to compare them directly
+# 
+# 3. **Different signature** - The text "a wild bear" has a different pattern from the bear image, but they share enough similarities to have high similarity scores
+# 
+# #### The Full Picture
+# 
+# Remember that what we're seeing is just the first 10 dimensions of 1152. The full power of these embeddings comes from the complex patterns across all dimensions working together. The model has learned to encode similar concepts (whether in image or text form) into similar regions of this high-dimensional space.
+# 
+# When computing similarity, all 1152 dimensions are compared, not just these first few that we're visualizing. This is why two vectors that might look different in their first 10 dimensions could still be considered similar when all dimensions are considered.
 
 # %%
 # Compute similarity between our images and texts
@@ -504,7 +657,43 @@ plt.tight_layout()
 plt.show()
 
 # %% [markdown]
-# ### Example 3: Visualizing Embeddings with Clustering
+# ### Connecting Images to Meaning: How Embeddings Enable Cross-Modal Understanding
+# 
+# Looking at the similarity matrix above, we can now understand how the embedding vectors we visualized earlier enable the model to connect images with text:
+# 
+# #### From Numbers to Matching
+# 
+# 1. **The bear image (Image 1)** shows highest similarity with "a wild bear" text. Looking back at their embedding visualizations, while they don't look identical in the first 10 dimensions, the complete 1152-dimensional pattern contains enough similarity for the model to make this connection.
+# 
+# 2. **Similar concepts, similar embeddings** - When we see a high similarity score (like between the bear image and bear text), it means their complete embedding vectors are pointing in similar directions in the 1152-dimensional space, even if the individual values aren't identical.
+# 
+# 3. **Embedding space geometry** - You can think of each embedding as a point in a 1152-dimensional space. Similar concepts (whether images or text) are positioned closer together in this space.
+# 
+# #### The Magic of Shared Embedding Space
+# 
+# What makes these embeddings so powerful is that both images and text are mapped to the same embedding space. This means:
+# 
+# - The bear image and the text "a wild bear" produce vectors that point in similar directions
+# - The bedroom image and text about bedrooms create vectors in another region of the space
+# - The stop sign image and text about stop signs cluster in yet another region
+# 
+# It's as if the model has created a giant 1152-dimensional map where similar concepts are placed near each other, regardless of whether they come from images or text.
+# 
+# #### From Individual Values to Overall Meaning
+# 
+# Looking at individual embedding values (like `0.1253` or `-0.0891`) doesn't tell us much on its own. It's the pattern across all dimensions that matters. Each dimension might represent complex features like:
+# 
+# - "Furry texture" (potentially high in the bear image)
+# - "Red color" (potentially high in the stop sign image)
+# - "Indoor setting" (potentially high in the bedroom image)
+# - "Natural environment" (potentially high in the bear image)
+# 
+# But these features aren't explicitly defined - they emerge organically during training as the model learns to map similar concepts to similar embedding regions.
+# 
+# This is why image embeddings are so powerful: they transform pixels into semantic representations that can be directly compared with text, enabling applications like image search, classification, and multimodal understanding.
+
+# %% [markdown]
+# ## Example 3: Visualizing Embeddings with Clustering
 # 
 # Let's use clustering to group our images based on their semantic content. For a more meaningful analysis, we'll use a larger set of images from the COCO dataset and visualize them using UMAP before clustering.
 
@@ -569,30 +758,57 @@ umap_model = UMAP(n_components=2, n_neighbors=5, min_dist=0.1, metric='cosine', 
 umap_embeddings = umap_model.fit_transform(large_embeddings)
 
 # Function to plot images on UMAP projection
-def plot_images_on_umap(embeddings_2d, images, figsize=(20, 20), image_zoom=0.5):
+def plot_images_on_umap(embeddings_2d, images, figsize=(12, 10), image_zoom=0.7):
     """Plot images on a 2D projection (like UMAP or t-SNE)"""
     fig, ax = plt.subplots(figsize=figsize)
     
     # First scatter the points to see the overall distribution
     ax.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], alpha=0.5, s=10)
     
+    # Determine the data bounds
+    x_min, x_max = embeddings_2d[:, 0].min(), embeddings_2d[:, 0].max()
+    y_min, y_max = embeddings_2d[:, 1].min(), embeddings_2d[:, 1].max()
+    
+    # Calculate padding to ensure square aspect ratio
+    x_range = x_max - x_min
+    y_range = y_max - y_min
+    max_range = max(x_range, y_range) * 1.1  # Add 10% padding
+    
+    x_mid = (x_min + x_max) / 2
+    y_mid = (y_min + y_max) / 2
+    
+    # Set equal aspect ratio for the plot
+    ax.set_aspect('equal')
+    
+    # Set limits to ensure square aspect ratio
+    ax.set_xlim(x_mid - max_range/2, x_mid + max_range/2)
+    ax.set_ylim(y_mid - max_range/2, y_mid + max_range/2)
+    
     # Then plot small versions of each image at its 2D location
     for i, (x, y) in enumerate(embeddings_2d):
         img = images[i]
-        # Resize image for better visualization
+        # Preserve aspect ratio when resizing
         width, height = img.size
-        new_width = int(width * image_zoom)
-        new_height = int(height * image_zoom)
-        img = img.resize((new_width, new_height))
+        # Calculate new dimensions while maintaining aspect ratio
+        if width > height:
+            new_width = int(width * image_zoom)
+            new_height = int(height * (new_width / width))
+        else:
+            new_height = int(height * image_zoom)
+            new_width = int(width * (new_height / height))
+            
+        try:
+            # Use LANCZOS for better quality, fall back to other methods if not available
+            img = img.resize((new_width, new_height), Image.LANCZOS)
+        except AttributeError:
+            # For newer Pillow versions where LANCZOS might be removed
+            img = img.resize((new_width, new_height), Image.BICUBIC)
         
         # Convert PIL image to a format matplotlib can use
-        img_box = OffsetImage(img, zoom=0.1)
+        # Increase the zoom parameter to make images larger
+        img_box = OffsetImage(img, zoom=0.15)
         ab = AnnotationBbox(img_box, (x, y), frameon=True, pad=0.1)
         ax.add_artist(ab)
-    
-    # Set axis limits a bit beyond the data limits to see all images
-    ax.set_xlim(embeddings_2d[:, 0].min() - 1, embeddings_2d[:, 0].max() + 1)
-    ax.set_ylim(embeddings_2d[:, 1].min() - 1, embeddings_2d[:, 1].max() + 1)
     
     plt.title("UMAP Projection of Image Embeddings")
     plt.tight_layout()
@@ -615,9 +831,29 @@ kmeans = KMeans(n_clusters=n_clusters, random_state=42)
 clusters = kmeans.fit_predict(large_embeddings)
 
 # Visualize clustering results on the UMAP projection
-plt.figure(figsize=(15, 12))
+plt.figure(figsize=(12, 10))
 scatter = plt.scatter(umap_embeddings[:, 0], umap_embeddings[:, 1], 
                      c=clusters, cmap='viridis', s=100, alpha=0.8)
+
+# Determine the data bounds
+x_min, x_max = umap_embeddings[:, 0].min(), umap_embeddings[:, 0].max()
+y_min, y_max = umap_embeddings[:, 1].min(), umap_embeddings[:, 1].max()
+
+# Calculate padding to ensure square aspect ratio
+x_range = x_max - x_min
+y_range = y_max - y_min
+max_range = max(x_range, y_range) * 1.1  # Add 10% padding
+
+x_mid = (x_min + x_max) / 2
+y_mid = (y_min + y_max) / 2
+
+# Set equal aspect ratio for the plot
+plt.gca().set_aspect('equal')
+
+# Set limits to ensure square aspect ratio
+plt.xlim(x_mid - max_range/2, x_mid + max_range/2)
+plt.ylim(y_mid - max_range/2, y_mid + max_range/2)
+
 plt.colorbar(scatter, label='Cluster')
 plt.title(f'UMAP Projection with K-means Clustering (k={n_clusters})')
 plt.tight_layout()
@@ -665,7 +901,7 @@ for cluster_id in range(n_clusters):
                 else:
                     ax = axes[row, col]
                     
-                ax.imshow(large_images[idx])
+                ax.imshow(large_images[idx], aspect='equal')
                 ax.set_title(f"Image {idx+1}")
                 ax.axis('off')
         
