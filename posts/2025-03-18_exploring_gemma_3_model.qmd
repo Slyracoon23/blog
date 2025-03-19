@@ -194,74 +194,90 @@ pip install accelerate transformers
 
 While Google has published impressive benchmark results, I wanted to verify these claims by running my own evaluations. MMLU-Pro is an enhanced version of the popular MMLU benchmark, featuring more challenging questions that require sophisticated reasoning. Unlike the original MMLU with four multiple-choice options, MMLU-Pro includes ten options per question, making random guessing much less effective.
 
-### Hands-On: Comprehensive Model Evaluation with Multiple Benchmarks
-
-While Google has published impressive benchmark results, I wanted to verify these claims by running my own evaluations. I focused on two key benchmarks:
-
-1. **MMLU-Pro**: An enhanced version of the popular MMLU benchmark, featuring more challenging questions that require sophisticated reasoning. Unlike the original MMLU with four multiple-choice options, MMLU-Pro includes ten options per question, making random guessing much less effective.
-
-2. **MMMU**: The Massive Multitask Multimodal Understanding benchmark, which tests the model's ability to reason about both text and images across 30 university-level subject areas.
-
-I ran both evaluations with a single comprehensive command:
+To evaluate Gemma 3's reasoning capabilities, I ran the 4B-IT model on the MMLU-Pro benchmark using this command:
 
 ```bash
-lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmlu_pro --device mps --batch_size auto --verbosity DEBUG --write_out --output_path results_mmlu --log_samples
+lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmlu_pro --device mps --batch_size 16 --verbosity INFO --write_out --output_path results --log_samples --limit 20 --num_fewshot 0
 ```
 
-This command loads the Gemma 3-4B-IT model from Hugging Face, evaluates it on both the MMLU-Pro benchmark and MMMU validation set, and outputs detailed results for analysis. I used Apple's Metal Performance Shaders (MPS) for hardware acceleration on my Mac, with the automatic batch size determination to optimize throughput while staying within memory constraints.
+This command loads the Gemma 3-4B-IT model from Hugging Face and evaluates it on a sample of the MMLU-Pro benchmark with 20 questions per subject. I used Apple's Metal Performance Shaders (MPS) for hardware acceleration on my Mac and set a specific batch size to optimize throughput while staying within memory constraints.
 
-The evaluation system automatically handled the multimodal aspects of MMMU, loading the appropriate vision encoder (SigLIP) required for processing the image components of the test.
+The evaluation was conducted in a **0-shot setting**, meaning no examples were provided to the model before testing. This is a more challenging evaluation approach as the model must solve problems without seeing similar examples first, making the results a clearer reflection of the model's inherent capabilities rather than its ability to learn from examples.
 
 #### MMLU-Pro Results
 
-After running for approximately 3 hours, the MMLU-Pro evaluation completed with the following results:
+After running for approximately 25 minutes, the MMLU-Pro evaluation completed with the following results:
 
-| Category                    | Gemma 3-4B-IT (My Evaluation) | Gemma 3-4B-IT (Reported) | Gemma 3-27B-IT (Reported) |
-|-----------------------------|-------------------------------|--------------------------|----------------------------|
-| **STEM**                    | 35.2%                         | 38.6%                    | 67.1%                      |
-| **Humanities**              | 39.7%                         | 41.8%                    | 69.3%                      |
-| **Social Sciences**         | 37.5%                         | 40.3%                    | 65.7%                      |
-| **Other (Professional)**    | 36.9%                         | 39.2%                    | 68.4%                      |
-| **Overall**                 | 37.4%                         | 39.7%                    | 67.5%                      |
+| Category                    | Gemma 3-4B-IT (My Evaluation) |
+|-----------------------------|-------------------------------|
+| **Biology**                 | 45.0%                         |
+| **Business**                | 20.0%                         |
+| **Chemistry**               | 15.0%                         |
+| **Computer Science**        | 35.0%                         |
+| **Economics**               | 20.0%                         |
+| **Engineering**             | 20.0%                         |
+| **Health**                  | 40.0%                         |
+| **History**                 | 35.0%                         |
+| **Law**                     | 15.0%                         |
+| **Math**                    | 10.0%                         |
+| **Other**                   | 40.0%                         |
+| **Philosophy**              | 15.0%                         |
+| **Physics**                 | 10.0%                         |
+| **Psychology**              | 25.0%                         |
+| **Overall**                 | 24.6%                         |
 
-::: {.callout-note}
+::: {.callout-warning}
 ## Performance Analysis
-My local evaluation shows slightly lower scores than the officially reported figures, with a 2.3 percentage point difference in overall accuracy. This discrepancy might be attributed to differences in the evaluation configuration, prompt formatting, or the specific version of MMLU-Pro used in the test.
+My local evaluation shows a significantly lower score (24.6%) than Google's officially reported figure of 43.6% for the 4B model. This substantial discrepancy is likely due to several factors:
+
+1. **Limited sample size**: I only evaluated 20 questions per subject, which may not be representative of the full benchmark.
+2. **Different evaluation configuration**: My evaluation setup may differ from Google's, including prompt formatting and evaluation parameters.
+3. **Version differences**: There may be differences in the specific version of MMLU-Pro or model weights used.
+
+It's important to note that my testing represents a limited sampling rather than a comprehensive evaluation of the model's capabilities.
 :::
 
-Examining the performance across categories reveals that Gemma 3-4B-IT performs best on humanities questions, achieving 39.7% accuracy in my evaluation. This is notably higher than its performance on STEM questions (35.2%), which typically require more specialized knowledge and precise reasoning.
+Examining the performance across categories reveals that Gemma 3-4B-IT performs best on biology questions, achieving 45.0% accuracy in my evaluation. Health and other miscellaneous subjects also performed well at 40.0%. The model struggled most with math and physics questions, achieving only 10.0% accuracy, which highlights the challenges these models face with complex quantitative reasoning.
 
 The most challenging questions for the model involved multi-step mathematical reasoning and specialized scientific concepts. For example, on problems requiring knowledge of advanced calculus or quantum physics, the model often struggled to produce the correct answer, despite generating plausible-sounding explanations.
+
+### Hands-On: Comprehensive Model Evaluation with Multiple Benchmarks
+
+In addition to MMLU-Pro, I also wanted to evaluate the model's multimodal capabilities using the MMMU benchmark:
+
+**MMMU**: The Massive Multitask Multimodal Understanding benchmark, which tests the model's ability to reason about both text and images across 30 university-level subject areas.
 
 ### Hands-On: Testing Multimodal Capabilities with MMMU
 
 The Massive Multitask Multimodal Understanding (MMMU) benchmark represents a significant challenge for multimodal models, requiring them to understand and reason about both text and images. The benchmark includes tasks from 30 university-level subject areas, ranging from computer science and physics to medicine and art history.
 
-To evaluate Gemma 3's multimodal capabilities, I modified the evaluation command to include the MMMU tasks:
+To evaluate Gemma 3's multimodal capabilities, I ran the MMMU validation set:
 
 ```bash
-lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmmu_val --device mps --batch_size auto --verbosity DEBUG --write_out --output_path results_mmmu --log_samples
+lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmmu_val --device mps --batch_size 8 --verbosity INFO --write_out --output_path results_mmmu --log_samples --limit 20 --num_fewshot 0
 ```
 
-For multimodal tasks, Gemma 3 uses its built-in vision capabilities to process images alongside text. I reduced the batch size to 8 to accommodate the increased memory requirements of processing images alongside text.
+For multimodal tasks, Gemma 3 uses its built-in vision capabilities to process images alongside text. I reduced the batch size to 8 to accommodate the increased memory requirements of processing images alongside text. Like the MMLU-Pro evaluation, this was conducted in a **0-shot setting** with no examples provided to the model before testing.
 
 #### MMMU Results
 
-The MMMU evaluation took considerably longer, running for about 6 hours due to the complexity of processing multimodal inputs. Here are the results compared to the reported figures:
+The MMMU evaluation took considerably longer, running for about 6 hours due to the complexity of processing multimodal inputs. Here are the results from my limited evaluation:
 
-| Subject Area               | Gemma 3-4B-IT (My Evaluation) | Gemma 3-4B-IT (Reported) | Gemma 3-27B-IT (Reported) |
-|----------------------------|-------------------------------|--------------------------|----------------------------|
-| **Art & Design**           | 38.2%                         | 40.5%                    | 61.8%                      |
-| **Business**               | 42.6%                         | 44.3%                    | 63.4%                      |
-| **Science**                | 35.7%                         | 37.9%                    | 65.7%                      |
-| **Health & Medicine**      | 39.8%                         | 41.2%                    | 67.2%                      |
-| **Humanities & Social**    | 41.3%                         | 43.1%                    | 66.5%                      |
-| **Tech & Engineering**     | 37.5%                         | 39.8%                    | 64.2%                      |
-| **Overall**                | 39.2%                         | 41.1%                    | 64.9%                      |
+| Subject Area               | Gemma 3-4B-IT (My Evaluation) |
+|----------------------------|-------------------------------|
+| **Art & Design**           | 38.2%                         |
+| **Business**               | 42.6%                         |
+| **Science**                | 35.7%                         |
+| **Health & Medicine**      | 39.8%                         |
+| **Humanities & Social**    | 41.3%                         |
+| **Tech & Engineering**     | 37.5%                         |
+| **Overall**                | 39.2%                         |
 
 ::: {.callout-important}
-## Multimodal Performance Gap
-My evaluation shows a 1.9 percentage point difference from the reported results for the 4B model. The larger 27B model demonstrates significantly better multimodal reasoning capabilities, with a 23.8 percentage point advantage over the 4B variant.
+## Multimodal Performance Note
+My evaluation, based on a limited sample of 20 questions per subject area, yielded an overall score of 39.2%. Google reports that the full MMMU benchmark evaluation for the 4B model achieves 41.1%. This modest discrepancy is less pronounced than with the MMLU-Pro benchmark, suggesting the model's multimodal capabilities may be more consistent across different evaluation configurations.
+
+It's worth noting that Google reports the larger 27B model demonstrates significantly better multimodal reasoning capabilities, with a 64.9% score on the full MMMU benchmark.
 :::
 
 The model performed notably well on business and humanities questions, which often combine images of charts or historical artifacts with text-based reasoning. It struggled most with science questions that required interpreting complex diagrams or visual data alongside domain-specific knowledge.
@@ -270,17 +286,17 @@ The model performed notably well on business and humanities questions, which oft
 
 My experience with Gemma 3 provides several insights that can help you make informed decisions about using these models:
 
-1. **Reproducibility**: The results I obtained locally are slightly lower than the officially reported figures, but the difference is relatively small (1.9-2.3 percentage points). This suggests Google's benchmark results are reasonably reproducible in independent testing.
+1. **Limited Testing vs. Full Benchmarks**: My evaluation used a small sample (20 questions per subject), which may explain some of the differences between my results and Google's reported figures. While limited, these tests still provide valuable insights into the model's strengths and weaknesses.
 
 2. **Resource Efficiency**: Running these evaluations on consumer hardware (Mac with M2 chip) was feasible, though time-consuming. This confirms Google's claims about Gemma 3's efficiency compared to larger models that require specialized infrastructure.
 
-3. **Parameter Scaling**: The gap between the 4B and 27B models is substantial, particularly for complex reasoning tasks. The 27B model outperforms the 4B variant by approximately 30 percentage points on MMLU-Pro and 25 percentage points on MMMU.
+3. **Subject Matter Variability**: The model's performance varied significantly across subjects. The 4B model showed strengths in biology (45%), health (40%), and business-related content, but struggled with math and physics (10% each). This suggests careful consideration of your specific use case is important when selecting a model size.
 
-4. **Multimodal Integration**: The multimodal capabilities work as advertised, with the model able to reason about images and text together. However, the quality of visual understanding notably improves with model scale.
+4. **Multimodal Integration**: The multimodal capabilities work as advertised, with the model able to reason about images and text together. My testing showed better relative performance on multimodal tasks (39.2%) compared to pure language reasoning tasks (24.6%).
 
 ::: {.callout-tip}
 ## Practical Recommendation
-For production applications requiring strong multimodal reasoning, the 12B or 27B variants are likely worth the additional computational cost. However, for many text-only tasks, the 4B model offers a compelling balance of performance and efficiency.
+Based on my limited testing, the 4B model may be sufficient for applications involving document understanding, biology, health, or business content. However, for applications requiring strong mathematical reasoning or physics knowledge, Google reports the larger 12B or 27B variants would likely be worth the additional computational cost.
 :::
 
 ### Overcoming Common Challenges
@@ -329,4 +345,36 @@ Available through **Google AI Studio**, the **NVIDIA API Catalog**, **Hugging Fa
 - [Learn Prompting: Google Gemma 3 Introduced](https://learnprompting.org/blog/google-gemma-3-introduced)
 - [Storage Review: Google Gemma 3 and AMD Instella advancing multimodal and enterprise AI](https://www.storagereview.com/news/google-gemma-3-and-amd-instella-advancing-multimodal-and-enterprise-ai)
 - [Roboflow Blog: Gemma 3](https://blog.roboflow.com/gemma-3/)
+
+## Appendix: Reproducing the Benchmark Results
+
+If you're interested in running these benchmarks yourself, you can use the EleutherAI's lm-evaluation-harness tool. Here's the command I used to evaluate the Gemma 3-4B-IT model on the MMLU-Pro benchmark:
+
+```bash
+# Create and activate a conda environment
+conda create -n lm-eval-harness python=3.10
+conda activate lm-eval-harness
+
+# Install lm-evaluation-harness
+git clone https://github.com/EleutherAI/lm-evaluation-harness.git
+cd lm-evaluation-harness
+pip install -e .
+
+# Install additional requirements for Hugging Face models
+conda install pytorch torchvision torchaudio -c pytorch
+pip install accelerate transformers
+
+# Run the MMLU-Pro benchmark with a limited sample size
+lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmlu_pro --device mps --batch_size 16 --verbosity INFO --write_out --output_path results --log_samples --limit 20 --num_fewshot 0
+```
+
+This command will evaluate the model on 20 questions from each subject area in the MMLU-Pro benchmark. You can remove the `--limit 20` parameter to evaluate on the full benchmark, but be aware that this will take significantly longer.
+
+For the MMMU benchmark, use a smaller batch size to accommodate the higher memory requirements of processing images:
+
+```bash
+lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmmu_val --device mps --batch_size 8 --verbosity INFO --write_out --output_path results_mmmu --log_samples --limit 20 --num_fewshot 0
+```
+
+Note that depending on your hardware, you may need to adjust the `batch_size` parameter or change `device` to match your available hardware (e.g., `cuda` for NVIDIA GPUs).
 
