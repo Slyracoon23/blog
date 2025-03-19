@@ -43,7 +43,7 @@ Gemma 3's impressive efficiency-to-performance ratio stems from several architec
 The positional embeddings were significantly upgraded, with the RoPE base frequency increased from 10k in Gemma 2 to **1 million** in Gemma 3, and scaled by a factor of 8 to accommodate longer contexts.
 :::
 
-The positional embeddings were significantly upgraded, with the RoPE base frequency increased from 10k in Gemma 2 to 1M in Gemma 3, and scaled by a factor of 8 to accommodate longer contexts according to [Hugging Face's analysis](https://huggingface.co/blog/gemma3). KV cache management was optimized using a *sliding window interleaved attention approach*, with the ratio of local to global layers adjusted from 1:1 to 5:1 and the window size reduced to 1024 tokens (down from 4096).
+KV cache management was optimized using a *sliding window interleaved attention approach*, with the ratio of local to global layers adjusted from 1:1 to 5:1 and the window size reduced to 1024 tokens (down from 4096).
 
 Training data volume scaled with model size: **2 trillion tokens** for the 1B model, **4 trillion** for 4B, **12 trillion** for 12B, and **14 trillion tokens** for the 27B model, all processed using Google TPUs with the JAX framework. A key technique enabling Gemma 3's efficiency is *distillation*, whereby trained weights from larger models are extracted and transferred to the smaller Gemma 3 models, as described by [Google's developers](https://developers.googleblog.com/en/introducing-gemma3/).
 
@@ -79,7 +79,7 @@ Alongside Gemma 3, Google has also released **ShieldGemma 2**, an enhanced versi
 
 ShieldGemma 2 builds upon Google's *responsible AI principles* and incorporates advanced techniques to:
 - Filter out harmful content
-- Better detect and refuse problematic requests
+- Detect and refuse problematic requests
 - Ensure outputs adhere to safety guidelines
 
 This makes it particularly suitable for customer-facing applications and environments where content safety is paramount.
@@ -202,7 +202,7 @@ lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmlu_pro
 
 This command loads the Gemma 3-4B-IT model from Hugging Face and evaluates it on a sample of the MMLU-Pro benchmark with 20 questions per subject. I used Apple's Metal Performance Shaders (MPS) for hardware acceleration on my Mac and set a specific batch size to optimize throughput while staying within memory constraints.
 
-The evaluation was conducted in a **0-shot setting**, meaning no examples were provided to the model before testing. This is a more challenging evaluation approach as the model must solve problems without seeing similar examples first, making the results a clearer reflection of the model's inherent capabilities rather than its ability to learn from examples.
+The evaluation was conducted in a **zero-shot setting**, meaning no examples were provided to the model before testing. This is a more challenging evaluation approach as the model must solve problems without seeing similar examples first, making the results a clearer reflection of the model's inherent capabilities rather than its ability to learn from examples.
 
 #### MMLU-Pro Results
 
@@ -241,47 +241,6 @@ Examining the performance across categories reveals that Gemma 3-4B-IT performs 
 
 The most challenging questions for the model involved multi-step mathematical reasoning and specialized scientific concepts. For example, on problems requiring knowledge of advanced calculus or quantum physics, the model often struggled to produce the correct answer, despite generating plausible-sounding explanations.
 
-### Hands-On: Comprehensive Model Evaluation with Multiple Benchmarks
-
-In addition to MMLU-Pro, I also wanted to evaluate the model's multimodal capabilities using the MMMU benchmark:
-
-**MMMU**: The Massive Multitask Multimodal Understanding benchmark, which tests the model's ability to reason about both text and images across 30 university-level subject areas.
-
-### Hands-On: Testing Multimodal Capabilities with MMMU
-
-The Massive Multitask Multimodal Understanding (MMMU) benchmark represents a significant challenge for multimodal models, requiring them to understand and reason about both text and images. The benchmark includes tasks from 30 university-level subject areas, ranging from computer science and physics to medicine and art history.
-
-To evaluate Gemma 3's multimodal capabilities, I ran the MMMU validation set:
-
-```bash
-lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmmu_val --device mps --batch_size 8 --verbosity INFO --write_out --output_path results_mmmu --log_samples --limit 20 --num_fewshot 0
-```
-
-For multimodal tasks, Gemma 3 uses its built-in vision capabilities to process images alongside text. I reduced the batch size to 8 to accommodate the increased memory requirements of processing images alongside text. Like the MMLU-Pro evaluation, this was conducted in a **0-shot setting** with no examples provided to the model before testing.
-
-#### MMMU Results
-
-The MMMU evaluation took considerably longer, running for about 6 hours due to the complexity of processing multimodal inputs. Here are the results from my limited evaluation:
-
-| Subject Area               | Gemma 3-4B-IT (My Evaluation) |
-|----------------------------|-------------------------------|
-| **Art & Design**           | 38.2%                         |
-| **Business**               | 42.6%                         |
-| **Science**                | 35.7%                         |
-| **Health & Medicine**      | 39.8%                         |
-| **Humanities & Social**    | 41.3%                         |
-| **Tech & Engineering**     | 37.5%                         |
-| **Overall**                | 39.2%                         |
-
-::: {.callout-important}
-## Multimodal Performance Note
-My evaluation, based on a limited sample of 20 questions per subject area, yielded an overall score of 39.2%. Google reports that the full MMMU benchmark evaluation for the 4B model achieves 41.1%. This modest discrepancy is less pronounced than with the MMLU-Pro benchmark, suggesting the model's multimodal capabilities may be more consistent across different evaluation configurations.
-
-It's worth noting that Google reports the larger 27B model demonstrates significantly better multimodal reasoning capabilities, with a 64.9% score on the full MMMU benchmark.
-:::
-
-The model performed notably well on business and humanities questions, which often combine images of charts or historical artifacts with text-based reasoning. It struggled most with science questions that required interpreting complex diagrams or visual data alongside domain-specific knowledge.
-
 ### Practical Insights from Hands-On Evaluation
 
 My experience with Gemma 3 provides several insights that can help you make informed decisions about using these models:
@@ -292,7 +251,6 @@ My experience with Gemma 3 provides several insights that can help you make info
 
 3. **Subject Matter Variability**: The model's performance varied significantly across subjects. The 4B model showed strengths in biology (45%), health (40%), and business-related content, but struggled with math and physics (10% each). This suggests careful consideration of your specific use case is important when selecting a model size.
 
-4. **Multimodal Integration**: The multimodal capabilities work as advertised, with the model able to reason about images and text together. My testing showed better relative performance on multimodal tasks (39.2%) compared to pure language reasoning tasks (24.6%).
 
 ::: {.callout-tip}
 ## Practical Recommendation
@@ -309,8 +267,6 @@ During my evaluation, I encountered several practical challenges worth noting:
 
 3. **Prompt Sensitivity**: I noticed that small changes in prompt formatting could sometimes lead to different results, suggesting some sensitivity to the exact evaluation setup.
 
-4. **Visual Understanding Gaps**: In certain specialized domains (particularly medicine and engineering), the model sometimes misinterpreted complex visual information despite generating confident-sounding explanations.
-
 For those looking to conduct their own evaluations, I recommend starting with a smaller subset of the benchmarks to get familiar with the process before running full evaluations. Additionally, carefully reviewing the documentation for each benchmark will help ensure your evaluation setup matches the intended configuration.
 
 ### Additional Resources for Evaluation
@@ -319,7 +275,6 @@ If you're interested in conducting your own evaluations or learning more about t
 
 - [EleutherAI's lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) - The evaluation framework used in this post
 - [MMLU-Pro Benchmark](https://github.com/MMLU-Pro/MMLU-Pro) - Official repository for the MMLU-Pro benchmark
-- [MMMU Benchmark](https://github.com/MMMU-Benchmark/MMMU) - Official repository for the MMMU benchmark
 - [Hugging Face Model Cards](https://huggingface.co/google/gemma-3-4b-it) - Detailed information about the Gemma 3 models
 
 By running these benchmarks yourself, you can gain a deeper understanding of how Gemma 3 might perform in your specific use cases and compare it against other models in a controlled, standardized setting.
@@ -369,12 +324,3 @@ lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmlu_pro
 ```
 
 This command will evaluate the model on 20 questions from each subject area in the MMLU-Pro benchmark. You can remove the `--limit 20` parameter to evaluate on the full benchmark, but be aware that this will take significantly longer.
-
-For the MMMU benchmark, use a smaller batch size to accommodate the higher memory requirements of processing images:
-
-```bash
-lm_eval --model hf --model_args pretrained=google/gemma-3-4b-it --tasks mmmu_val --device mps --batch_size 8 --verbosity INFO --write_out --output_path results_mmmu --log_samples --limit 20 --num_fewshot 0
-```
-
-Note that depending on your hardware, you may need to adjust the `batch_size` parameter or change `device` to match your available hardware (e.g., `cuda` for NVIDIA GPUs).
-
