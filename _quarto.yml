@@ -46,6 +46,8 @@ website:
               href: posts/2025-03-15_what_is_prompt_engineering.html
             - text: "What are Image Embeddings?"
               href: posts/2025-03-16_what_are_image_embeddings.html
+            - text: "Exploring Gemma 3 Model"
+              href: posts/2025-03-18_exploring_gemma_3_model.html
         - text: "---"
         - section: "🌐 **Web Technologies**"
           contents:

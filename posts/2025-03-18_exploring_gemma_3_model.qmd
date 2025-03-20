@@ -3,7 +3,7 @@ aliases:
 - /gemma-3-model/
 categories:
 - Large Language Models
-date: '2025-03-20'
+date: '2025-03-18'
 image: https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Gemma3_KeywordBlog_RD3_V01b.width-1200.format-webp.webp
 title: "Exploring Gemma 3 Model"
 subtitle: "A deep dive into Google's latest open source language model"
