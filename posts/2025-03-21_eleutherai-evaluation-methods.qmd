@@ -589,6 +589,22 @@ Code style guidelines:
 - Install dev tools via `pip install lm_eval[dev]` or `pip install -e ".[dev]"`
 - Run `pre-commit install` to ensure linters and checks will run upon committing
 
+### Improved Documentation with MkDocs
+
+I've recently contributed to the lm-evaluation-harness project by adding MkDocs support to enhance the documentation experience. This improvement provides a more navigable and user-friendly documentation interface with automatic navigation, search functionality, and better organization of the existing documentation.
+
+![Pull Request for adding MkDocs to EleutherAI's lm-evaluation-harness](https://i.imgur.com/3rYxyqm.png)
+
+You can see a preview of the MkDocs implementation at [my fork's documentation site](https://slyracoon23.github.io/lm-evaluation-harness/). The pull request is currently open and will hopefully be merged into the main repository soon, making the documentation more accessible to new users and contributors.
+
+The MkDocs integration preserves all the existing documentation while providing:
+
+- Modern, responsive documentation UI
+- Automatic navigation sidebar
+- Full-text search capabilities
+- Improved readability on mobile devices
+- Better organization of the existing documentation files
+
 ## Conclusion
 
 EleutherAI's evaluation framework provides a standardized way to assess language model capabilities across a wide range of tasks. By separating the evaluation logic from model implementation, it enables fair comparison between different models and architectures. The declarative configuration system makes it easy to add new tasks and benchmarks, contributing to the growing ecosystem of LLM evaluation.
