@@ -4,7 +4,7 @@ aliases:
 categories:
 - Large Language Models
 date: '2025-03-21'
-image: https://example.com/eleutherai-evaluation-image.webp
+image: https://i.imgur.com/OhBrtWj.png
 title: "EleutherAI's lm-evaluation-harness: Architecture and Configuration"
 subtitle: "A comprehensive guide to configuration, task architecture, and model integration"
 ---
