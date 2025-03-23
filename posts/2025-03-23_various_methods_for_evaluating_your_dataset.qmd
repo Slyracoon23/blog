@@ -9,6 +9,10 @@ title: "Various Methods for Evaluating Your Dataset"
 subtitle: "A comprehensive guide to dataset evaluation techniques for machine learning"
 ---
 
+::: {.part-header}
+## Part 1: Theoretical Evaluation Methods
+:::
+
 Proper evaluation is crucial for understanding language model capabilities. Here are several key methods used in frameworks like EleutherAI's lm-evaluation-harness:
 
 ::: {.callout-important}
@@ -65,7 +69,32 @@ The evaluation methods discussed below focus on assessing model generations and 
 - **Rolling Loglikelihood**: Calculates log probability of an entire input string, useful for measuring perplexity and fluency.
 - **Rank-Based Metrics**: Evaluates how highly the model ranks correct answers among alternatives.
 
-# Part 2: Rebuilding Character AI (Chai AI)
+
+::: {.part-header}
+## Part 2: Inference Optimization Techniques
+:::
+
+While evaluation helps us understand model capabilities, we also need methods to optimize inference - the process of generating responses from our models. These techniques improve output quality without changing the underlying model weights.
+
+### 1. Sampling and Decoding Strategies
+
+- **Rejection Sampling**: Generating multiple candidate responses and filtering based on quality criteria, only accepting outputs that meet specific thresholds.
+- **Temperature Tuning**: Adjusting sampling temperature to control randomness—lower values for more deterministic outputs, higher values for more creative ones.
+- **Top-p/Nucleus Sampling**: Restricting token selection to the smallest set whose cumulative probability exceeds a threshold, balancing diversity and quality.
+- **Model Ensembling**: Combining outputs from multiple models through voting or averaging to improve robustness and accuracy.
+- **Random Selection**: Generating outputs from multiple models and randomly selecting between them to increase response diversity.
+
+### 2. Prompt Engineering Techniques
+
+- **Prompt Variations**: Testing different phrasings of the same instruction to identify optimal prompting strategies.
+- **Few-Shot Examples**: Leveraging in-context examples to guide model behavior without additional training.
+- **Chain-of-Thought Prompting**: Guiding the model through explicit reasoning steps to improve output quality.
+- **System Prompt Tuning**: Systematically varying system prompts to optimize for specific behaviors or capabilities.
+- **Dynamic Prompting**: Adaptively modifying prompts based on context or previous model outputs.
+
+::: {.part-header}
+## Part 3: Rebuilding Character AI (Chai AI)
+:::
 
 In this upcoming section, we'll put theory into practice by rebuilding a character-based AI system similar to Character AI. We'll apply the evaluation methods discussed in Part 1 to create, train, and refine conversational AI characters.
 
