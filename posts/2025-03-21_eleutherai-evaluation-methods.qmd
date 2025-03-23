@@ -9,11 +9,13 @@ title: "EleutherAI's lm-evaluation-harness: Architecture and Configuration"
 subtitle: "A comprehensive guide to configuration, task architecture, and model integration"
 ---
 
-EleutherAI has developed one of the most robust frameworks for evaluating language models (LMs): the [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness). This post explores the framework's architecture, configuration system, and integration patterns to help you understand how to use, extend, and contribute to this powerful evaluation ecosystem.
+EleutherAI's [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) has emerged as one of the most robust and comprehensive frameworks for evaluating language models. Used by organizations including NVIDIA, Cohere, BigScience, and Mosaic ML, it serves as the backend for Hugging Face's Open LLM Leaderboard and has been cited in hundreds of research papers.
+
+This post explores the framework's architecture, configuration system, and integration patterns to help you understand how to use, extend, and contribute to this powerful evaluation ecosystem.
 
 ## What is lm-evaluation-harness?
 
-The Language Model Evaluation Harness is a unified framework that allows testing of generative language models on a wide variety of benchmarks. It serves as the backend for Hugging Face's Open LLM Leaderboard and has been used in hundreds of research papers by organizations including NVIDIA, Cohere, BigScience, BigCode, and Mosaic ML. The framework ensures reproducibility by using publicly available prompts and supports custom evaluations.
+The Language Model Evaluation Harness is a unified framework for testing generative language models on a wide variety of benchmarks. It ensures reproducibility by using publicly available prompts and supports customized evaluations.
 
 Key features include:
 
@@ -25,32 +27,96 @@ Key features include:
 - Support for local models and benchmarks
 - Customizable prompts and metrics
 
-## Getting Started
+## Installation Options
 
-### Installation
+### Basic Installation
 
-Basic installation:
+Basic installation from source:
 ```bash
 git clone --depth 1 https://github.com/EleutherAI/lm-evaluation-harness
 cd lm-evaluation-harness
 pip install -e .
 ```
 
-For development:
+Or install directly from PyPI:
+```bash
+pip install lm-eval
+```
+
+### Development Installation
+
+For development and contributing:
 ```bash
 pip install -e ".[dev]"
 ```
 
-The framework also provides optional dependencies for extended functionality, with details available in the GitHub repository.
+### Optional Dependencies
 
-### Basic Usage
+The framework provides several optional dependency groups:
 
-Evaluate a HuggingFace model on a specific task:
+```bash
+# For GPTQ quantization support
+pip install "lm-eval[gptq]"
+
+# For vLLM acceleration
+pip install "lm-eval[vllm]"
+
+# For multiple optional dependencies
+pip install "lm-eval[gptq,vllm]"
+```
+
+### Environment Variables
+
+Some functionality requires specific environment variables:
+
+- `OPENAI_API_KEY` - For evaluating OpenAI models
+- `ANTHROPIC_API_KEY` - For evaluating Anthropic models
+- `HF_TOKEN` - For accessing gated Hugging Face models or pushing results to the Hub
+- `LOGLEVEL` - Set to "DEBUG" for detailed logging during evaluation
+
+## Command Line Usage
+
+The harness can be run as a command-line tool, providing a flexible interface for model evaluation:
+
 ```bash
 python -m lm_eval --model hf --model_args pretrained=gpt2 --tasks hellaswag --num_fewshot 5
 ```
 
-Or using the Python API:
+Or using the installed entry point:
+
+```bash
+lm-eval --model hf --model_args pretrained=gpt2 --tasks hellaswag --num_fewshot 5
+```
+
+### Common CLI Arguments
+
+- `--model`: Specifies the model type to evaluate (e.g., "hf", "openai", "vllm")
+- `--model_args`: Parameters for model initialization (e.g., "pretrained=gpt2,dtype=float32")
+- `--tasks`: Comma-separated list of tasks or task groups (e.g., "mmlu,hellaswag")
+- `--num_fewshot`: Number of few-shot examples to include (default: 0)
+- `--batch_size`: Batch size for evaluation (use "auto" for automatic selection)
+- `--device`: Device to place the model on (e.g., "cuda:0", "cpu")
+- `--output_path`: Path to save evaluation results
+- `--log_samples`: Save per-document outputs and inputs
+
+For more detailed information on CLI arguments, see the [interface documentation](https://github.com/EleutherAI/lm-evaluation-harness/blob/main/docs/interface.md) which covers additional options like:
+
+- `--cache_requests`: Can be "true", "refresh", or "delete" to use, regenerate, or remove the cache
+- `--check_integrity`: Tests each selected task to confirm integrity
+- `--write_out`: Prints prompt and gold target string for the first document of each task (for diagnostics)
+- `--show_config`: Prints the full TaskConfig contents for reproducibility
+- `--include_path`: Accepts a path to a folder with custom YAML task configurations
+- `--system_instruction`: Specifies a system instruction string to prepend to the prompt
+
+- `--apply_chat_template`: Controls whether to apply a chat template to prompts
+- `--fewshot_as_multiturn`: Treats few-shot examples as a multi-turn conversation
+- `--predict_only`: Generates model outputs without computing metrics
+- `--seed`: Sets random seeds for reproducibility
+
+### Python API Usage
+
+You can also use the framework programmatically:
+
 ```python
 from lm_eval import evaluator, tasks
 from lm_eval.models import get_model
@@ -59,302 +125,284 @@ model = get_model("hf", pretrained="gpt2")
 results = evaluator.evaluate(model, tasks=["hellaswag"], num_fewshot=5)
 ```
 
-
-
-## Core Request Types
-
-At the heart of the evaluation harness are three fundamental request types that measure different aspects of language model capabilities:
-
-### 1. `generate_until`
-
-This request type measures a model's ability to generate text given a prompt. The model receives:
-- An input string
-- Generation parameters (like maximum length or stopping sequences)
-
-The model then generates text until it reaches stopping criteria, and the output is evaluated against reference answers. This is commonly used for tasks like question answering, summarization, and general text generation.
+For even simpler usage:
 
 ```python
-def generate_until(self, requests: list[Instance]) -> list[str]:
-    # Each request contains input string and generation parameters
-    # Returns generated text
+import lm_eval
+
+results = lm_eval.simple_evaluate(
+    model="gpt2",
+    tasks=["hellaswag", "mmlu"],
+    num_fewshot=0
+)
 ```
 
-### 2. `loglikelihood`
+For more advanced usage, the `evaluate()` function offers the core evaluation functionality, but without some of the special handling and simplification provided by `simple_evaluate()`. This allows you to:
 
-This request measures how likely a model would generate a specific target string given an input. For each request:
-- The model receives an input string and a target string
-- It returns (log_probability, is_greedy)
-  - log_probability: The log probability of generating the target given the input
-  - is_greedy: Whether the target is the most likely sequence the model would generate
+- Use custom task implementations
+- Specify task configurations via dictionaries
+- Provide a TaskManager with custom included paths
+- Integrate with your own model training loops
 
-This is useful for multiple-choice tasks where we can compare the likelihood of different answers.
+## Model Configuration
 
-```python
-def loglikelihood(self, requests: list[Instance]) -> list[tuple[float, bool]]:
-    # Each request contains input string and target string
-    # Returns (log probability, is_greedy)
+The LM Evaluation Harness supports various model types through a unified interface. Each model type has its own configuration options.
+
+### Hugging Face Models
+
+For standard transformers models:
+
+```bash
+lm-eval --model hf --model_args pretrained=gpt2
 ```
 
-### 3. `loglikelihood_rolling`
+Additional options include:
 
-A special case of loglikelihood, used to evaluate perplexity on a dataset. The model calculates the likelihood of generating an entire input string from scratch.
+- `dtype`: Set precision (e.g., "float16", "bfloat16")
+- `trust_remote_code`: Allow custom model code (set to "true")
+- `use_accelerate`: Use the Accelerate library for distributed inference
+- `device_map`: Control device placement ("auto", "balanced", etc.)
 
-```python
-def loglikelihood_rolling(self, requests: list[Instance]) -> list[tuple[float, bool]]:
-    # Each request contains just an input string
-    # Returns log probability of the entire string
+### API-Based Models
+
+For commercial API models:
+
+```bash
+# OpenAI
+lm-eval --model openai-completions --model_args model=gpt-3.5-turbo-instruct
+
+# Anthropic
+lm-eval --model anthropic --model_args model=claude-2
 ```
 
-## Task Configuration System
+API models typically require authentication via environment variables.
 
-The evaluation harness uses a declarative YAML configuration system to define tasks. These files reside in a hierarchical directory structure under `lm_eval/tasks/`, making it easy to add new tasks without writing extensive code.
+### Accelerated Inference
 
-### YAML-Based Task Definition
+For faster evaluation using vLLM:
 
-A complete task configuration includes:
+```bash
+lm-eval --model vllm --model_args pretrained=meta-llama/Llama-2-7b-hf
+```
+
+### Local Server Models
+
+For models hosted on a local server:
+
+```bash
+lm-eval --model local-completions --model_args base_url=http://localhost:8000/v1/completions
+```
+
+## Task Configuration
+
+Tasks in the harness are configured through YAML files, providing a declarative way to define evaluation setups.
+
+### Understanding Task YAML Structure
+
+A basic task configuration includes:
 
 ```yaml
-task: my_qa_task
-dataset_path: huggingface_dataset_name
-dataset_name: configuration_name
-dataset_kwargs:
-  data_dir: subdirectory_path
+task: task_name
+dataset_path: huggingface/dataset_name
+dataset_name: subset_name
 training_split: train
 validation_split: validation
 test_split: test
-fewshot_split: train
-task_type: multiple_choice
-doc_to_text: "Context: {{context}}\nQuestion: {{question}}\nAnswer:"
-doc_to_target: "{{answers.text[0]}}"
+doc_to_text: "{{passage}}\nQuestion: {{question}}?\nAnswer:"
+doc_to_target: "{{answer}}"
 metric_list:
   - metric: exact_match
     aggregation: mean
     higher_is_better: true
 ```
 
-This configuration:
-- Names the task and specifies its type
-- Defines dataset source and configuration
-- Specifies which data splits to use for evaluation, few-shot examples, etc.
-- Provides templates for formatting inputs and expected outputs
-- Defines how to evaluate model outputs
+Key fields include:
 
-### Few-Shot Learning Configuration
+- `task`: Unique identifier for the task
+- `dataset_path`: Path to the dataset on HuggingFace Hub
+- `doc_to_text`: Template for input text (using Jinja2)
+- `doc_to_target`: Template for target output
+- `metric_list`: Metrics for evaluation
 
-The harness supports multiple approaches for few-shot example selection:
+### Multiple Choice Tasks
 
-**Split-Based Sampling**
-```yaml
-fewshot_split: train
-fewshot_num: 5
-```
-
-**Hardcoded Examples**
-```yaml
-fewshot_config:
-  sampler: first_n
-  samples:
-    - input: "Example query 1"
-      answer: "Correct response 1"
-    - input: "Example query 2"
-      answer: "Correct response 2"
-```
-
-**Programmatic Generation**
-```python
-def list_fewshot_samples() -> list[dict]:
-    return [
-        {"input": "Dynamic example 1", "answer": "Response 1"},
-        {"input": "Dynamic example 2", "answer": "Response 2"}
-    ]
-```
-
-### Metric Configuration
-
-Evaluation metrics are declared through the `metric_list` parameter:
+For multiple choice tasks, additional configuration is needed:
 
 ```yaml
-metric_list: 
-  - metric: accuracy
-    aggregation: mean
-    higher_is_better: true
-  - metric: bleu
-    aggregation: geometric_mean
-    kwargs:
-      max_order: 4
+output_type: multiple_choice
+doc_to_text: "{{question}}\nAnswer:"
+doc_to_target: 2  # Index of correct answer
+doc_to_choice: "{{[choice1, choice2, choice3, choice4]}}"
 ```
 
-The framework supports both built-in metrics and custom implementations through a plugin architecture. Metric aggregation strategies (mean, sum, etc.) and optimization directions (higher_is_better) must be explicitly declared.
+### Using Filters
 
-## Model Integration Architecture
-
-### Core Interface Requirements
-
-To evaluate a new model, you implement a subclass of `LM` with the three core request methods:
-
-```python
-class MyCustomLM(LM):
-    def __init__(self, model_path, **kwargs):
-        # Initialize your model
-        
-    def loglikelihood(self, requests):
-        # Implement loglikelihood calculation
-        
-    def loglikelihood_rolling(self, requests):
-        # Implement rolling loglikelihood calculation
-        
-    def generate_until(self, requests):
-        # Implement text generation
-```
-
-### Input Processing Pipeline
-
-The framework employs strict tokenization handling to ensure evaluation validity:
-
-```
-Input Tokens: [0 1 2 3|4 5 6 7 8 9]
-Model Logits:   1 2 3|4 5 6 7 8 9
-Continuation:        4 5 6 7 8 9
-```
-
-This architecture prevents data leakage by truncating final target tokens during likelihood calculation.
-
-### Chat Template Integration
-
-For chat models, additional methods enable proper templating and formatting:
-
-```python
-class ChatLM(LM):
-    @property
-    def tokenizer_name(self) -> str:
-        return "unique_template_identifier"
-    
-    def chat_template(self, config: Union[bool, str]) -> str:
-        # Return Jinja template string
-    
-    def apply_chat_template(self, history: list[dict]) -> str:
-        # Format chat history into prompt
-```
-
-The system supports multiple template configurations through the `--apply_chat_template` CLI flag, with automatic caching based on `tokenizer_name` to prevent template collisions.
-
-## Advanced Features and Configuration
-
-### Groups and Benchmarks
-
-The harness supports grouping tasks into benchmarks, with flexible aggregation:
+Filters allow post-processing of model outputs:
 
 ```yaml
-group: nli_tasks
-task:
-  - cb
-  - anli_r1
-  - rte
-aggregate_metric_list:
-  - metric: accuracy
-    aggregation: mean
-    higher_is_better: true
+filter_list:
+  - name: "extract-answer"
+    filter:
+      - function: "regex"
+        regex_pattern: "The answer is (\\d+)"
+      - function: "take_first"
 ```
 
-This creates an "nli_tasks" benchmark that averages accuracy across three natural language inference tasks.
+### Using Local Datasets
 
-### Performance Optimization
+To load a local dataset for evaluation, you can specify data files in the `dataset_kwargs` field:
 
-The `Reorderer` utility improves runtime estimation through length-based batching:
-
-```python
-from lm_eval.utils import Reorderer
-
-class OptimizedLM(LM):
-    def __init__(self):
-        self.reorderer = Reorderer(requests, lambda x: len(x))
-    
-    def process_batch(self, requests):
-        sorted_requests = self.reorderer.get_reordered()
-        # Process ordered requests
+```yaml
+dataset_path: json
+dataset_name: null
+dataset_kwargs:
+  data_files: /path/to/my/json
 ```
 
-This pattern groups requests by input length to minimize padding and maximize computational efficiency.
+Or with files already split into separate directories:
 
-### Model and Task Registration
-
-Models become CLI-accessible through decorator-based registration:
-
-```python
-from lm_eval.api.registry import register_model
-
-@register_model("custom-model", "alt-name")
-class CustomLM(LM):
-    # Implementation
+```yaml
+dataset_path: arrow
+dataset_kwargs:
+  data_files:
+    train: /path/to/arrow/train/data-00000-of-00001.arrow
+    validation: /path/to/arrow/validation/data-00000-of-00001.arrow
 ```
 
-New tasks require JSON metadata registration:
+## Advanced Features
 
-```json
-{
-  "task": "custom-task",
-  "group": "knowledge-test",
-  "aliases": ["ct-v1", "custom-test"]
-}
-```
+### Chat Templates
 
-This enables task discovery and provides backward-compatible aliases for evaluation suite versioning.
-
-## Under the Hood: Request Processing
-
-When evaluating a model, the harness:
-
-1. Loads the task configuration
-2. Processes the dataset
-3. Formats prompts using templates
-4. Creates batches of requests
-5. Calls the appropriate request method on the model
-6. Post-processes outputs and calculates metrics
-
-The architecture is designed to be modular, allowing each component to be customized while maintaining a consistent evaluation pipeline.
-
-## Using vLLM for Fast Evaluation
-
-For large-scale evaluations, the framework supports [vLLM](https://github.com/vllm-project/vllm) for significant speed improvements:
+For evaluating chat models with the appropriate formatting:
 
 ```bash
-python -m lm_eval --model vllm --model_args pretrained=meta-llama/Llama-2-7b-hf --tasks mmlu
+lm-eval --model hf --model_args pretrained=mistralai/Mistral-7B-Instruct-v0.2 --tasks mmlu --num_fewshot 5 --apply_chat_template
 ```
 
-For even larger models like Llama 405B, EleutherAI recommends using vLLM's OpenAI-compliant API to host the model, and then using the `local-completions` model type for evaluation.
+This applies the model's chat template to the prompt, essential for instruction-tuned models.
 
-## Multimodal Evaluation Support
-
-As of September 2024, the framework has started supporting text+image multimodal input tasks through the `hf-multimodal` and `vllm-vlm` model types, with the `mmmu` task as a prototype feature. For more extensive multimodal evaluation, users are encouraged to check out [lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval), which forked from lm-evaluation-harness.
-
-## Diagnostic and Testing Practices
-
-### Model Validation
-
-Implementation requires test cases covering core functionality:
-
-```python
-def test_loglikelihood():
-    lm = CustomLM()
-    results = lm.loglikelihood([("Input", "Target")])
-    assert isinstance(results[0][0], float)
-
-def test_generation():
-    lm = CustomLM()
-    outputs = lm.generate_until([("Input", {"until": ["\n"]})])
-    assert isinstance(outputs[0], str)
-```
-
-### Debugging Configuration
-
-Verbose logging activation aids task development:
+For models with multiple chat templates:
 
 ```bash
-export LOGLEVEL=DEBUG
-python -m lm_eval --model hf --tasks custom-task --num_fewshot 5
+lm-eval --apply_chat_template chatml
 ```
 
-Debug output reveals template rendering, few-shot selection, and metric calculation details.
+The chat template handling in lm-evaluation-harness has been updated to better support likelihood and multiple-choice based tasks with chat templates. When `apply_chat_template` is set to `True`, the target delimiter is now set to an empty string instead of using the configured delimiter.
+
+This prevents interference between chat template formatting and the default delimiter system, which is particularly important for multiple choice tasks where the template itself handles spacing.
+
+### Few-Shot as Multi-Turn Conversations
+
+Format few-shot examples as a conversation history:
+
+```bash
+lm-eval --num_fewshot 3 --apply_chat_template --fewshot_as_multiturn
+```
+
+### Task Groups and Benchmarks
+
+Run multiple related tasks as a benchmark:
+
+```bash
+lm-eval --model hf --model_args pretrained=gpt2 --tasks mmlu
+```
+
+This runs all MMLU subtasks and provides both individual and aggregate metrics.
+
+For creating your own group configurations, you can create a group YAML config with a `group` key which denotes the name of the group and a `task` key which lists the tasks to include. A good example is in `lm_eval/tasks/mmlu/default/_mmlu.yaml`.
+
+### Decontamination
+
+Check for training data contamination:
+
+```bash
+lm-eval --model hf --model_args pretrained=gpt2 --tasks sciq
+```
+
+When enabled on a task, this checks for n-gram overlaps with training data.
+
+The decontamination procedure tests model generalization by detecting whether test set data exists in the training set (contamination). OpenAI defined a test document as contaminated if any N-gram overlap existed with any training document, using N values between 8 and 13 depending on dataset.
+
+### Caching Results
+
+Cache evaluated results to speed up repeated runs:
+
+```bash
+lm-eval --use_cache /path/to/cache --cache_requests true
+```
+
+## Creating Custom Tasks
+
+### Task File Structure
+
+To create a new task:
+
+1. Create a YAML file in `lm_eval/tasks/your_task_name.yaml`
+2. Configure dataset parameters, prompt templates, and metrics
+3. Register the task with a unique name
+
+For complex preprocessing, you can add Python functions:
+
+```yaml
+process_docs: !function utils.process_docs
+```
+
+With a corresponding Python file:
+
+```python
+# utils.py
+def process_docs(dataset):
+    def _process_doc(doc):
+        # Preprocess document
+        return processed_doc
+    return dataset.map(_process_doc)
+```
+
+### Writing Prompt Templates
+
+When creating prompts, users will use `doc_to_text`, `doc_to_target`, and `doc_to_choice` (optional). `doc_to_text` defines the input string a model will be given while `doc_to_target` and `doc_to_choice` will be used to generate the target text.
+
+`doc_to_target` can be either a text string that refers to the target string or an integer that refers to the index of the correct label. When it is set as an index, `doc_to_choice` must also be set with the appropriate list of possible choice strings.
+
+For simple cases, you can enter the feature name directly:
+
+```yaml
+doc_to_text: startphrase
+doc_to_target: label
+```
+
+The evaluation harness supports the [Jinja 2](https://jinja.palletsprojects.com/en/3.1.x/) templating language for writing prompts. For example:
+
+```yaml
+doc_to_text: "{{passage}}\nQuestion: {{question}}?\nAnswer:"
+```
+
+Such that `{{passage}}` will be replaced by `doc["passage"]` and `{{question}}` with `doc["question"]` when rendering the prompt template.
+
+### Importing Prompts from Promptsource
+
+You can load prompts from Promptsource by using the `use_prompt` argument:
+
+```yaml
+use_prompt: "promptsource:GPT-3 Style"
+```
+
+If you would like to run evaluation on all prompt templates:
+
+```yaml
+use_prompt: "promptsource:*"
+```
+
+### Creating Task Filters
+
+Filters allow you to post-process model outputs before scoring them. A full list of supported filter operations can be found in `lm_eval/filters/__init__.py`. Contributions of new filter types are welcome!
+
+Multiple filter pipelines can run on the same model outputs generated in one run on a task. This enables scenarios like:
+
+1. Post-processing output text by truncating or extracting answers
+2. Ensembling over multiple "takes" on a document
+
+For example, in the file `lm_eval/tasks/gsm8k/gsm8k-cot-self-consistency.yaml`, the implementation emulates the setup used by [Self-Consistency Improves Chain of Thought Prompting](https://arxiv.org/abs/2203.11171), which generates multiple chain-of-thought outputs, extracts numeric answers, and uses majority voting.
 
 ## Best Practices and Common Pitfalls
 
@@ -378,6 +426,121 @@ Debug output reveals template rendering, few-shot selection, and metric calculat
    - Audit metric implementations for task appropriateness
    - Verify chat template application through debug output
 
+5. **Resource Management**
+   - Use `--batch_size auto` to automatically determine optimal batch size
+   - For API models, set appropriate `num_concurrent` and timeout values
+   - Consider using `--limit` for debugging to evaluate only a subset of documents
+
+## Adding New Models to the Framework
+
+When implementing a new model type, all models must subclass the `lm_eval.api.model.LM` class, which enforces a common interface:
+
+```python
+class MyCustomLM(LM):
+    def loglikelihood(self, requests: list[Instance]) -> list[tuple[float, bool]]:
+        # Implementation for calculating conditional log probabilities
+
+    def loglikelihood_rolling(self, requests: list[Instance]) -> list[tuple[float, bool]]:
+        # Implementation for calculating full-text log probabilities
+
+    def generate_until(self, requests: list[Instance]) -> list[str]:
+        # Implementation for free-form text generation
+```
+
+These methods support three types of requests:
+
+- `generate_until`: Generates text from the model until reaching stopping criteria
+- `loglikelihood`: Calculates log probability of a target string given an input
+- `loglikelihood_rolling`: Calculates log probability of an entire input string
+
+To make your model usable via CLI, use the `lm_eval.api.registry.register_model` decorator:
+
+```python
+from lm_eval.api.registry import register_model
+
+@register_model("<name1>", "<name2>")
+class MyCustomLM(LM):
+    # Implementation
+```
+
+For adding chat templates, implement three additional methods:
+
+```python
+class MyCustomLM(LM):
+    @property
+    def tokenizer_name(self) -> str:
+        """Return the name of the model's tokenizer and/or chat template."""
+        
+    def chat_template(self, chat_template: Union[bool, str] = False) -> str:
+        """Get the appropriate chat template string."""
+        
+    def apply_chat_template(self, chat_history: List[Dict[str, str]]) -> str:
+        """Process a chat history into a string for the model."""
+```
+
+## Practical Examples
+
+### Evaluating a Local Hugging Face Model
+
+```bash
+lm-eval --model hf \
+  --model_args pretrained=mistralai/Mistral-7B-Instruct-v0.2,device_map=auto,trust_remote_code=true \
+  --tasks mmlu,hellaswag \
+  --num_fewshot 5 \
+  --batch_size auto \
+  --output_path results/mistral-7b.json \
+  --apply_chat_template
+```
+
+### Evaluating a Quantized Model
+
+```bash
+lm-eval --model hf \
+  --model_args pretrained=TheBloke/Llama-2-13B-GPTQ,gptq=true \
+  --tasks gsm8k \
+  --num_fewshot 5 \
+  --batch_size 1
+```
+
+### Evaluating an API Model
+
+```bash
+# Set OPENAI_API_KEY environment variable first
+lm-eval --model openai-chat \
+  --model_args model=gpt-4-turbo \
+  --tasks mmlu,bbh \
+  --num_fewshot 5 \
+  --batch_size 10
+```
+
+### Self-Consistency Evaluation
+
+```bash
+lm-eval --model hf \
+  --model_args pretrained=meta-llama/Llama-2-70b-hf \
+  --tasks gsm8k-cot-self-consistency \
+  --num_fewshot 8 \
+  --batch_size 4 \
+  --gen_kwargs temperature=0.7,top_p=0.95
+```
+
+### Working with Vision-Language Models
+
+The framework also supports multimodal evaluation with the `HFMultimodalLM` class for models like Llava and Idefics:
+
+```python
+from lm_eval.models.hf_vlms import HFMultimodalLM
+
+# Initialize the model
+model = HFMultimodalLM(
+    pretrained="llava-hf/llava-1.5-7b-hf",
+    device_map="auto"
+)
+
+# Generate responses for multimodal inputs
+results = model.generate_until(...)
+```
+
 ## Contributing to lm-evaluation-harness
 
 EleutherAI welcomes contributions to improve the framework. The project follows these priorities for addressing concerns about prompting and evaluation details:
@@ -388,6 +551,37 @@ EleutherAI welcomes contributions to improve the framework. The project follows 
 4. Choose from common implementations when there's no universal agreement, preferring those found in LLM training papers
 
 They maintain an active [Discord server](https://discord.gg/eleutherai) with the `#lm-thunderdome` channel dedicated to developing this project and `#release-discussion` for support.
+
+Important resources include:
+- Documentation pages in the [docs directory](https://github.com/EleutherAI/lm-evaluation-harness/tree/main/docs)
+- [GitHub Milestones](https://github.com/EleutherAI/lm-evaluation-harness/milestones) for tracking progress toward version releases
+- [Project Board](https://github.com/orgs/EleutherAI/projects/25) for tracking work items and feature requests
+- Discord discussions in the #lm-thunderdome channel
+
+### Contributing a New Task
+
+To contribute a new task:
+1. Fork the repository
+2. Create a YAML configuration file
+3. Verify against reference implementations
+4. Add documentation and test results
+5. Submit a pull request
+
+For first-time contributors, the team maintains a list of good first issues, which can be found [on the project board](https://github.com/orgs/EleutherAI/projects/25/views/8) or by [filtering GitHub Issues](https://github.com/EleutherAI/lm-evaluation-harness/issues?q=is%3Aopen+label%3A%22good+first+issue%22+label%3A%22help+wanted%22).
+
+### Contributing a New Model Type
+
+To add support for a new model type:
+1. Implement a subclass of `lm_eval.api.model.LM`
+2. Register your model with `@register_model`
+3. Implement the required interface methods
+4. Add documentation and tests
+5. Submit a pull request
+
+Code style guidelines:
+- LM Evaluation Harness uses [ruff](https://github.com/astral-sh/ruff) for linting via [pre-commit](https://pre-commit.com/)
+- Install dev tools via `pip install lm_eval[dev]` or `pip install -e ".[dev]"`
+- Run `pre-commit install` to ensure linters and checks will run upon committing
 
 ## Conclusion
 
@@ -403,7 +597,6 @@ Whether you're developing a new model or researching evaluation methodologies, u
 4. [Weights & Biases: Evaluating LLMs with EleutherAI](https://wandb.ai/wandb_gen/llm-evaluation/reports/Evaluating-Large-Language-Models-LLMs-with-Eleuther-AI--VmlldzoyOTI0MDQ3)
 5. [Mozilla AI: LM Buddy Evaluation Concepts](https://mozilla-ai.github.io/lm-buddy/evaluation_concepts.html)
 6. [Red Hat: Evaluating Large Language Models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_cloud_service/1/html/monitoring_data_science_models/evaluating-large-language-models_monitor)
-7. [Unitxt LM Evaluation Documentation](https://www.unitxt.ai/en/1.14.0/docs/lm_eval.html)
-8. [TrustyAI LM Evaluation Tutorial](https://trustyai-explainability.github.io/trustyai-site/main/lm-eval-tutorial.html)
-9. [NVIDIA NGC LM Evaluation Harness Container](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/eval-factory/containers/lm-evaluation-harness)
-10. [EleutherAI: Language Model Evaluation Projects](https://www.eleuther.ai/projects/large-language-model-evaluation)
+7. [API Guide Documentation](https://github.com/EleutherAI/lm-evaluation-harness/blob/main/docs/API_guide.md)
+8. [Interface Documentation](https://github.com/EleutherAI/lm-evaluation-harness/blob/main/docs/interface.md)
+9. [Model Guide Documentation](https://github.com/EleutherAI/lm-evaluation-harness/blob/main/docs/model_guide.md)
