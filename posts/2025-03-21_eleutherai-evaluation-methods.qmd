@@ -561,6 +561,7 @@ Important resources include:
 ### Contributing a New Task
 
 To contribute a new task:
+
 1. Fork the repository
 2. Create a YAML configuration file
 3. Verify against reference implementations
@@ -572,6 +573,7 @@ For first-time contributors, the team maintains a list of good first issues, whi
 ### Contributing a New Model Type
 
 To add support for a new model type:
+
 1. Implement a subclass of `lm_eval.api.model.LM`
 2. Register your model with `@register_model`
 3. Implement the required interface methods
@@ -579,6 +581,7 @@ To add support for a new model type:
 5. Submit a pull request
 
 Code style guidelines:
+
 - LM Evaluation Harness uses [ruff](https://github.com/astral-sh/ruff) for linting via [pre-commit](https://pre-commit.com/)
 - Install dev tools via `pip install lm_eval[dev]` or `pip install -e ".[dev]"`
 - Run `pre-commit install` to ensure linters and checks will run upon committing
