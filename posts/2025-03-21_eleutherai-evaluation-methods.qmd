@@ -9,6 +9,9 @@ title: "EleutherAI's lm-evaluation-harness: Architecture and Configuration"
 subtitle: "A comprehensive guide to configuration, task architecture, and model integration"
 ---
 
+![EleutherAI's lm-evaluation-harness architecture diagram showing the relationship between models, tasks, and evaluation metrics](https://i.imgur.com/OhBrtWj.png)
+
+
 EleutherAI's [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) has emerged as one of the most robust and comprehensive frameworks for evaluating language models. Used by organizations including NVIDIA, Cohere, BigScience, and Mosaic ML, it serves as the backend for Hugging Face's Open LLM Leaderboard and has been cited in hundreds of research papers.
 
 This post explores the framework's architecture, configuration system, and integration patterns to help you understand how to use, extend, and contribute to this powerful evaluation ecosystem.
