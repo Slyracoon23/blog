@@ -15,6 +15,31 @@ Proper evaluation is crucial for understanding language model capabilities. Here
 The evaluation methods discussed below focus on assessing model generations and outputs, not training-related metrics like loss functions. While model training objectives and evaluation can be interlinked, this guide specifically addresses post-training evaluation techniques that measure the quality and usefulness of model outputs rather than optimizing the training process itself.
 :::
 
+## Part 1: Training-Related Evaluation Methods
+
+### 1. Supervised Fine-Tuning (SFT) Evaluation
+
+- **Holdout Validation**: Setting aside a portion of supervised examples to evaluate model performance on unseen data.
+- **Task-Specific Benchmarks**: Evaluating SFT models on standardized benchmarks relevant to the fine-tuning objective.
+- **Cross-Validation**: Using techniques like k-fold validation to ensure robust performance across different data splits.
+- **Learning Curve Analysis**: Tracking performance improvement as a function of training data volume to determine data efficiency.
+
+## 2. Preference Dataset Evaluation
+
+- **Preference Agreement**: Measuring how well a model's outputs align with human preferences from datasets like Anthropic's Helpful and Harmless dataset.
+- **DPO Metrics**: Evaluating Direct Preference Optimization by measuring the gap between chosen vs rejected responses.
+- **Preference Consistency**: Assessing whether model preferences remain consistent across similar queries or contexts.
+- **Preference Distribution Analysis**: Analyzing the distribution of model preferences across different types of queries to identify biases.
+
+## 3. Reinforcement Learning Based Evaluation
+
+- **Reward Function Analysis**: Evaluating the correlation between reward function scores and actual human preferences.
+- **RLHF Alignment**: Measuring how well Reinforcement Learning from Human Feedback aligns model outputs with human expectations.
+- **Policy Drift**: Tracking how model behavior changes through reinforcement learning iterations.
+- **Reward Hacking Detection**: Identifying cases where models optimize for reward signals without achieving the intended behavior.
+
+## Part 2: Human and Automated Evaluation Methods
+
 ## 1. Human Evaluation Methods
 
 - **Direct Assessment**: Human evaluators rate model outputs on dimensions like helpfulness, accuracy, harmlessness, and overall quality.
@@ -43,4 +68,4 @@ The evaluation methods discussed below focus on assessing model generations and 
 
 ---
 
-Incorporating these evaluation methods into your LLM development workflow helps ensure more comprehensive assessment of model capabilities and limitations. For complex applications, combining multiple evaluation techniques provides the most complete understanding of model performance.
+When designing an evaluation strategy, it's important to select methods appropriate to your specific use case and development stage. Combining multiple evaluation approaches provides a more comprehensive understanding of model performance across different dimensions and helps identify areas for targeted improvement.
