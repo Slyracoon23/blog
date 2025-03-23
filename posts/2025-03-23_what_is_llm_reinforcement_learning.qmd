@@ -1,0 +1,10 @@
+---
+aliases:
+- /what-is-llm-reinforcement-learning/
+categories:
+- Large Language Models
+date: '2025-03-23'
+title: "What is Reinforcement Learning in LLMs?"
+subtitle: "Understanding the role of reinforcement learning in training large language models"
+---
+
