@@ -15,7 +15,7 @@ Proper evaluation is crucial for understanding language model capabilities. Here
 The evaluation methods discussed below focus on assessing model generations and outputs, not training-related metrics like loss functions. While model training objectives and evaluation can be interlinked, this guide specifically addresses post-training evaluation techniques that measure the quality and usefulness of model outputs rather than optimizing the training process itself.
 :::
 
-## Part 1: Training-Related Evaluation Methods
+## Training-Related Evaluation Methods
 
 ### 1. Supervised Fine-Tuning (SFT) Evaluation
 
@@ -24,47 +24,52 @@ The evaluation methods discussed below focus on assessing model generations and 
 - **Cross-Validation**: Using techniques like k-fold validation to ensure robust performance across different data splits.
 - **Learning Curve Analysis**: Tracking performance improvement as a function of training data volume to determine data efficiency.
 
-## 2. Preference Dataset Evaluation
+### 2. Preference Dataset Evaluation
 
 - **Preference Agreement**: Measuring how well a model's outputs align with human preferences from datasets like Anthropic's Helpful and Harmless dataset.
 - **DPO Metrics**: Evaluating Direct Preference Optimization by measuring the gap between chosen vs rejected responses.
 - **Preference Consistency**: Assessing whether model preferences remain consistent across similar queries or contexts.
 - **Preference Distribution Analysis**: Analyzing the distribution of model preferences across different types of queries to identify biases.
 
-## 3. Reinforcement Learning Based Evaluation
+### 3. Reinforcement Learning Based Evaluation
 
 - **Reward Function Analysis**: Evaluating the correlation between reward function scores and actual human preferences.
 - **RLHF Alignment**: Measuring how well Reinforcement Learning from Human Feedback aligns model outputs with human expectations.
 - **Policy Drift**: Tracking how model behavior changes through reinforcement learning iterations.
 - **Reward Hacking Detection**: Identifying cases where models optimize for reward signals without achieving the intended behavior.
 
-## Part 2: Human and Automated Evaluation Methods
+## Human and Automated Evaluation Methods
 
-## 1. Human Evaluation Methods
+### 1. Human Evaluation Methods
 
 - **Direct Assessment**: Human evaluators rate model outputs on dimensions like helpfulness, accuracy, harmlessness, and overall quality.
 - **Comparative Judgment**: Evaluators choose between outputs from different models without knowing their source, establishing relative quality.
 - **Structured Annotation**: Detailed feedback using specific rubrics to evaluate particular aspects of model performance.
 
-## 2. LLM-as-Judge Evaluation
+### 2. LLM-as-Judge Evaluation
 
 - **Pairwise Comparisons**: Using capable language models to choose between two model outputs, scaling evaluation while maintaining correlation with human judgments.
 - **Absolute Scoring**: LLM judges rating individual responses on specific criteria using predefined scales.
 - **Rubric-Based Evaluation**: LLM judges following detailed evaluation guidelines to provide comprehensive assessment.
 - **Self-Evaluation**: Models critiquing their own outputs to identify strengths and weaknesses.
 
-## 3. Text Generation Evaluation
+### 3. Text Generation Evaluation
 
 - **Generate Until**: Models generate text until reaching predefined stopping criteria, allowing evaluation of free-form generation capabilities.
 - **Instruction Following**: Assessment of how well models follow specific instructions in their generated outputs.
 - **Factual Consistency**: Verification that generated content remains factually accurate and consistent.
 
-## 4. Likelihood-Based Evaluation
+### 4. Likelihood-Based Evaluation
 
 - **Conditional Loglikelihood**: Calculates log probability of a target string given an input, measuring how likely the model finds specific completions.
 - **Rolling Loglikelihood**: Calculates log probability of an entire input string, useful for measuring perplexity and fluency.
 - **Rank-Based Metrics**: Evaluates how highly the model ranks correct answers among alternatives.
 
+# Part 2: Rebuilding Character AI (Chai AI)
+
+In this upcoming section, we'll put theory into practice by rebuilding a character-based AI system similar to Character AI. We'll apply the evaluation methods discussed in Part 1 to create, train, and refine conversational AI characters.
+
+*Coming soon...*
 
 ---
 
