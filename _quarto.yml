@@ -48,6 +48,8 @@ website:
               href: posts/2025-03-16_what_are_image_embeddings.html
             - text: "Exploring Gemma 3 Model"
               href: posts/2025-03-18_exploring_gemma_3_model.html
+            - text: "EleutherAI's lm-evaluation-harness"
+              href: posts/2025-03-21_eleutherai-evaluation-methods.html
         - text: "---"
         - section: "🌐 **Web Technologies**"
           contents:
