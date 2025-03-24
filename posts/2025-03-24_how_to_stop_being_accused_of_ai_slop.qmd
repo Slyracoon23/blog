@@ -23,7 +23,7 @@ Since the advent of LLMs, the internet has been flooded with AI-generated conten
 
 During a Council on Foreign Relations event in March 2025, Anthropic CEO Dario Amodei predicted that within 3 to 6 months, AI will be writing 90% of code, with the potential for AI to handle essentially all coding tasks within a year[^1]. While this prediction has sparked debate in the tech community, it highlights the growing impact of AI on content creation across industries.
 
-[^1]: Business Insider. ["Anthropic CEO: AI will write 90% of code within 3 to 6 months."](https://www.businessinsider.com/anthropic-ceo-ai-90-percent-code-3-to-6-months-2025-3) March 2025.
+[^1]: Business Insider. ["Anthropic CEO: AI will write 90% of code within 3 to 6 months."](https://www.businessinsider.com/anthropic-ceo-ai-90-percent-code-3-to-6-months-2025-3) March 2025. This prediction was made during a Council on Foreign Relations event and has generated significant discussion in the tech community.<br>For additional coverage, see also [LinkedIn discussion](https://www.linkedin.com/posts/asadeddin_anthropic-ceo-dario-amodei-said-earlier-this-activity-7307473859522244608-bfuz) and [BioComm AI analysis](https://blog.biocomm.ai/2025/03/14/anthropic-ceo-90-of-code-will-be-written-by-ai-in-6-months-matthew-berman/).
 
 ## 3. Developing Better AI-Human Collaboration
 
