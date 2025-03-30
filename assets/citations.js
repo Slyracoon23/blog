@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     content.appendChild(detailView);
     panel.appendChild(content);
     
-    // Append panel to body
+    // Append directly to the body for fixed positioning
     document.body.appendChild(panel);
   }
   
@@ -107,9 +107,33 @@ document.addEventListener('DOMContentLoaded', function() {
     closeBtn.addEventListener('click', function(e) {
       e.preventDefault();
       panel.classList.remove('active');
-      mainContent.classList.remove('panel-open');
+      if (mainContent) {
+        mainContent.classList.remove('panel-open');
+      }
     });
   }
+  
+  // Update navigation buttons state
+  function updateNavButtons() {
+    prevBtn.disabled = currentIndex <= 0;
+    nextBtn.disabled = currentIndex >= totalCitations - 1;
+    counter.textContent = `${currentIndex + 1} of ${totalCitations}`;
+  }
+  
+  // Adjust panel width on mobile
+  function adjustPanelWidth() {
+    if (window.innerWidth < 992) {
+      panel.style.width = '100%';
+    } else {
+      panel.style.width = '350px';
+    }
+  }
+  
+  // Call on initial load
+  adjustPanelWidth();
+  
+  // Listen for window resize
+  window.addEventListener('resize', adjustPanelWidth);
   
   // Process Quarto-generated footnotes
   const footnotesSection = document.querySelector('.footnotes');
@@ -117,6 +141,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Find all footnote list items
     const footnoteItems = footnotesSection.querySelectorAll('li[id^="fn"]');
     totalCitations = footnoteItems.length;
+    
+    // Debug log
+    console.log('Found ' + footnoteItems.length + ' footnotes');
     
     footnoteItems.forEach(function(footnoteItem, index) {
       const id = footnoteItem.id;
@@ -158,48 +185,15 @@ document.addEventListener('DOMContentLoaded', function() {
           backRef.parentNode.removeChild(backRef);
         }
         
-        // Enhanced citation content with source link and highlights
-        if (id === 'fn1') {
-          // Create example enhanced citation for footnote 1
-          citationDiv.innerHTML = `
-            <a href="https://r.jina.ai/https://denevil.ai/citations" class="source-link-title" target="_blank">
-              Denevil: Towards Deciphering and Navigating the Landscape of AI
-            </a>
-            
-            <div class="citation-description">
-              <p>Supporting quotes from</p>
-            </div>
-            
-            <div class="highlight-section">
-              <p>probability threshold that is usually set to 0.5. EVP estimates the empirical frequency of generating violated content, that is, the probability of generating an output violating v, i.e., P ϕ (y i,k ) > τ , at least once over K generations for the given N inputs.</p>
-            </div>
-            
-            <h4 class="citation-section-header">Maximum Violation Probability</h4>
-            
-            <div class="highlight-section">
-              <p>The Maximum Violation Probability (MVP) is calculated as follows:</p>
-            </div>
-            
-            <div class="highlight-section">
-              <p>MVP evaluates the worst-case generation with the highest violation probability given by the classifier, indicating to what extent the model would generate content that violates the value statement.</p>
-            </div>
-            
-            <h4 class="citation-section-header">Absolute Proportion of Violation</h4>
-            
-            <div class="highlight-section">
-              <p>The Absolute Proportion of Violation (APV) is calculated as follows:</p>
-            </div>
-          `;
-        } else {
-          citationDiv.innerHTML = tempDiv.innerHTML;
-        }
-        
+        citationDiv.innerHTML = tempDiv.innerHTML;
         hiddenCitations.appendChild(citationDiv);
       }
     });
     
     // Hide the footnotes section
     footnotesSection.style.display = 'none';
+  } else {
+    console.log('No footnotes section found');
   }
   
   // Create citation links for any direct [^1] references
@@ -260,13 +254,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Update navigation buttons state
-  function updateNavButtons() {
-    prevBtn.disabled = currentIndex <= 0;
-    nextBtn.disabled = currentIndex >= totalCitations - 1;
-    counter.textContent = `${currentIndex + 1} of ${totalCitations}`;
-  }
-  
   // Show citation content
   function showCitation(index) {
     if (index >= 0 && index < allCitations.length) {
@@ -277,13 +264,18 @@ document.addEventListener('DOMContentLoaded', function() {
       if (citationContent) {
         // Make panel visible
         panel.classList.add('active');
-        mainContent.classList.add('panel-open');
+        if (mainContent) {
+          mainContent.classList.add('panel-open');
+        }
         
         // Set citation content in the panel
         content.innerHTML = citationContent.innerHTML;
         
         // Update navigation
         updateNavButtons();
+        
+        // Debug
+        console.log('Citation panel activated', panel.classList.contains('active'));
       }
     }
   }
@@ -295,6 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Get citation index from data attribute
       const citationIndex = parseInt(e.target.getAttribute('data-citation-index'), 10);
+      console.log('Citation link clicked, index:', citationIndex);
       showCitation(citationIndex);
     }
   });
@@ -314,5 +307,10 @@ document.addEventListener('DOMContentLoaded', function() {
         showCitation(currentIndex + 1);
       }
     });
+  }
+
+  // Pre-populate totalCitations if we didn't find footnotes
+  if (totalCitations === 0 && allCitations.length > 0) {
+    totalCitations = allCitations.length;
   }
 }); 
