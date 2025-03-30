@@ -33,14 +33,8 @@ It is not hard to imagine that this will also apply to writing.
 
 I don't plan stopping anytime soon. So, how can I stop being accused of AI-generated content?
 
-[^1]: "Anthropic CEO: AI will write 90% of code within 3 to 6 months." March 2025.
-
-    This prediction was made during a Council on Foreign Relations event and has generated significant discussion in the tech community.
-    
-    Sources:
-    - [Business Insider article](https://www.businessinsider.com/anthropic-ceo-ai-90-percent-code-3-to-6-months-2025-3)
-    - [LinkedIn discussion](https://www.linkedin.com/posts/asadeddin_anthropic-ceo-dario-amodei-said-earlier-this-activity-7307473859522244608-bfuz)
-    - [BioComm AI analysis](https://blog.biocomm.ai/2025/03/14/anthropic-ceo-90-of-code-will-be-written-by-ai-in-6-months-matthew-berman/)
+[^1]: 
+   {{< include /citations/how_to_stop_being_accused_of_ai_generated_content/_1_buisiness_insider.qmd >}}
 
 ## 3. Developing Better AI-Human Collaboration
 
