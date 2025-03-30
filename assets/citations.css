@@ -1,87 +1,84 @@
-/* Citation Sidebar Styles */
+/* Updated Sticky Citation Sidebar CSS */
 
-/* Container for the citation panel - remove this since we're using absolute positioning */
+/* Remove unused container */
 .sidebar-container {
-  display: none; /* Hide the container as we're not using it */
+  display: none;
 }
 
+/* Fixed citation panel that remains in view */
 .citation-panel {
-  position: fixed; /* Use fixed positioning for reliability */
-  top: 58px; /* Match the sidebar's top position */
+  position: fixed;
+  top: 58px; /* Matches the header or other fixed top elements */
   right: 0;
   width: 350px;
-  height: calc(100vh - 58px); /* Fixed height for the panel */
+  height: calc(100vh - 58px);
   background-color: #ffffff;
   border-left: 1px solid #dee2e6;
   box-shadow: -5px 0 15px rgba(0,0,0,0.15);
   z-index: 1000;
-  overflow-y: auto; /* Allow scrolling within panel */
+  overflow-y: auto;
   transform: translateX(100%); /* Hidden by default */
   transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
 }
 
-/* Panel is visible when active */
+/* Show panel when active */
 .citation-panel.active {
   transform: translateX(0);
 }
 
-/* Main content structure - preserve original layout */
+/* Main content shifts on larger screens when panel is active */
+.main-content {
+  transition: margin-right 0.3s ease;
+}
+@media (min-width: 992px) {
+  .main-content.panel-open {
+    margin-right: 350px;
+  }
+}
+@media (max-width: 991px) {
+  .main-content.panel-open {
+    margin-right: 0;
+  }
+  .citation-panel {
+    width: 100%;
+  }
+}
+
+/* Inner content of the citation panel */
 .citation-content {
   padding: 0;
   position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%; /* Full height */
+  height: 100%;
 }
 
-/* Don't modify the original content layout */
-.main-content {
-  transition: margin-right 0.3s ease;
-}
-
-@media (min-width: 992px) {
-  .main-content.panel-open {
-    margin-right: 350px; /* Push content when panel is open on larger screens */
-  }
-}
-
-@media (max-width: 991px) {
-  .main-content.panel-open {
-    margin-right: 0; /* Don't shift content on smaller screens */
-  }
-  
-  .citation-panel {
-    width: 100%; /* Full width on mobile */
-  }
-}
-
+/* Citation links styling */
 .citation-link {
   color: #3B70FE;
   cursor: pointer;
   vertical-align: super;
   font-size: 0.75em;
   text-decoration: none;
-  position: relative;
   background-color: rgba(59, 112, 254, 0.1);
   padding: 1px 4px;
   border-radius: 3px;
   transition: background-color 0.2s ease;
   font-weight: normal;
 }
-
 .citation-link:hover {
-  text-decoration: none;
   background-color: rgba(59, 112, 254, 0.2);
 }
 
+/* Hidden container for citation content */
 .hidden-citations {
   display: none;
 }
 
-/* Citation note container - fixed header and footer with scrollable content */
+/* Container for citation details with fixed header and footer */
 #detail-view {
   display: flex;
   flex-direction: column;
@@ -89,7 +86,7 @@
   overflow: hidden;
 }
 
-/* Citation details header - fixed at top */
+/* Sticky header for citation details */
 .citation-details-header {
   display: flex;
   justify-content: space-between;
@@ -98,28 +95,27 @@
   font-size: 1.25rem;
   font-weight: 500;
   border-bottom: 1px solid #eee;
-  margin: 0;
   background-color: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  flex-shrink: 0; /* Prevent header from shrinking */
   position: sticky;
   top: 0;
   z-index: 5;
+  flex-shrink: 0;
 }
 
-/* Updated citation note styles - make only this part scrollable */
+/* Scrollable citation note */
 .citation-note {
   padding: 20px;
   line-height: 1.6;
-  overflow-y: auto; /* Only this scrolls */
+  overflow-y: auto;
   flex: 1;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Citation content text container */
 #citation-text {
-  min-height: 0; /* Necessary for Firefox */
-  padding-bottom: 20px; /* Give some space at the bottom before the footer */
+  min-height: 0;
+  padding-bottom: 20px;
 }
 
 /* Close button */
@@ -132,15 +128,14 @@
   cursor: pointer;
   font-weight: 500;
   color: #333;
-  text-decoration: none;
   font-size: 0.9rem;
+  text-decoration: none;
 }
-
 .close-panel:hover {
   background-color: #e9ecef;
 }
 
-/* Citation navigation - fixed at bottom */
+/* Sticky navigation at bottom */
 .citation-navigation {
   display: flex;
   justify-content: space-between;
@@ -148,17 +143,15 @@
   padding: 12px 20px;
   border-top: 1px solid #eee;
   background-color: #f8f9fa;
-  flex-shrink: 0; /* Prevent navigation from shrinking */
   position: sticky;
   bottom: 0;
   z-index: 5;
+  flex-shrink: 0;
   box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
 }
-
 .nav-counter {
   color: #495057;
 }
-
 .nav-btn {
   padding: 5px 10px;
   border: 1px solid #dee2e6;
@@ -167,31 +160,28 @@
   border-radius: 4px;
   cursor: pointer;
 }
-
 .nav-btn:hover:not([disabled]) {
   background-color: #e9ecef;
 }
-
 .nav-btn[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Source link title */
+/* Source link title styling */
 .source-link-title {
   font-size: 1.1rem;
   font-weight: 500;
   margin: 15px 0;
   color: #3B70FE;
-  display: block;
   text-decoration: none;
+  display: block;
 }
-
 .source-link-title:hover {
   text-decoration: underline;
 }
 
-/* Highlighted sections in citations */
+/* Highlighting for sections */
 .highlight-section {
   background-color: #f0f7ff;
   padding: 12px 15px;
@@ -199,7 +189,7 @@
   margin: 15px 0;
 }
 
-/* Section headers in citation panel */
+/* Section headers in the citation panel */
 .citation-section-header {
   font-size: 1.75rem;
   font-weight: 500;
@@ -213,27 +203,23 @@
   color: #667280;
   font-size: 0.95rem;
 }
-
 .citation-note p {
   margin-bottom: 10px;
 }
-
 .citation-note a {
   color: #3B70FE;
   text-decoration: none;
   transition: color 0.2s ease;
 }
-
 .citation-note a:hover {
   color: #0A047A;
   text-decoration: underline;
 }
 
-/* Fix any issues with Quarto's footnote styling */
+/* Adjust footnotes (hide Quarto's default footnotes) */
 .footnote-ref {
   font-weight: normal;
 }
-
 section.footnotes {
   display: none;
 }
@@ -247,22 +233,19 @@ section.footnotes {
   margin: 20px;
 }
 
-/* Available citations panel */
+/* Available citations panel styling */
 .available-citations {
   padding: 20px;
 }
-
 .available-citations h4 {
   font-size: 1rem;
   color: #495057;
   margin-bottom: 15px;
 }
-
 .citation-list {
   list-style: none;
   padding: 0;
 }
-
 .citation-list li {
   padding: 12px 15px;
   margin-bottom: 10px;
@@ -272,7 +255,6 @@ section.footnotes {
   cursor: pointer;
   transition: background-color 0.2s;
 }
-
 .citation-list li:hover {
   background-color: #e9ecef;
 }
@@ -283,36 +265,25 @@ section.footnotes {
     width: 300px;
   }
 }
-
 @media (max-width: 768px) {
   .citation-panel {
     width: 100%;
     max-width: 100%;
-    height: calc(-58px + 100vh);
+    height: calc(100vh - 58px);
     transform: translateX(100%);
     top: 58px;
   }
-  
-  .citation-details-header {
-    /* Already sticky from the base styles */
-    padding: 12px 16px; /* Slightly smaller padding on mobile */
-  }
-  
+  .citation-details-header,
   .citation-navigation {
-    /* Already sticky from the base styles */
-    padding: 12px 16px; /* Slightly smaller padding on mobile */
+    padding: 12px 16px;
   }
-  
   .citation-note {
-    padding: 16px; /* Slightly smaller padding on mobile */
+    padding: 16px;
   }
-  
-  /* Adjust text sizes for mobile */
   .source-link-title {
     font-size: 1rem;
   }
-  
   .citation-section-header {
     font-size: 1.5rem;
   }
-} 
+}
