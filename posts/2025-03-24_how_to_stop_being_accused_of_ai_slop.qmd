@@ -16,37 +16,63 @@ format:
         
         .citation-panel {
           position: fixed;
-          right: 0; /* Always visible instead of off-screen */
-          top: 0;
+          top: 80px; /* Space for the banner */
+          right: 0;
           width: 350px;
-          height: 100%;
-          background-color: #f8f9fa;  /* Light gray background instead of white */
+          height: calc(100vh - 80px); /* Viewport height minus banner height */
+          background-color: #ffffff;
           border-left: 1px solid #dee2e6;
           box-shadow: -5px 0 15px rgba(0,0,0,0.15);
           z-index: 1000;
           overflow-y: auto;
-          padding-top: 60px; /* Add space at top for fixed headers */
+          transition: transform 0.3s ease;
         }
         
-        /* Remove the show class animation since panel is always visible */
-        .citation-panel.show {
-          /* right: 0; */ /* This is commented out as the panel is always visible */
+        /* Panel is hidden by default */
+        .citation-panel.closed {
+          transform: translateX(350px);
         }
         
-        /* Add padding to the main content to make room for the sidebar */
-        body {
-          padding-right: 350px; /* Same as width of panel */
+        /* Toggle button for the panel */
+        .toggle-panel {
+          position: fixed;
+          top: 100px;
+          right: 350px;
+          z-index: 1001;
+          background-color: #3B70FE;
+          color: white;
+          border: none;
+          border-radius: 4px 0 0 4px;
+          padding: 10px;
+          cursor: pointer;
+          box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+          transition: right 0.3s ease;
         }
         
+        .toggle-panel.closed {
+          right: 0;
+        }
+        
+        .toggle-panel:focus {
+          outline: none;
+        }
+        
+        /* Main content structure - preserve original layout */
         .citation-content {
-          padding: 25px 20px;
+          padding: 0;
           position: relative;
         }
         
-        /* Hide the close button since panel is always visible */
-        .close-panel {
-          display: none;
+        /* Don't modify the original content layout */
+        .main-content {
+          transition: margin-right 0.3s ease;
         }
+        
+        .main-content.panel-open {
+          margin-right: 350px;
+        }
+        
+        /* Don't add padding to article-content */
         
         .citation-link {
           color: #3B70FE;
@@ -71,21 +97,107 @@ format:
           display: none;
         }
         
+        /* Updated citation note styles */
         .citation-note {
-          border-left: 4px solid #3B70FE;
-          padding-left: 15px;
-          margin-bottom: 20px;
+          padding: 20px;
           line-height: 1.6;
         }
         
-        .citation-title {
-          border-bottom: 1px solid #dee2e6;
-          padding-bottom: 10px;
-          margin-bottom: 15px;
-          color: #1e2124;
-          font-size: 1.2em;
-          font-weight: bold;
+        /* Citation details header */
+        .citation-details-header {
           text-align: center;
+          padding: 20px 0;
+          font-size: 1.25rem;
+          font-weight: 500;
+          border-bottom: 1px solid #eee;
+          margin-bottom: 20px;
+        }
+        
+        /* Back button */
+        .back-button {
+          position: absolute;
+          left: 20px;
+          top: 20px;
+          padding: 8px 15px;
+          background-color: #f8f9fa;
+          border: 1px solid #dee2e6;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: 500;
+          color: #333;
+          text-decoration: none;
+        }
+        
+        .back-button:hover {
+          background-color: #e9ecef;
+        }
+        
+        /* Citation navigation */
+        .citation-navigation {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 20px;
+          border-top: 1px solid #eee;
+          background-color: #f8f9fa;
+        }
+        
+        .nav-counter {
+          color: #495057;
+        }
+        
+        .nav-btn {
+          padding: 5px 10px;
+          border: 1px solid #dee2e6;
+          background-color: #fff;
+          color: #495057;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        
+        .nav-btn:hover:not([disabled]) {
+          background-color: #e9ecef;
+        }
+        
+        .nav-btn[disabled] {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        
+        /* Source link title */
+        .source-link-title {
+          font-size: 1.1rem;
+          font-weight: 500;
+          margin: 0 0 15px 0;
+          color: #495057;
+          display: block;
+          text-decoration: none;
+        }
+        
+        .source-link-title:hover {
+          text-decoration: underline;
+          color: #3B70FE;
+        }
+        
+        /* Highlighted sections in citations */
+        .highlight-section {
+          background-color: #e6f3ff;
+          padding: 10px 15px;
+          border-radius: 4px;
+          margin: 15px 0;
+        }
+        
+        /* Section headers in citation panel */
+        .citation-section-header {
+          font-size: 1.5rem;
+          font-weight: 500;
+          margin: 25px 0 15px 0;
+          color: #212529;
+        }
+        
+        /* Citation description text */
+        .citation-description {
+          margin-bottom: 15px;
         }
         
         .citation-note p {
@@ -117,62 +229,24 @@ format:
           display: none;
         }
         
-        /* Animation for the panel - no longer needed */
-        @keyframes slidein {
-          from { right: -350px; }
-          to { right: 0; }
-        }
-        
-        /* Remove animation since panel is always visible */
-        .citation-panel.show {
-          /* animation: slidein 0.3s ease forwards; */
-        }
-        
         /* Default message when no citation is selected */
         .default-citation-message {
           padding: 20px;
           color: #6c757d;
           font-style: italic;
           text-align: center;
-          background-color: rgba(59, 112, 254, 0.05);
-          border-radius: 8px;
-          margin: 10px;
-          padding: 15px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          margin: 20px;
         }
         
-        /* Make sure the citation panel doesn't push content */
-        .main-content {
-          position: relative;
-          overflow-x: hidden;
-        }
-        
-        /* Add a header section to the citation panel */
-        .citation-header {
-          background-color: #3B70FE;
-          color: white;
-          padding: 15px;
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 60px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
-        }
-        
-        /* Style for mock citations list that shows when no citation is selected */
+        /* Available citations panel */
         .available-citations {
-          margin-top: 20px;
-          padding: 0 15px;
+          padding: 20px;
         }
         
         .available-citations h4 {
           font-size: 1rem;
           color: #495057;
-          margin-bottom: 10px;
+          margin-bottom: 15px;
         }
         
         .citation-list {
@@ -181,53 +255,108 @@ format:
         }
         
         .citation-list li {
-          padding: 8px 12px;
+          padding: 12px 15px;
+          margin-bottom: 10px;
+          background-color: #f8f9fa;
           border-left: 3px solid #3B70FE;
-          margin-bottom: 8px;
-          background-color: white;
           border-radius: 0 4px 4px 0;
           cursor: pointer;
           transition: background-color 0.2s;
         }
         
         .citation-list li:hover {
-          background-color: rgba(59, 112, 254, 0.1);
+          background-color: #e9ecef;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+          .citation-panel {
+            width: 300px;
+          }
+          
+          .toggle-panel.closed {
+            right: 0;
+          }
+          
+          .toggle-panel {
+            right: 300px;
+          }
+          
+          .main-content.panel-open {
+            margin-right: 300px;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .citation-panel {
+            width: 100%;
+            max-width: 100%;
+          }
+          
+          .toggle-panel.closed {
+            right: 0;
+          }
+          
+          .toggle-panel {
+            right: 20px;
+            top: 20px;
+            border-radius: 4px;
+          }
+          
+          .main-content.panel-open {
+            margin-right: 0;
+          }
+          
+          .citation-panel.closed {
+            transform: translateY(-100%);
+          }
         }
         </style>
         
         <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function() {
+          // Do NOT wrap content in containers - preserve original layout
+          // Just add the panel-toggle class to the existing container
+          const mainContent = document.querySelector('.quarto-container');
+          if (mainContent) {
+            mainContent.classList.add('main-content');
+          }
+          
+          // Create toggle button for citation panel
+          const toggleBtn = document.createElement('button');
+          toggleBtn.className = 'toggle-panel';
+          toggleBtn.innerHTML = '&raquo; Citations';
+          toggleBtn.setAttribute('aria-label', 'Toggle citations panel');
+          document.body.appendChild(toggleBtn);
+        
           // Create citation panel if it doesn't exist
           if (!document.getElementById('citation-panel')) {
             const panel = document.createElement('div');
-            panel.className = 'citation-panel';
+            panel.className = 'citation-panel closed';
             panel.id = 'citation-panel';
-            
-            // Add header to the panel
-            const header = document.createElement('div');
-            header.className = 'citation-header';
-            header.textContent = 'Source References';
-            panel.appendChild(header);
             
             const content = document.createElement('div');
             content.className = 'citation-content';
             content.id = 'citation-content';
             
-            const citationTitle = document.createElement('h3');
-            citationTitle.className = 'citation-title';
-            citationTitle.id = 'citation-title';
-            citationTitle.textContent = 'Citations';
+            // Add default message and available citations section
+            const defaultView = document.createElement('div');
+            defaultView.id = 'default-view';
             
-            const citationText = document.createElement('div');
-            citationText.id = 'citation-text';
+            // Citation title
+            const citationsHeader = document.createElement('h3');
+            citationsHeader.className = 'citation-details-header';
+            citationsHeader.textContent = 'Citations';
+            defaultView.appendChild(citationsHeader);
             
-            // Add default message
+            // Default message
             const defaultMessage = document.createElement('div');
             defaultMessage.className = 'default-citation-message';
             defaultMessage.id = 'default-citation-message';
             defaultMessage.textContent = 'Click on any citation number in the text to view its details here.';
+            defaultView.appendChild(defaultMessage);
             
-            // Add available citations section
+            // Available citations section
             const availableCitations = document.createElement('div');
             availableCitations.className = 'available-citations';
             availableCitations.id = 'available-citations';
@@ -256,22 +385,95 @@ format:
             });
             
             availableCitations.appendChild(citationList);
+            defaultView.appendChild(availableCitations);
             
-            content.appendChild(citationTitle);
-            content.appendChild(defaultMessage);
-            content.appendChild(availableCitations);
-            content.appendChild(citationText);
+            // Citation detail view
+            const detailView = document.createElement('div');
+            detailView.id = 'detail-view';
+            detailView.style.display = 'none';
+            
+            // Back button
+            const backButton = document.createElement('a');
+            backButton.className = 'back-button';
+            backButton.textContent = 'Back';
+            backButton.href = '#';
+            detailView.appendChild(backButton);
+            
+            // Citation details header
+            const detailsHeader = document.createElement('h3');
+            detailsHeader.className = 'citation-details-header';
+            detailsHeader.id = 'citation-title';
+            detailsHeader.textContent = 'Citation details';
+            detailView.appendChild(detailsHeader);
+            
+            // Citation content
+            const citationText = document.createElement('div');
+            citationText.id = 'citation-text';
+            citationText.className = 'citation-note';
+            detailView.appendChild(citationText);
+            
+            // Citation navigation
+            const citationNav = document.createElement('div');
+            citationNav.className = 'citation-navigation';
+            
+            const navCounter = document.createElement('div');
+            navCounter.className = 'nav-counter';
+            navCounter.id = 'citation-counter';
+            navCounter.textContent = '1 of 21';
+            
+            const navButtons = document.createElement('div');
+            
+            const prevButton = document.createElement('button');
+            prevButton.className = 'nav-btn';
+            prevButton.id = 'prev-citation';
+            prevButton.textContent = 'Previous';
+            
+            const nextButton = document.createElement('button');
+            nextButton.className = 'nav-btn';
+            nextButton.id = 'next-citation';
+            nextButton.textContent = 'Next';
+            
+            navButtons.appendChild(prevButton);
+            navButtons.appendChild(document.createTextNode(' '));
+            navButtons.appendChild(nextButton);
+            
+            citationNav.appendChild(navCounter);
+            citationNav.appendChild(navButtons);
+            
+            detailView.appendChild(citationNav);
+            
+            content.appendChild(defaultView);
+            content.appendChild(detailView);
             panel.appendChild(content);
             
+            // Append panel to body
             document.body.appendChild(panel);
           }
           
-          // Get elements
+          // Toggle panel functionality
           const panel = document.getElementById('citation-panel');
+          
+          toggleBtn.addEventListener('click', function() {
+            panel.classList.toggle('closed');
+            toggleBtn.classList.toggle('closed');
+            mainContent.classList.toggle('panel-open');
+            
+            if (panel.classList.contains('closed')) {
+              toggleBtn.innerHTML = '&raquo; Citations';
+            } else {
+              toggleBtn.innerHTML = '&laquo; Hide';
+            }
+          });
+          
+          // Get elements
+          const defaultView = document.getElementById('default-view');
+          const detailView = document.getElementById('detail-view');
           const titleEl = document.getElementById('citation-title');
           const content = document.getElementById('citation-text');
-          const defaultMessage = document.getElementById('default-citation-message');
-          const availableCitations = document.getElementById('available-citations');
+          const counter = document.getElementById('citation-counter');
+          const prevBtn = document.getElementById('prev-citation');
+          const nextBtn = document.getElementById('next-citation');
+          const backBtn = document.querySelector('.back-button');
           
           // Create hidden citations container
           if (!document.querySelector('.hidden-citations')) {
@@ -281,16 +483,32 @@ format:
           }
           const hiddenCitations = document.querySelector('.hidden-citations');
           
+          // Current citation index and total
+          let currentIndex = 0;
+          let totalCitations = 0;
+          let allCitations = [];
+          
+          // Handle back button click
+          if (backBtn) {
+            backBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              defaultView.style.display = 'block';
+              detailView.style.display = 'none';
+            });
+          }
+          
           // First, handle specifically the Quarto-generated footnotes
           // Quarto usually creates a section with class 'footnotes' at the bottom
           const footnotesSection = document.querySelector('.footnotes');
           if (footnotesSection) {
             // Find all footnote list items
             const footnoteItems = footnotesSection.querySelectorAll('li[id^="fn"]');
+            totalCitations = footnoteItems.length;
             
-            footnoteItems.forEach(function(footnoteItem) {
+            footnoteItems.forEach(function(footnoteItem, index) {
               const id = footnoteItem.id;
               const num = id.replace('fn', '');
+              allCitations.push(id);
               
               // Find the corresponding reference in the text
               const refId = 'fnref' + num;
@@ -303,6 +521,7 @@ format:
                 citationLink.textContent = footnoteRef.textContent || num;
                 citationLink.setAttribute('data-citation', id);
                 citationLink.setAttribute('data-citation-number', num);
+                citationLink.setAttribute('data-citation-index', index);
                 citationLink.href = '#';
                 
                 // Replace the reference with our citation link
@@ -326,7 +545,44 @@ format:
                   backRef.parentNode.removeChild(backRef);
                 }
                 
-                citationDiv.innerHTML = tempDiv.innerHTML;
+                // Enhanced citation content with source link and highlights
+                if (id === 'fn1') {
+                  // Create example enhanced citation for footnote 1
+                  citationDiv.innerHTML = `
+                    <div class="citation-content-container">
+                      <a href="https://r.jina.ai/https://denevil.ai/citations" class="source-link-title" target="_blank">
+                        Denevil: Towards Deciphering and Navigating the Landscape of AI
+                      </a>
+                      
+                      <div class="citation-description">
+                        <p>Supporting quotes from</p>
+                      </div>
+                      
+                      <div class="highlight-section">
+                        <p>probability threshold that is usually set to 0.5. EVP estimates the empirical frequency of generating violated content, that is, the probability of generating an output violating v, i.e., P ϕ (y i,k ) > τ , at least once over K generations for the given N inputs.</p>
+                      </div>
+                      
+                      <h4 class="citation-section-header">Maximum Violation Probability</h4>
+                      
+                      <div class="highlight-section">
+                        <p>The Maximum Violation Probability (MVP) is calculated as follows:</p>
+                      </div>
+                      
+                      <div class="highlight-section">
+                        <p>MVP evaluates the worst-case generation with the highest violation probability given by the classifier, indicating to what extent the model would generate content that violates the value statement.</p>
+                      </div>
+                      
+                      <h4 class="citation-section-header">Absolute Proportion of Violation</h4>
+                      
+                      <div class="highlight-section">
+                        <p>The Absolute Proportion of Violation (APV) is calculated as follows:</p>
+                      </div>
+                    </div>
+                  `;
+                } else {
+                  citationDiv.innerHTML = tempDiv.innerHTML;
+                }
+                
                 hiddenCitations.appendChild(citationDiv);
               }
             });
@@ -357,6 +613,15 @@ format:
               citationLink.setAttribute('data-citation', targetId);
               citationLink.href = '#';
               
+              // Get the index if this citation already exists in allCitations
+              const existingIndex = allCitations.indexOf(targetId);
+              if (existingIndex !== -1) {
+                citationLink.setAttribute('data-citation-index', existingIndex);
+              } else {
+                citationLink.setAttribute('data-citation-index', allCitations.length);
+                allCitations.push(targetId);
+              }
+              
               // Mark the original parent as replaced
               if (link.parentNode) {
                 link.parentNode.classList.add('replaced-by-citation');
@@ -385,37 +650,67 @@ format:
             }
           });
           
+          // Update navigation buttons state
+          function updateNavButtons() {
+            prevBtn.disabled = currentIndex <= 0;
+            nextBtn.disabled = currentIndex >= totalCitations - 1;
+            counter.textContent = `${currentIndex + 1} of ${totalCitations}`;
+          }
+          
+          // Show citation content
+          function showCitation(index) {
+            if (index >= 0 && index < allCitations.length) {
+              currentIndex = index;
+              const citationId = allCitations[index];
+              const citationContent = document.getElementById(citationId + '-content');
+              
+              if (citationContent) {
+                // Make sure panel is open when showing a citation
+                panel.classList.remove('closed');
+                toggleBtn.classList.remove('closed');
+                mainContent.classList.add('panel-open');
+                toggleBtn.innerHTML = '&laquo; Hide';
+                
+                // Switch to detail view
+                defaultView.style.display = 'none';
+                detailView.style.display = 'block';
+                
+                // Set citation content in the panel
+                content.innerHTML = citationContent.innerHTML;
+                
+                // Update navigation
+                updateNavButtons();
+              }
+            }
+          }
+          
           // Add click event to all citation links
           document.addEventListener('click', function(e) {
             if (e.target.classList.contains('citation-link')) {
               e.preventDefault();
               
-              // Get citation ID from data attribute
-              const citationId = e.target.getAttribute('data-citation');
-              const citationNum = e.target.getAttribute('data-citation-number') || "";
-              
-              // Get citation content
-              const citationContent = document.getElementById(citationId + '-content');
-              
-              if (citationContent) {
-                // Hide default message when showing a citation
-                if (defaultMessage) {
-                  defaultMessage.style.display = 'none';
-                }
-                
-                // Hide available citations list when showing a specific citation
-                if (availableCitations) {
-                  availableCitations.style.display = 'none';
-                }
-                
-                // Set citation title
-                titleEl.textContent = "Citation " + citationNum;
-                
-                // Set citation content in the panel
-                content.innerHTML = citationContent.innerHTML;
-              }
+              // Get citation index from data attribute
+              const citationIndex = parseInt(e.target.getAttribute('data-citation-index'), 10);
+              showCitation(citationIndex);
             }
           });
+          
+          // Navigation button events
+          if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+              if (currentIndex > 0) {
+                showCitation(currentIndex - 1);
+              }
+            });
+          }
+          
+          if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+              if (currentIndex < totalCitations - 1) {
+                showCitation(currentIndex + 1);
+              }
+            });
+          }
           
           // Add click event to mock citation list items
           document.querySelectorAll('.citation-list li').forEach(function(item) {
@@ -424,69 +719,95 @@ format:
               
               // For mock citations with no actual content, show a mock content
               if (citationId.startsWith('mock-')) {
-                // Hide default message
-                if (defaultMessage) {
-                  defaultMessage.style.display = 'none';
-                }
+                // Make sure panel is open
+                panel.classList.remove('closed');
+                toggleBtn.classList.remove('closed');
+                mainContent.classList.add('panel-open');
+                toggleBtn.innerHTML = '&laquo; Hide';
                 
-                // Hide available citations list
-                if (availableCitations) {
-                  availableCitations.style.display = 'none';
-                }
+                // Switch to detail view
+                defaultView.style.display = 'none';
+                detailView.style.display = 'block';
+                
+                // Set mock content based on the citation ID
+                let mockContent = '';
                 
                 // Set citation title based on the mock citation
                 const mockTitle = this.textContent;
-                titleEl.textContent = mockTitle;
-                
-                // Create mock content based on the citation ID
-                let mockContent = '';
+                titleEl.textContent = 'Citation details';
                 
                 switch(citationId) {
                   case 'mock-jina':
                     mockContent = `
-                      <p>Jina Reader is an AI-powered tool designed for content extraction and analysis.</p>
-                      <p>Its grounding API provides factuality scores by checking statements against live web results.</p>
-                      <div class="citation-sources">
-                        <strong>Sources:</strong>
-                        <ul>
-                          <li><a href="https://jina.ai/reader/" target="_blank">Jina Reader Documentation</a></li>
-                          <li><a href="https://example.com/jina-review" target="_blank">Tech Review of Jina Tools</a></li>
-                        </ul>
+                      <a href="https://r.jina.ai/https://jina.ai/reader/" class="source-link-title" target="_blank">
+                        Jina Reader Documentation and Features
+                      </a>
+                      
+                      <div class="citation-description">
+                        <p>Supporting quotes from</p>
+                      </div>
+                      
+                      <div class="highlight-section">
+                        <p>Jina Reader is an AI-powered tool designed for content extraction and analysis.</p>
+                      </div>
+                      
+                      <div class="highlight-section">
+                        <p>Its grounding API provides factuality scores by checking statements against live web results.</p>
                       </div>
                     `;
                     break;
                   case 'mock-rag':
                     mockContent = `
-                      <p>Retrieval-Augmented Generation (RAG) combines language modeling with information retrieval, allowing AI systems to access and incorporate external knowledge when generating responses.</p>
-                      <div class="citation-sources">
-                        <strong>Sources:</strong>
-                        <ul>
-                          <li><a href="https://example.com/rag-systems" target="_blank">RAG Architecture Overview</a></li>
-                          <li><a href="https://example.com/rag-applications" target="_blank">Applications of RAG in Content Creation</a></li>
-                        </ul>
+                      <a href="https://r.jina.ai/https://example.com/rag-systems" class="source-link-title" target="_blank">
+                        RAG Architecture Overview
+                      </a>
+                      
+                      <div class="citation-description">
+                        <p>Supporting quotes from</p>
+                      </div>
+                      
+                      <div class="highlight-section">
+                        <p>Retrieval-Augmented Generation (RAG) combines language modeling with information retrieval, allowing AI systems to access and incorporate external knowledge when generating responses.</p>
+                      </div>
+                      
+                      <h4 class="citation-section-header">Applications in Content Creation</h4>
+                      
+                      <div class="highlight-section">
+                        <p>RAG systems help content creators maintain factual accuracy by retrieving relevant information from verified sources in real-time.</p>
                       </div>
                     `;
                     break;
                   case 'mock-fact':
                     mockContent = `
-                      <p>Google's Fact Check Explorer allows users to search for fact checks on specific topics or claims from various fact-checking organizations around the world.</p>
-                      <div class="citation-sources">
-                        <strong>Sources:</strong>
-                        <ul>
-                          <li><a href="https://toolbox.google.com/factcheck/explorer" target="_blank">Google Fact Check Explorer</a></li>
-                        </ul>
+                      <a href="https://r.jina.ai/https://toolbox.google.com/factcheck/explorer" class="source-link-title" target="_blank">
+                        Google Fact Check Explorer
+                      </a>
+                      
+                      <div class="citation-description">
+                        <p>Supporting quotes from</p>
+                      </div>
+                      
+                      <div class="highlight-section">
+                        <p>Google's Fact Check Explorer allows users to search for fact checks on specific topics or claims from various fact-checking organizations around the world.</p>
                       </div>
                     `;
                     break;
                   case 'mock-workflow':
                     mockContent = `
-                      <p>Reference tracking workflows help content creators maintain the integrity of their research by systematically documenting and verifying sources.</p>
-                      <p>This includes marking sources as AI-suggested or manually found, and verifying that all references exist and support the information they're cited for.</p>
-                      <div class="citation-sources">
-                        <strong>Sources:</strong>
-                        <ul>
-                          <li><a href="https://example.com/reference-tracking" target="_blank">Best Practices in Reference Management</a></li>
-                        </ul>
+                      <a href="https://r.jina.ai/https://example.com/reference-tracking" class="source-link-title" target="_blank">
+                        Best Practices in Reference Management
+                      </a>
+                      
+                      <div class="citation-description">
+                        <p>Supporting quotes from</p>
+                      </div>
+                      
+                      <div class="highlight-section">
+                        <p>Reference tracking workflows help content creators maintain the integrity of their research by systematically documenting and verifying sources.</p>
+                      </div>
+                      
+                      <div class="highlight-section">
+                        <p>This includes marking sources as AI-suggested or manually found, and verifying that all references exist and support the information they're cited for.</p>
                       </div>
                     `;
                     break;
@@ -496,11 +817,14 @@ format:
                 
                 // Set the mock content
                 content.innerHTML = mockContent;
+                counter.textContent = "1 of 1";
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
               } else if (citationId === 'fn1') {
                 // For the actual footnote 1 that exists in the article
-                const citationContent = document.getElementById(citationId + '-content');
-                if (citationContent) {
-                  content.innerHTML = citationContent.innerHTML;
+                const index = allCitations.indexOf('fn1');
+                if (index !== -1) {
+                  showCitation(index);
                 }
               }
             });
