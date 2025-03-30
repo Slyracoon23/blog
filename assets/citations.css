@@ -2,15 +2,15 @@
 
 .citation-panel {
   position: fixed;
-  top: 56px; /* Adjusted to be below the banner */
+  top: 58px; /* Match the sidebar's top position */
   right: 0;
   width: 350px;
-  height: calc(100vh - 56px); /* Viewport height minus banner height */
+  height: calc(-58px + 100vh); /* Match the sidebar's max-height calculation */
   background-color: #ffffff;
   border-left: 1px solid #dee2e6;
   box-shadow: -5px 0 15px rgba(0,0,0,0.15);
   z-index: 1000;
-  overflow: hidden; /* Change from overflow-y: auto to hidden */
+  overflow: hidden; /* Prevent overall scrolling */
   transform: translateX(350px); /* Hidden by default */
   transition: transform 0.3s ease;
   display: flex;
@@ -29,6 +29,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100%; /* Full height */
+  overflow: hidden; /* Prevent overall scrolling */
 }
 
 /* Don't modify the original content layout */
@@ -71,7 +73,15 @@
   display: none;
 }
 
-/* Citation details header */
+/* Citation note container - fixed header and footer with scrollable content */
+#detail-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Citation details header - fixed at top */
 .citation-details-header {
   display: flex;
   justify-content: space-between;
@@ -84,32 +94,24 @@
   background-color: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   flex-shrink: 0; /* Prevent header from shrinking */
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
-/* Citation note container - make this scrollable */
-#detail-view {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Updated citation note styles */
+/* Updated citation note styles - make only this part scrollable */
 .citation-note {
   padding: 20px;
   line-height: 1.6;
-  overflow-y: auto; /* Make only the content area scrollable */
+  overflow-y: auto; /* Only this scrolls */
   flex: 1;
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
-.citation-content-container {
-  padding-bottom: 20px; /* Extra padding at the bottom for better readability */
-}
-
-/* Additional fix for making sure nested elements within citation-note don't get cut off */
+/* Citation content text container */
 #citation-text {
   min-height: 0; /* Necessary for Firefox */
+  padding-bottom: 20px; /* Give some space at the bottom before the footer */
 }
 
 /* Close button */
@@ -130,15 +132,19 @@
   background-color: #e9ecef;
 }
 
-/* Citation navigation */
+/* Citation navigation - fixed at bottom */
 .citation-navigation {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border-top: 1px solid #eee;
   background-color: #f8f9fa;
   flex-shrink: 0; /* Prevent navigation from shrinking */
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
 }
 
 .nav-counter {
@@ -274,27 +280,31 @@ section.footnotes {
   .citation-panel {
     width: 100%;
     max-width: 100%;
-    height: calc(100vh - 56px);
+    height: calc(-58px + 100vh);
     transform: translateX(100%);
-    top: 56px;
+    top: 58px;
   }
   
   .citation-details-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    /* Already sticky from the base styles */
+    padding: 12px 16px; /* Slightly smaller padding on mobile */
   }
   
   .citation-navigation {
-    position: sticky;
-    bottom: 0;
-    background-color: #fff;
-    border-top: 1px solid #dee2e6;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    padding: 15px;
+    /* Already sticky from the base styles */
+    padding: 12px 16px; /* Slightly smaller padding on mobile */
   }
   
   .citation-note {
-    padding: 15px;
+    padding: 16px; /* Slightly smaller padding on mobile */
+  }
+  
+  /* Adjust text sizes for mobile */
+  .source-link-title {
+    font-size: 1rem;
+  }
+  
+  .citation-section-header {
+    font-size: 1.5rem;
   }
 } 
