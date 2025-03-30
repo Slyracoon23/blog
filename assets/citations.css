@@ -1,17 +1,22 @@
 /* Citation Sidebar Styles */
 
+/* Container for the citation panel - remove this since we're using absolute positioning */
+.sidebar-container {
+  display: none; /* Hide the container as we're not using it */
+}
+
 .citation-panel {
-  position: fixed;
+  position: fixed; /* Use fixed positioning for reliability */
   top: 58px; /* Match the sidebar's top position */
   right: 0;
   width: 350px;
-  height: calc(-58px + 100vh); /* Match the sidebar's max-height calculation */
+  height: calc(100vh - 58px); /* Fixed height for the panel */
   background-color: #ffffff;
   border-left: 1px solid #dee2e6;
   box-shadow: -5px 0 15px rgba(0,0,0,0.15);
   z-index: 1000;
-  overflow: hidden; /* Prevent overall scrolling */
-  transform: translateX(350px); /* Hidden by default */
+  overflow-y: auto; /* Allow scrolling within panel */
+  transform: translateX(100%); /* Hidden by default */
   transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -30,7 +35,6 @@
   display: flex;
   flex-direction: column;
   height: 100%; /* Full height */
-  overflow: hidden; /* Prevent overall scrolling */
 }
 
 /* Don't modify the original content layout */
@@ -40,13 +44,17 @@
 
 @media (min-width: 992px) {
   .main-content.panel-open {
-    margin-right: 350px;
+    margin-right: 350px; /* Push content when panel is open on larger screens */
   }
 }
 
 @media (max-width: 991px) {
   .main-content.panel-open {
     margin-right: 0; /* Don't shift content on smaller screens */
+  }
+  
+  .citation-panel {
+    width: 100%; /* Full width on mobile */
   }
 }
 
