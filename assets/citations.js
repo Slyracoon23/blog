@@ -110,6 +110,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mainContent) {
       mainContent.classList.remove('panel-open');
     }
+    // Remove active state from all citation links
+    document.querySelectorAll('.citation-link').forEach(link => {
+      link.classList.remove('active-citation');
+    });
   });
   
   // Update navigation button states
@@ -236,6 +240,17 @@ document.addEventListener('DOMContentLoaded', function() {
       const citationId = allCitations[index];
       const citationContent = document.getElementById(citationId + '-content');
       
+      // Remove active class from all citation links
+      document.querySelectorAll('.citation-link').forEach(link => {
+        link.classList.remove('active-citation');
+      });
+      
+      // Add active class to the correct citation link
+      const currentCitationLink = document.querySelector(`.citation-link[data-citation-index="${index}"]`);
+      if (currentCitationLink) {
+        currentCitationLink.classList.add('active-citation');
+      }
+      
       if (citationContent) {
         panel.classList.add('active');
         if (mainContent) {
@@ -251,8 +266,27 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('click', function(e) {
     if (e.target.classList.contains('citation-link')) {
       e.preventDefault();
+      
+      // Toggle panel state if clicking on the same citation
       const citationIndex = parseInt(e.target.getAttribute('data-citation-index'), 10);
-      showCitation(citationIndex);
+      const isCurrentCitation = panel.classList.contains('active') && currentIndex === citationIndex;
+      
+      // Remove active state from all citation links
+      document.querySelectorAll('.citation-link').forEach(link => {
+        link.classList.remove('active-citation');
+      });
+      
+      if (isCurrentCitation) {
+        // Close the panel if clicking on the same citation
+        panel.classList.remove('active');
+        if (mainContent) {
+          mainContent.classList.remove('panel-open');
+        }
+      } else {
+        // Open panel and show citation
+        e.target.classList.add('active-citation');
+        showCitation(citationIndex);
+      }
     }
   });
   
