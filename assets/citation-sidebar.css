@@ -1,0 +1,181 @@
+/* Citation Sidebar Styles */
+
+.citation-panel {
+  position: fixed;
+  right: 0; /* Always visible instead of off-screen */
+  top: 0;
+  width: 350px;
+  height: 100%;
+  background-color: #f8f9fa;  /* Light gray background instead of white */
+  border-left: 1px solid #dee2e6;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.15);
+  z-index: 1000;
+  overflow-y: auto;
+  padding-top: 60px; /* Add space at top for fixed headers */
+}
+
+/* Remove the show class animation since panel is always visible */
+.citation-panel.show {
+  /* right: 0; */ /* This is commented out as the panel is always visible */
+}
+
+/* Add padding to the main content to make room for the sidebar */
+body {
+  padding-right: 350px; /* Same as width of panel */
+}
+
+.citation-content {
+  padding: 25px 20px;
+  position: relative;
+}
+
+/* Hide the close button since panel is always visible */
+.close-panel {
+  display: none;
+}
+
+.citation-link {
+  color: #3B70FE;
+  cursor: pointer;
+  vertical-align: super;
+  font-size: 0.75em;
+  text-decoration: none;
+  position: relative;
+  background-color: rgba(59, 112, 254, 0.1);
+  padding: 1px 4px;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+  font-weight: normal;
+}
+
+.citation-link:hover {
+  text-decoration: none;
+  background-color: rgba(59, 112, 254, 0.2);
+}
+
+.hidden-citations {
+  display: none;
+}
+
+.citation-note {
+  border-left: 4px solid #3B70FE;
+  padding-left: 15px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.citation-title {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  color: #1e2124;
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.citation-note p {
+  margin-bottom: 10px;
+}
+
+.citation-note a {
+  color: #3B70FE;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.citation-note a:hover {
+  color: #0A047A;
+  text-decoration: underline;
+}
+
+.citation-sources {
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+/* Fix any issues with Quarto's footnote styling */
+.footnote-ref {
+  font-weight: normal;
+}
+
+section.footnotes {
+  display: none;
+}
+
+/* Animation for the panel - no longer needed */
+@keyframes slidein {
+  from { right: -350px; }
+  to { right: 0; }
+}
+
+/* Remove animation since panel is always visible */
+.citation-panel.show {
+  /* animation: slidein 0.3s ease forwards; */
+}
+
+/* Default message when no citation is selected */
+.default-citation-message {
+  padding: 20px;
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  background-color: rgba(59, 112, 254, 0.05);
+  border-radius: 8px;
+  margin: 10px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Make sure the citation panel doesn't push content */
+.main-content {
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Add a header section to the citation panel */
+.citation-header {
+  background-color: #3B70FE;
+  color: white;
+  padding: 15px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Style for mock citations list that shows when no citation is selected */
+.available-citations {
+  margin-top: 20px;
+  padding: 0 15px;
+}
+
+.available-citations h4 {
+  font-size: 1rem;
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+.citation-list {
+  list-style: none;
+  padding: 0;
+}
+
+.citation-list li {
+  padding: 8px 12px;
+  border-left: 3px solid #3B70FE;
+  margin-bottom: 8px;
+  background-color: white;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.citation-list li:hover {
+  background-color: rgba(59, 112, 254, 0.1);
+} 
