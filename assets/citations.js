@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     headerContainer.appendChild(closeButton);
     detailView.appendChild(headerContainer);
     
-    // Citation content
+    // Citation content - this is the scrollable part
     const citationText = document.createElement('div');
     citationText.id = 'citation-text';
     citationText.className = 'citation-note';
