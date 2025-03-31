@@ -79,7 +79,13 @@ format:
     code-block-background: true
     link-external-newwindow: true
     embed-resources: true
-
 comments:
-  utterances:
-    repo: slyracoon23/blog
+  giscus:
+    repo: "Slyracoon23/blog.github.io""
+    repo-id: "R_kgDOOD0L5w"
+    category: "General"
+    category-id: "DIC_kwDOOD0L584CopEr"
+    mapping: "pathname"
+    reactions-enabled: true
+    input-position: "bottom"
+    theme: "preferred_color_scheme"
