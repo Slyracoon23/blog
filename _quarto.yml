@@ -81,7 +81,7 @@ format:
     embed-resources: true
 comments:
   giscus:
-    repo: "Slyracoon23/blog.github.io""
+    repo: "Slyracoon23/blog"
     repo-id: "R_kgDOOD0L5w"
     category: "General"
     category-id: "DIC_kwDOOD0L584CopEr"
