@@ -1,9 +1,0 @@
----
-title: "Include_with_indent Example"
----
-
-## Heading
-
-{{< include_with_indent >}}
-
-
