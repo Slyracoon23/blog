@@ -83,7 +83,12 @@ format:
     toc: true
     toc-depth: 2
     toc-title: "**Sections**"
-    css: styles.css
+    css: 
+      - styles.css
+      - assets/citations.css
+    include-in-header:
+      text: |
+        <script src="assets/citations.js"></script>
     html-math-method: katex
     code-overflow: wrap
     highlight-style: github-dark
