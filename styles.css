@@ -265,3 +265,12 @@ nav.quarto-secondary-nav {
 div.quarto-post .metadata {
     margin-top: 0px;
 }
+
+mark {
+    background-color: #FFEB3B; /* Stronger yellow */
+    padding: 2px;
+    font-weight: 500; /* A little stronger than normal */
+    border-radius: 2px;
+    color: inherit;
+    box-shadow: none;
+}
