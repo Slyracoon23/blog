@@ -1,0 +1,170 @@
+---
+aliases:
+- /how-to-stop-being-accused-of-ai-slop/
+categories:
+- Large Language Models
+- Writing
+date: '2025-03-24'
+title: "How to Stop Being Accused of AI-Generated Content"
+subtitle: "Practical strategies for writing that stands out from AI-generated text"
+format:
+  html:
+    css: ../assets/citations.css
+    include-in-header:
+      text: |
+        <script src="../assets/citations.js"></script>
+---
+
+Yesterday, I was accused of writing AI-generated content. I won't deny it - in fact, approximately 80-90% of my content is indeed AI-generated. However, the critics labeled it as "wrong," "bad," or "AI slop," despite my careful proofreading and review process.
+
+This raises an important question: how can writers effectively communicate to readers that their AI-generated content has been thoroughly vetted? As an engineer at heart, I decided to approach this challenge by developing a tool that would help readers identify which sections have been verified and properly attributed to their original sources.
+
+
+This is will be an exploration of the current state of AI writing, the challenges of AI-human collaboration, and potential technical solutions.
+
+## 2. The Current State of AI Writing
+
+
+Since the advent of LLMs, the internet has been flooded with AI-generated content. From a simple blog post to a youtube video, AI-generated content is everywhere. 
+
+During a Council on Foreign Relations event in March 2025, Anthropic CEO Dario Amodei predicted that within 3 to 6 months, AI will be writing 90% of code, with the potential for AI to handle essentially all coding tasks within a year[^1]. While this prediction has sparked debate in the tech community, it highlights the growing impact of AI on content creation across industries.
+
+It is not hard to imagine that this will also apply to writing.
+
+I don't plan stopping anytime soon. So, how can I stop being accused of AI-generated content?
+
+[^1]: 
+   {{< include /citations/how_to_stop_being_accused_of_ai_generated_content/_1_buisiness_insider.qmd >}}
+
+## 3. Developing Better AI-Human Collaboration
+
+
+I think the best way to stop being accused of (bad) AI-generated content is to be transparent about it. To develop some sort of indicator or watermark that lets readers know that the content has been vetted one way or another.
+
+
+1. **Honesty with Readers**: Being upfront about AI involvement builds trust. Rather than trying to hide AI usage, acknowledge it as a tool in your writing process.
+
+2. **Process Transparency**: Explain your workflow, such as:
+   - Initial draft generation by AI
+   - Human editing and fact-checking
+   - Additional research and verification
+   - Final human review and approval
+
+3. **Source Documentation**: For any factual claims:
+   - Link to primary sources
+   - Use footnotes for detailed references. Footnotes are particularly useful as they allow for comprehensive source information, including commentary on the source's origin (e.g., "Source suggested by AI, verified by author") or relevance, without disrupting the flow of the main text.
+   - Distinguish between AI-suggested sources and human-verified ones
+
+
+### 3.2 Practical Attribution Methods
+
+Of course, I don't expect people to read every footnote and verify every source. Hence, we need to make it clear and transparent what the source is how it was cited. 
+
+When citing sources in blog content, it's important to not only give credit where due but also enhance your article's trustworthiness. Citations play the added role of showing readers that you've verified statements against real sources. Here are effective citation techniques:
+
+1. **Hyperlinks vs. Footnotes**:
+   - **In-text hyperlinks** are reader-friendly and integrate sources directly into sentences. For example: "Global smartphone usage reached 6.8 billion connections in 2022." This keeps the flow natural and puts sources at the reader's fingertips.
+   - **Footnotes** can make a post look cleaner with no visible URLs. They allow listing full bibliographic information if desired but require more effort from readers to check, especially on mobile.
+
+2. **Link to Primary Sources**: Whenever possible, make your reference point to the original source. Instead of citing a tech blog that mentions a Gartner report, cite the Gartner report directly. This improves citation transparency and avoids propagation of any errors introduced by intermediary sources.
+
+3. **AI-Summarized Content Attribution**: If you used AI to summarize or paraphrase a source you provided to it, cite the original source of that information. For example: "In a 2021 study in Nature, researchers found that..." The citation should go to the Nature study, not the AI tool.
+
+4. **Use Consistent Citation Style**: Maintain a consistent approach throughout your post. Decide whether you link a phrase or just a single word, and stick to that pattern. Consistency makes your writing look professional and helps ensure you don't forget to cite something.
+
+## 4. Technical Solutions
+
+To address the challenges of AI-human collaboration in content creation, several technical solutions can be implemented:
+
+### 4.1 Content Verification Tools
+
+1. **Jina Reader for Content Enhancement**: 
+   - Jina Reader can extract and parse information from web pages in a clean format.
+   - Its grounding API can check statements against live web results, providing factuality scores and references.
+   - This helps combat hallucinations and explicitly links AI output to evidence.
+
+2. **Retrieval-Augmented Generation (RAG) Tools**:
+   - These AI systems combine language generation with live information retrieval.
+   - Search-integrated chatbots can answer questions with citations, functioning like research assistants.
+   - Using AI grounded in search results reduces hallucinations and enables direct citations.
+
+3. **Automated Fact-Checking Services**:
+   - Google's Fact Check Explorer allows inputting claims to see if fact-checking organizations have evaluated them.
+   - Projects like Claimbuster and AI-based fact-checkers from IBM can help verify content.
+
+### 4.2 Source Management Systems
+
+1. **Reference Tracking Workflow**:
+   - Maintain a research log or spreadsheet to distinguish AI-suggested sources from manually found ones.
+   - Mark sources as "Suggested by AI" vs. "Found manually" during the research phase.
+   - Verify that AI-suggested references actually exist and support the claimed information.
+
+2. **Plagiarism and Quote Detection Tools**:
+   - Use AI-driven plagiarism checkers to highlight passages too similar to existing published text.
+   - This protects you from unwittingly publishing plagiarized lines and prompts proper citation.
+
+3. **Content Attribution Markers**:
+   - Develop symbols or notation in your writing process to track which sections were AI-assisted.
+   - For transparency, you might include a brief disclosure note if a large portion was AI-assisted.
+
+## 5. Best Practices for AI-Generated Content
+
+To ensure high-quality, credible content when using AI assistance, follow these best practices:
+
+### 5.1 Fact-Checking Protocol
+
+1. **Treat All AI-Generated Facts as Unverified**:
+   - Start with the mindset that every "fact" or figure the AI produces could be wrong.
+   - Verify every statistic, date, name, or claim that isn't common knowledge before publishing.
+
+2. **Highlight and Cross-Check Claims**:
+   - Go through the AI's draft and highlight all statements that present facts, numbers, or specific claims.
+   - Use search engines to find multiple sources confirming the information.
+   - Cross-reference with at least two independent reputable sources to ensure consistency.
+
+3. **Use Reputable Sources and Primary Data**:
+   - Prefer primary sources or authoritative references when fact-checking.
+   - Find the actual study or report rather than relying on a secondary blog's summary.
+   - This ensures nothing was lost or distorted in re-reporting and preserves proper context.
+
+### 5.2 Content Enhancement Strategies
+
+1. **Separate Facts from Opinions**:
+   - Distinguish factual claims (which need evidence) from subjective viewpoints.
+   - Ensure opinions are clearly indicated as such, and facts are backed by sources.
+   - Rephrase generalizations or common misconceptions, or explicitly label them as opinions.
+
+2. **Keep Content Up-to-Date**:
+   - Check if there are more recent figures than what the AI provided for topics involving changing data.
+   - Use current information to improve accuracy and usefulness.
+   - Address outdated info or explicitly mention the time frame to avoid misleading readers.
+
+3. **Watch for Plagiarized Passages**:
+   - Use plagiarism checkers or do spot searches on unique phrases to avoid unknowingly lifting someone's prose.
+   - Rewrite in your own voice or quote and cite properly if the AI's wording is too close to an original source.
+   - If the AI provided unique analysis that you suspect came from a specific source, give attribution or rephrase it significantly.
+
+### 5.3 Transparency Practices
+
+1. **Honesty with Readers**:
+   - Be upfront about AI involvement to build trust rather than trying to hide it.
+   - Consider including a brief note if a large portion was AI-assisted, such as "This article was written with the help of AI. All information has been fact-checked for accuracy."
+
+2. **Process Transparency**:
+   - Explain your workflow if relevant, such as initial draft generation by AI, human editing and fact-checking, and final review.
+   - This helps readers understand your commitment to quality despite using AI tools.
+
+3. **Maintain Your Voice and Judgment**:
+   - Refine the AI's text to match your own writing style and understanding.
+   - As you rewrite, you'll naturally spot if something feels off or unsupported, prompting verification.
+   - This human touch improves readability and acts as a safeguard against blindly accepting AI content.
+
+## 6. Conclusion
+
+The rise of AI-generated content presents both challenges and opportunities for writers. By implementing rigorous fact-checking protocols, effective citation techniques, and transparency practices, we can harness AI's benefits while maintaining content integrity.
+
+As AI tools become more integrated into content creation workflows, the writers who will stand out are those who prioritize accuracy, attribution, and human oversight. The goal isn't to hide AI usage but to ensure that any AI-assisted content meets high standards of quality and trustworthiness.
+
+By using AI as a drafting tool rather than a final authority, proactively fact-checking outputs, citing sources generously, and leveraging verification tools, we can create content that is not just efficient to produce but also valuable and credible for readers.
+
+In an era where content is abundant but trust is scarce, these practices will help ensure that your AI-assisted writing rises above "AI slop" accusations and earns the respect it deserves.
