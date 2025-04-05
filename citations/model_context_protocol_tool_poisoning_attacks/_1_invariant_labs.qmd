@@ -8,8 +8,6 @@ organization: "Invariant Labs"
 url: "https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks"
 ---
 
-#  Security Notification: Tool Poisoning Attacks
-
 **We have discovered a critical vulnerability in the Model Context Protocol (MCP) that allows for "Tool Poisoning Attacks." Many major providers such as Anthropic and OpenAI, workflow automation systems like Zapier and MCP clients like Cursor are susceptible to this attack.**
 
 ![MCP server security and attack vectors](https://invariantlabs.ai/images/mcp-attack.png)
