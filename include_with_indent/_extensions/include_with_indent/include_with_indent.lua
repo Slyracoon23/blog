@@ -2,7 +2,6 @@
 -- A Quarto extension that includes content from files
 
 function include_with_indent(args, kwargs, meta, raw_args, context)
-  -- Debug logging
   quarto.log.output("include_with_indent called with path: " .. tostring(args[1]))
   
   -- Log kwargs safely
@@ -17,69 +16,171 @@ function include_with_indent(args, kwargs, meta, raw_args, context)
   quarto.log.output("context: " .. tostring(context))
   
   -- Get the file path from the first argument
-  local original_path = args[1]
-  local file_path = original_path
+  local file_path = args[1]
   
-  -- Try multiple approaches to resolve the file path
-  local possible_paths = {}
+  if not file_path then
+    quarto.log.warning("Missing file path for include_with_indent shortcode")
+    return pandoc.Null()
+  end
   
-  -- 0. Check if it's an absolute path (starts with / or drive letter on Windows)
-  local is_absolute = false
-  if file_path and (string.sub(file_path, 1, 1) == "/" or 
-                   (string.find(file_path, "^%a:[\\/]") ~= nil)) then
-    is_absolute = true
-    table.insert(possible_paths, file_path)
+  -- Resolve the file path
+  local paths_to_try = resolve_file_path(file_path, meta)
+  
+  -- Try to read the file content
+  local content = read_file(paths_to_try)
+  if not content then
+    quarto.log.warning("Failed to read file from any of the tried paths")
+    quarto.log.output("Tried paths: ")
+    for _, path in ipairs(paths_to_try) do
+      quarto.log.output("  - " .. path)
+    end
+    return pandoc.Null()
+  end
+  
+  -- Strip YAML frontmatter if present
+  local stripped_content = strip_yaml_frontmatter(content)
+  
+  -- Parse the content with Pandoc based on the context
+  return parse_content(stripped_content, context)
+end
+
+-- Helper function to get directory part of a path
+function get_directory(path)
+  if not path then return nil end
+  return path:match("(.*)[/\\]") or "./"
+end
+
+-- Helper function to join paths
+function join_paths(...)
+  local args = {...}
+  local result = args[1] or ""
+  
+  for i = 2, #args do
+    local path = args[i]
+    if path:sub(1, 1) == "/" then
+      path = path:sub(2)  -- Remove leading slash if present
+    end
+    if result:sub(-1) ~= "/" then
+      result = result .. "/"
+    end
+    result = result .. path
+  end
+  
+  return result
+end
+
+-- Helper function to resolve file path
+function resolve_file_path(file_path, meta)
+  local paths_to_try = {}
+  
+  -- Check if it's an absolute path (only Windows drive letter paths are considered absolute)
+  local is_absolute = is_absolute_path(file_path)
+  if is_absolute then
+    table.insert(paths_to_try, file_path)
     quarto.log.output("Added absolute path: " .. file_path)
+    return paths_to_try
   end
   
-  -- 1. Original path
-  if not is_absolute then
-    table.insert(possible_paths, file_path)
+  -- Original path as-is
+  table.insert(paths_to_try, file_path)
+  quarto.log.output("Added original path: " .. file_path)
+  
+  -- Get the project directory
+  local project_dir = quarto.project.directory and quarto.project.directory()
+  if project_dir then
+    quarto.log.output("Project directory: " .. project_dir)
+  else
+    quarto.log.output("No project directory found")
   end
   
-  -- 2. Relative to project root if path starts with /
-  if file_path and string.sub(file_path, 1, 1) == "/" and not is_absolute then
-    local project_dir = quarto.project.directory and quarto.project.directory()
-    if project_dir then
-      quarto.log.output("Project directory: " .. project_dir)
-      local relative_path = string.sub(file_path, 2)
-      local project_relative_path = pandoc.path.join({project_dir, relative_path})
-      table.insert(possible_paths, project_relative_path)
-      quarto.log.output("Added project-relative path: " .. project_relative_path)
-    else
-      quarto.log.output("No project directory found")
-    end
-  end
-  
-  -- 3. Relative to current document directory
-  local doc_dir = nil
-  if meta and meta.documentdir then
-    doc_dir = pandoc.utils.stringify(meta.documentdir)
+  -- Get the document directory
+  local doc_dir = meta and meta.documentdir and pandoc.utils.stringify(meta.documentdir)
+  if doc_dir then
     quarto.log.output("Document directory: " .. doc_dir)
-    
-    -- If path is absolute-style (starts with /), try relative to doc dir
-    if string.sub(file_path, 1, 1) == "/" and not is_absolute then
-      local relative_path = string.sub(file_path, 2)
-      local doc_relative_path = pandoc.path.join({doc_dir, relative_path})
-      table.insert(possible_paths, doc_relative_path)
-      quarto.log.output("Added doc-relative path: " .. doc_relative_path)
-    end
-    
-    -- Also try direct join with doc dir regardless of whether path starts with /
-    if not is_absolute then
-      local direct_join_path = pandoc.path.join({doc_dir, file_path})
-      table.insert(possible_paths, direct_join_path)
-      quarto.log.output("Added direct doc join path: " .. direct_join_path)
-    end
   else
     quarto.log.output("No document directory found in meta")
   end
   
-  -- Try to read from each possible path
-  local success, content
-  for _, path in ipairs(possible_paths) do
+  -- Get current working directory
+  local cwd = io.popen("pwd"):read("*l")
+  if cwd then
+    quarto.log.output("Current working directory: " .. cwd)
+  else
+    quarto.log.output("Could not determine current working directory")
+    cwd = "."  -- Fallback to current directory
+  end
+  
+  -- Path relative to current working directory if path starts with /
+  if string.sub(file_path, 1, 1) == "/" then
+    local relative_path = string.sub(file_path, 2)  -- Remove leading slash
+    local cwd_relative_path = join_paths(cwd, relative_path)
+    table.insert(paths_to_try, cwd_relative_path)
+    quarto.log.output("Added cwd-relative path: " .. cwd_relative_path)
+    
+    -- Also try with project directory
+    if project_dir then
+      local project_relative_path = join_paths(project_dir, relative_path)
+      table.insert(paths_to_try, project_relative_path)
+      quarto.log.output("Added project-relative path: " .. project_relative_path)
+    end
+    
+    -- Also try with document directory
+    if doc_dir then
+      local doc_relative_path = join_paths(doc_dir, relative_path)
+      table.insert(paths_to_try, doc_relative_path)
+      quarto.log.output("Added doc-relative path with leading slash: " .. doc_relative_path)
+    end
+  end
+  
+  -- Always try relative to document directory
+  if doc_dir then
+    local direct_join_path = join_paths(doc_dir, file_path)
+    table.insert(paths_to_try, direct_join_path)
+    quarto.log.output("Added direct doc join path: " .. direct_join_path)
+    
+    -- Special case: try going up one directory from the document
+    local parent_dir = get_directory(doc_dir)
+    if parent_dir then
+      local parent_join_path = join_paths(parent_dir, file_path)
+      table.insert(paths_to_try, parent_join_path)
+      quarto.log.output("Added parent directory join path: " .. parent_join_path)
+    end
+  end
+  
+  -- Try relative to project root regardless of leading slash
+  if project_dir then
+    local project_join_path = join_paths(project_dir, file_path)
+    if not has_path(paths_to_try, project_join_path) then
+      table.insert(paths_to_try, project_join_path)
+      quarto.log.output("Added project join path: " .. project_join_path)
+    end
+  end
+  
+  return paths_to_try
+end
+
+-- Helper function to check if a path is already in the list
+function has_path(paths, path)
+  for _, p in ipairs(paths) do
+    if p == path then
+      return true
+    end
+  end
+  return false
+end
+
+-- Helper function to check if path is absolute
+function is_absolute_path(path)
+  -- Only consider Windows drive letter paths as absolute (e.g., C:\)
+  -- Paths starting with / are no longer considered absolute
+  return path and string.find(path, "^%a:[\\/]") ~= nil
+end
+
+-- Helper function to read file from a list of possible paths
+function read_file(paths_to_try)
+  for _, path in ipairs(paths_to_try) do
     quarto.log.output("Trying path: " .. path)
-    success, content = pcall(function()
+    local success, content = pcall(function()
       local file = io.open(path, "r")
       if not file then
         return nil
@@ -87,48 +188,32 @@ function include_with_indent(args, kwargs, meta, raw_args, context)
       local content = file:read("*all")
       quarto.log.output("File read successfully from: " .. path)
       file:close()
-      file_path = path  -- Store the successful path
       return content
     end)
     
     if success and content then
-      break  -- Found and read the file successfully
+      -- Store the include directory for path resolution later
+      if quarto.project.directory then
+        local file_metadata = quarto.project.current_file and quarto.project.current_file()
+        if file_metadata then
+          file_metadata.include_directory = get_directory(path)
+          quarto.log.output("Set include_directory to: " .. get_directory(path))
+        else
+          quarto.log.output("No file metadata available")
+        end
+      else
+        quarto.log.output("quarto.project.directory not available")
+      end
+      
+      return content
     end
   end
   
-  if not file_path then
-    quarto.log.warning("Missing file path for include_with_indent shortcode")
-    return pandoc.Null()
-  end
-  
-  if not success or not content then
-    quarto.log.warning("Failed to read file from any of the tried paths")
-    quarto.log.output("Tried paths: ")
-    for _, path in ipairs(possible_paths) do
-      quarto.log.output("  - " .. path)
-    end
-    if not success then
-      quarto.log.output("Error: " .. tostring(content))
-    end
-    return pandoc.Null()
-  end
-  
-  -- Store the include directory for path resolution later
-  if quarto.project.directory then
-    -- Only attempt if quarto.project is available
-    local file_metadata = quarto.project.current_file and quarto.project.current_file()
-    if file_metadata then
-      file_metadata.include_directory = pandoc.path.directory(file_path)
-      quarto.log.output("Set include_directory to: " .. pandoc.path.directory(file_path))
-    else
-      quarto.log.output("No file metadata available")
-    end
-  else
-    quarto.log.output("quarto.project.directory not available")
-  end
-  
-  -- Strip YAML frontmatter if present
-  local stripped_content = content
+  return nil
+end
+
+-- Helper function to strip YAML frontmatter
+function strip_yaml_frontmatter(content)
   if string.sub(content, 1, 3) == "---" then
     quarto.log.output("YAML frontmatter detected, stripping it")
     -- Look for the ending delimiter which could be either "---" or "..."
@@ -137,31 +222,34 @@ function include_with_indent(args, kwargs, meta, raw_args, context)
       _, end_pos = string.find(content, "\n%.%.%.\n", 4)
     end
     if end_pos then
-      stripped_content = string.sub(content, end_pos + 1)
       quarto.log.output("Stripped YAML frontmatter")
+      return string.sub(content, end_pos + 1)
     else
       quarto.log.output("Could not find end of YAML frontmatter, using original content")
     end
   end
-  
-  -- Parse the content with Pandoc based on the context
+  return content
+end
+
+-- Helper function to parse content based on context
+function parse_content(content, context)
   if context == "block" then
     -- For block context, we process as Markdown and return blocks
     quarto.log.output("Processing as block context")
-    local doc = pandoc.read(stripped_content)
+    local doc = pandoc.read(content)
     quarto.log.output("Number of blocks: " .. tostring(#doc.blocks))
     return doc.blocks
   else
     -- For inline context, try to get the first paragraph's content
     quarto.log.output("Processing as inline context")
-    local doc = pandoc.read(stripped_content)
+    local doc = pandoc.read(content)
     if #doc.blocks > 0 and doc.blocks[1].t == "Para" then
       quarto.log.output("Returning first paragraph content")
       return doc.blocks[1].content
     else
       -- Fallback for non-paragraph content
       quarto.log.output("Fallback to stringified content")
-      return { pandoc.Str(stripped_content) }
+      return { pandoc.Str(content) }
     end
   end
 end
