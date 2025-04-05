@@ -5,14 +5,9 @@ categories:
 - Large Language Models
 - Writing
 date: '2025-03-24'
+image: /images/how_to_stop_being_accused_of_ai_slop/thumbnail.png
 title: "How to Stop Being Accused of AI-Generated Content"
 subtitle: "Practical strategies for writing that stands out from AI-generated text"
-format:
-  html:
-    css: ../assets/citations.css
-    include-in-header:
-      text: |
-        <script src="../assets/citations.js"></script>
 ---
 
 Yesterday, I was accused of writing AI-generated content. I won't deny it - in fact, approximately 80-90% of my content is indeed AI-generated. However, the critics labeled it as "wrong," "bad," or "AI slop," despite my careful proofreading and review process.
