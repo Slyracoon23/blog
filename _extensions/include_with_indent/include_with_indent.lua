@@ -1,5 +1,5 @@
 -- include_with_indent.lua
--- A Quarto extension that includes content from files with indentation
+-- A Quarto extension that includes content from files
 
 function include_with_indent(args, kwargs, meta, raw_args, context)
   -- Debug logging
@@ -96,11 +96,6 @@ function include_with_indent(args, kwargs, meta, raw_args, context)
     end
   end
   
-  -- Get indentation amount from kwargs, default to 2 spaces
-  local indent_size = tonumber(kwargs.indent) or 2
-  quarto.log.output("Using indent size: " .. tostring(indent_size))
-  local indent = string.rep(" ", indent_size)
-  
   if not file_path then
     quarto.log.warning("Missing file path for include_with_indent shortcode")
     return pandoc.Null()
@@ -132,35 +127,41 @@ function include_with_indent(args, kwargs, meta, raw_args, context)
     quarto.log.output("quarto.project.directory not available")
   end
   
-  -- Add indentation to each line
-  local indented_content = ""
-  for line in content:gmatch("([^\n]*)\n?") do
-    if line ~= "" then
-      indented_content = indented_content .. indent .. line .. "\n"
+  -- Strip YAML frontmatter if present
+  local stripped_content = content
+  if string.sub(content, 1, 3) == "---" then
+    quarto.log.output("YAML frontmatter detected, stripping it")
+    -- Look for the ending delimiter which could be either "---" or "..."
+    local _, end_pos = string.find(content, "\n%-%-%-\n", 4)
+    if not end_pos then
+      _, end_pos = string.find(content, "\n%.%.%.\n", 4)
+    end
+    if end_pos then
+      stripped_content = string.sub(content, end_pos + 1)
+      quarto.log.output("Stripped YAML frontmatter")
     else
-      indented_content = indented_content .. "\n"
+      quarto.log.output("Could not find end of YAML frontmatter, using original content")
     end
   end
-  quarto.log.output("Created indented content, length: " .. tostring(#indented_content))
   
   -- Parse the content with Pandoc based on the context
   if context == "block" then
     -- For block context, we process as Markdown and return blocks
     quarto.log.output("Processing as block context")
-    local doc = pandoc.read(indented_content)
+    local doc = pandoc.read(stripped_content)
     quarto.log.output("Number of blocks: " .. tostring(#doc.blocks))
     return doc.blocks
   else
     -- For inline context, try to get the first paragraph's content
     quarto.log.output("Processing as inline context")
-    local doc = pandoc.read(indented_content)
+    local doc = pandoc.read(stripped_content)
     if #doc.blocks > 0 and doc.blocks[1].t == "Para" then
       quarto.log.output("Returning first paragraph content")
       return doc.blocks[1].content
     else
       -- Fallback for non-paragraph content
       quarto.log.output("Fallback to stringified content")
-      return { pandoc.Str(indented_content) }
+      return { pandoc.Str(stripped_content) }
     end
   end
 end

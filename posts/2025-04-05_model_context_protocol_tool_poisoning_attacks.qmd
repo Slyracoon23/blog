@@ -19,5 +19,5 @@ This is a post about the Model Context Protocol Tool Poisoning Attacks[^1].
 
 
 [^1]: 
-    {{< include_with_indent /Users/earlpotters/Documents/personal/blog/citations/model_context_protocol_tool_poisoning_attacks/_1_invariant_labs.qmd indent=2 >}}
+    {{< include_with_indent /Users/earlpotters/Documents/personal/blog/citations/model_context_protocol_tool_poisoning_attacks/_1_invariant_labs.qmd >}}
 
