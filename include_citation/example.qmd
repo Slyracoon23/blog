@@ -1,0 +1,9 @@
+---
+title: "Include_citation Example"
+---
+
+## Heading
+
+{{< include_citation >}}
+
+
