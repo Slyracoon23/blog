@@ -1,0 +1,25 @@
+[
+  {
+    "listing": "/notes.html",
+    "items": [
+      "/notes/Agents/data_influence.html",
+      "/notes/Dataset Prep/how_to_prepare_a_vision_dataset.html",
+      "/notes/Large Language Models/what_is_prompt_engineering.html",
+      "/notes/obserable JS/interactive-data-visualization-with-obserable-js.html",
+      "/notes/Large Language Models/extending_context.html"
+    ]
+  },
+  {
+    "listing": "/index.html",
+    "items": [
+      "/posts/2025-03-24_how_to_stop_being_accused_of_ai_slop.html",
+      "/posts/2025-03-21_eleutherai-evaluation-methods.html",
+      "/posts/2025-03-18_exploring_gemma_3_model.html",
+      "/posts/2025-03-16_what_are_image_embeddings.html",
+      "/posts/2025-03-15_what_is_prompt_engineering.html",
+      "/posts/2025-03-14_what_is_rrweb.html",
+      "/posts/2025-02-19_building_chatgpt_from_scratch.html",
+      "/posts/2025-03-03_what_is_an_agent.html"
+    ]
+  }
+]

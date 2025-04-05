@@ -1,0 +1,305 @@
+/* Updated Sticky Citation Sidebar CSS */
+
+/* Remove unused container */
+.sidebar-container {
+  display: none;
+}
+
+/* Fixed citation panel that remains in view */
+.citation-panel {
+  position: fixed;
+  top: 58px; /* Matches the header or other fixed top elements */
+  right: 0;
+  width: 350px;
+  height: calc(100vh - 58px);
+  background-color: #ffffff;
+  border-left: 1px solid #dee2e6;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.15);
+  z-index: 1000;
+  overflow-y: auto;
+  transform: translateX(100%); /* Hidden by default */
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Show panel when active */
+.citation-panel.active {
+  transform: translateX(0);
+}
+
+/* Main content shifts on larger screens when panel is active */
+.main-content {
+  transition: margin-right 0.3s ease;
+}
+@media (min-width: 992px) {
+  .main-content.panel-open {
+    margin-right: 350px;
+  }
+}
+@media (max-width: 991px) {
+  .main-content.panel-open {
+    margin-right: 0;
+  }
+  .citation-panel {
+    width: 100%;
+  }
+}
+
+/* Inner content of the citation panel */
+.citation-content {
+  padding: 0;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Citation links styling */
+.citation-link {
+  color: #3B70FE;
+  cursor: pointer;
+  vertical-align: super;
+  font-size: 0.65em;
+  text-decoration: none;
+  background-color: rgba(59, 112, 254, 0.08);
+  padding: 0px 3px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  font-weight: normal;
+  display: inline-block;
+  margin: 0 1px;
+  position: relative;
+  z-index: 2;
+  line-height: 1.3;
+}
+.citation-link:hover {
+  background-color: rgba(59, 112, 254, 0.15);
+}
+
+/* Active citation styling */
+.citation-link.active-citation {
+  background-color: rgba(59, 112, 254, 0.15);
+  color: #3B70FE;
+  font-weight: bold;
+  outline: 1px solid #3B70FE;
+  outline-offset: 0;
+  margin: 0 1px;
+}
+
+/* Hidden container for citation content */
+.hidden-citations {
+  display: none;
+}
+
+/* Container for citation details with fixed header and footer */
+#detail-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Sticky header for citation details */
+.citation-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  flex-shrink: 0;
+}
+
+/* Scrollable citation note */
+.citation-note {
+  padding: 20px;
+  line-height: 1.6;
+  overflow-y: auto;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Citation content text container */
+#citation-text {
+  min-height: 0;
+  padding-bottom: 20px;
+}
+
+/* Close button */
+.close-panel {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+.close-panel:hover {
+  background-color: #e9ecef;
+}
+
+/* Sticky navigation at bottom */
+.citation-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+  background-color: #f8f9fa;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  flex-shrink: 0;
+  box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
+}
+.nav-counter {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+.nav-btn {
+  padding: 5px 10px;
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+  color: #495057;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.nav-btn:hover:not([disabled]) {
+  background-color: #e9ecef;
+}
+.nav-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Source link title styling */
+.source-link-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 15px 0;
+  color: #3B70FE;
+  text-decoration: none;
+  display: block;
+}
+.source-link-title:hover {
+  text-decoration: underline;
+}
+
+/* Highlighting for sections */
+.highlight-section {
+  background-color: #f0f7ff;
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+/* Section headers in the citation panel */
+.citation-section-header {
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin: 25px 0 15px 0;
+  color: #212529;
+}
+
+/* Citation description text */
+.citation-description {
+  margin: 15px 0;
+  color: #667280;
+  font-size: 0.95rem;
+}
+.citation-note p {
+  margin-bottom: 10px;
+}
+.citation-note a {
+  color: #3B70FE;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.citation-note a:hover {
+  color: #0A047A;
+  text-decoration: underline;
+}
+
+/* Adjust footnotes (hide Quarto's default footnotes) */
+.footnote-ref {
+  font-weight: normal;
+}
+section.footnotes {
+  display: none;
+}
+
+/* Default message when no citation is selected */
+.default-citation-message {
+  padding: 20px;
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  margin: 20px;
+}
+
+/* Available citations panel styling */
+.available-citations {
+  padding: 20px;
+}
+.available-citations h4 {
+  font-size: 1rem;
+  color: #495057;
+  margin-bottom: 15px;
+}
+.citation-list {
+  list-style: none;
+  padding: 0;
+}
+.citation-list li {
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  background-color: #f8f9fa;
+  border-left: 3px solid #3B70FE;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.citation-list li:hover {
+  background-color: #e9ecef;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .citation-panel {
+    width: 300px;
+  }
+}
+@media (max-width: 768px) {
+  .citation-panel {
+    width: 100%;
+    max-width: 100%;
+    height: calc(100vh - 58px);
+    transform: translateX(100%);
+    top: 58px;
+  }
+  .citation-details-header,
+  .citation-navigation {
+    padding: 12px 16px;
+  }
+  .citation-note {
+    padding: 16px;
+  }
+  .source-link-title {
+    font-size: 1rem;
+  }
+  .citation-section-header {
+    font-size: 1.5rem;
+  }
+}
