@@ -65,6 +65,17 @@ website:
         - section: "🤖 **AI Agents**"
           contents: "notes/AI Agents/*"
 
+  comments:
+    giscus:
+      repo: "Slyracoon23/blog"
+      repo-id: "R_kgDOOD0L5w"
+      category: "Announcements"
+      category-id: "DIC_kwDOOD0L584CopEq"
+      mapping: "title"
+      input-position: "bottom"
+      theme: "preferred_color_scheme"
+
+
 format:
   html:
     page-layout: article
@@ -79,13 +90,3 @@ format:
     code-block-background: true
     link-external-newwindow: true
     embed-resources: true
-comments:
-  giscus:
-    repo: "Slyracoon23/blog"
-    repo-id: "R_kgDOOD0L5w"
-    category: "General"
-    category-id: "DIC_kwDOOD0L584CopEr"
-    mapping: "pathname"
-    reactions-enabled: true
-    input-position: "bottom"
-    theme: "preferred_color_scheme"
