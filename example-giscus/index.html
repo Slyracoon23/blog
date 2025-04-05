@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example Blog Post with Giscus Comments</title>
+    <!-- NOTE: The Content Security Policy directive 'frame-ancestors' must be set via your web server (e.g., Apache or Nginx) as an HTTP header for proper enforcement. Remove any CSP meta tags. -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .blog-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .blog-title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .blog-meta {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .blog-content {
+            margin-bottom: 40px;
+        }
+        .comments-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <header class="blog-header">
+        <h1 class="blog-title">Example Blog Post Title</h1>
+        <div class="blog-meta">
+            <span>Published: April 5, 2023</span> | 
+            <span>Author: Your Name</span> | 
+            <span>Categories: Technology, Programming</span>
+        </div>
+    </header>
+
+    <article class="blog-content">
+        <h2>Introduction</h2>
+        <p>This is an example blog post that demonstrates how to integrate Giscus comments into your blog. Giscus is a comments system powered by GitHub Discussions, which allows your readers to leave comments on your blog posts using their GitHub accounts.</p>
+
+        <h2>Main Content</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta.</p>
+        
+        <p>Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc.</p>
+
+        <h2>Code Example</h2>
+        <pre><code>
+function helloWorld() {
+    console.log("Hello, World!");
+}
+
+helloWorld();
+        </code></pre>
+
+        <h2>Conclusion</h2>
+        <p>This is just a simple example blog post. In a real blog, you would have more content and possibly include images, links, and other elements to make your blog post more engaging and informative.</p>
+    </article>
+
+        
+        <!-- Giscus Comments -->
+        <script src="https://giscus.app/client.js"
+                data-repo="Slyracoon23/blog"
+                data-repo-id="R_kgDOOD0L5w"
+                data-category="Announcements"
+                data-category-id="DIC_kwDOOD0L584CopEq"
+                data-mapping="title"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="bottom"
+                data-theme="preferred_color_scheme"
+                data-lang="en"
+                crossorigin="anonymous"
+                async>
+        </script> 
+
+    <footer>
+        <p>&copy; 2023 Your Blog Name. All rights reserved.</p>
+    </footer>
+</body>
+</html>
