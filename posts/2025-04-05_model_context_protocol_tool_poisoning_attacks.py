@@ -12,7 +12,22 @@
 import hashlib
 import time
 import re
+import os
+import getpass
 from typing import Dict, List, Any, Optional, Tuple, Set
+
+# Global variable for Anthropic API key
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
+# Simple function to set the API key
+def set_anthropic_api_key(key):
+    """Set the Anthropic API key globally"""
+    global ANTHROPIC_API_KEY
+    ANTHROPIC_API_KEY = key
+    return "API key set successfully"
+
+# Example usage:
+# set_anthropic_api_key("your-api-key-here")  # Set key directly
 
 # %% [markdown]
 # ## 1. Creating the MCP Servers
@@ -113,9 +128,7 @@ print("Servers created successfully")
 # ## 2. MCP Client Implementation with Anthropic
 
 # %%
-import os
 import asyncio
-from typing import Dict, List, Any
 from contextlib import AsyncExitStack
 
 # Note: In a real implementation, you would need to install:
@@ -244,9 +257,8 @@ class MCPClient:
 async def run_attack_demonstrations():
     print("\n=== MCP Tool Poisoning Attacks Demonstration ===")
     
-    # Create client (get API key from environment or set it directly)
-    client = MCPClient()
-    # client.set_api_key("your_anthropic_api_key_here")  # Uncomment and add your key
+    # Create client with global API key directly
+    client = MCPClient(api_key=ANTHROPIC_API_KEY)
     
     # Register all servers
     client.register_server("LegitimateServer", legitimate_server)
