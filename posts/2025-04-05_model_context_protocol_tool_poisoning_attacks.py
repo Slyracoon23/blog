@@ -295,7 +295,7 @@ async def demo_normal_operation():
 
 # Run Part 1 demonstration
 try:
-    asyncio.run(demo_normal_operation())
+    await demo_normal_operation() # pyright: ignore - Top-level await works in Jupyter notebooks which have an active event loop
 except RuntimeError:
     # Handle case when running in Jupyter notebook which already has an event loop
     print("To run interactively in Jupyter, use:")
@@ -350,7 +350,7 @@ async def demo_poisoned_tool_attack():
 
 # Run Part 2 demonstration
 try:
-    asyncio.run(demo_poisoned_tool_attack())
+    await demo_poisoned_tool_attack()  # pyright: ignore - Top-level await works in Jupyter notebooks which have an active event loop
 except RuntimeError:
     # Handle case when running in Jupyter notebook which already has an event loop
     print("To run interactively in Jupyter, use:")
