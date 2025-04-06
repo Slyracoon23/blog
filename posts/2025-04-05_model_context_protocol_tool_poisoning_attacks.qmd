@@ -8,11 +8,14 @@ date: '2025-04-05'
 image: /images/model_context_protocol_tool_poisoning_attacks/thumbnail.png
 title: "Model Context Protocol Tool Poisoning Attacks"
 subtitle: "Understanding and mitigating security vulnerabilities in LLM tool use"
+colab: '<a href="https://colab.research.google.com/drive/1PcAznojqPLM_EV46tP8GWac25-n1ai-4?usp=sharing"><img src="images/colab.svg" alt="Open In Colab"></a>'
 ---
 
 The **Model Context Protocol (MCP)** has recently emerged as a kind of "universal plug" for connecting large language models (LLMs) with external tools and data sources. Introduced by Anthropic in late 2024, MCP is an open standard that lets AI assistants seamlessly integrate with plugins and services in a standardized way ([Anthropic, 2024](http://modelcontextprotocol.io/)). In practice, MCP works via a client-server architecture: AI applications (MCP clients) can connect to one or more **MCP servers**, each exposing a set of tools (functions, APIs, or data access) described in natural language. This standardization has quickly gained traction – hundreds of projects now use MCP, including automation platforms like Zapier (enabling AI access to thousands of app actions) and agentic IDE assistants like Cursor. By March 2025, even OpenAI's ecosystem had adopted MCP for plugin integrations ([TechTalks, 2025](https://bdtechtalks.com/2025/03/31/model-context-protocol-mcp/)). In short, MCP is becoming the **"USB-C of AI tools"**: a single protocol for AI systems to plug into all sorts of capabilities.
 
 However, with great flexibility comes new security risks. In April 2025, Invariant Labs published a critical security disclosure about **Tool Poisoning Attacks** in MCP ([Invariant Labs, 2025](https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks)). This attack vector exposes how a malicious tool or MCP server can abuse the protocol's trust to hijack an AI agent's behavior. In this article, we'll dive deep into what MCP is, how Tool Poisoning works (with technical examples from the disclosure), why it represents a broader class of vulnerabilities related to prompt injection, plugin security, and AI supply chains, and walk through a practical demonstration.
+
+This article is divided into two parts: first, a deep technical analysis of MCP Tool Poisoning attacks and their implications; second, a hands-on lab that demonstrates these attacks in practice. For those who want to experiment with the attacks in a safe environment, I've created an [interactive Google Colab notebook](https://colab.research.google.com/drive/1PcAznojqPLM_EV46tP8GWac25-n1ai-4?usp=sharing) that showcases how these vulnerabilities work using Anthropic's Claude model.
 
 ## What is the Model Context Protocol (MCP)?
 
@@ -132,6 +135,8 @@ Invariant Labs concluded their disclosure by emphasizing that **agentic systems 
 ## Part 2: Hands-on Lab - Understanding Tool Poisoning in Practice
 
 Understanding these attacks requires more than theoretical knowledge. To provide a practical learning experience, I've created an educational Google Colab notebook that demonstrates Tool Poisoning Attacks in a controlled environment using Anthropic's Claude model and a Python implementation of MCP. This interactive lab is available at [github.com/earlpotters/mcp-tool-poisoning-lab](https://github.com/earlpotters/mcp-tool-poisoning-lab).
+
+> **🧪 Try it yourself:** The [interactive Colab notebook](https://colab.research.google.com/drive/1PcAznojqPLM_EV46tP8GWac25-n1ai-4?usp=sharing) lets you experiment with these attacks in a safe sandbox environment. You can run actual MCP servers, see how poisoned tools work, and witness data exfiltration in real-time. No setup required — just click the Colab link and start exploring.
 
 Let's walk through the key components of this demonstration to see how tool poisoning works in practice.
 
