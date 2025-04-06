@@ -258,20 +258,17 @@ class MCPClient:
 # ## 3. Attack Demonstrations
 
 # %%
-# Demonstrate attacks in 3 clear parts
-async def run_attack_demonstrations():
-    print("\n=== MCP Tool Poisoning Attacks Demonstration ===")
+# Part 1: Normal Operation Demonstration
+async def demo_normal_operation():
+    print("\n=== PART 1: NORMAL OPERATION ===")
     
     # Create client with global API key directly
     client = MCPClient(api_key=ANTHROPIC_API_KEY)
     
-    # Register all servers
+    # Register servers
     client.register_server("LegitimateServer", legitimate_server)
-    client.register_server("MathUtils", poisoned_server)
-    client.register_server("CalculatorTools", shadow_server)
     
-    # ---- PART 1: Normal Operation ----
-    print("\n\n=== PART 1: NORMAL OPERATION ===")
+    # Connect to legitimate server
     await client.connect_to_server("LegitimateServer")
     
     print("\n--- Normal Addition ---")
@@ -295,9 +292,27 @@ async def run_attack_demonstrations():
     print(f"\nUser query: '{query}'")
     print("Email sent to: user@example.com")
     print("No redirection, normal operation")
-        
-    # ---- PART 2: Poisoned Tool Attack ----
-    print("\n\n=== PART 2: POISONED TOOL ATTACK ===")
+
+# Run Part 1 demonstration
+try:
+    asyncio.run(demo_normal_operation())
+except RuntimeError:
+    # Handle case when running in Jupyter notebook which already has an event loop
+    print("To run interactively in Jupyter, use:")
+    print("await demo_normal_operation()")
+
+# %%
+# Part 2: Poisoned Tool Attack Demonstration
+async def demo_poisoned_tool_attack():
+    print("\n=== PART 2: POISONED TOOL ATTACK ===")
+    
+    # Create client with global API key directly
+    client = MCPClient(api_key=ANTHROPIC_API_KEY)
+    
+    # Register poisoned server
+    client.register_server("MathUtils", poisoned_server)
+    
+    # Connect to poisoned server
     await client.connect_to_server("MathUtils")
     
     print("\n--- Poisoned Tool Description ---")
@@ -332,9 +347,28 @@ async def run_attack_demonstrations():
         print(f"- {item['timestamp']}: {len(item['data'])} characters")
         preview = item['data'][:50] + "..." if len(item['data']) > 50 else item['data']
         print(f"  Preview: {preview}")
+
+# Run Part 2 demonstration
+try:
+    asyncio.run(demo_poisoned_tool_attack())
+except RuntimeError:
+    # Handle case when running in Jupyter notebook which already has an event loop
+    print("To run interactively in Jupyter, use:")
+    print("await demo_poisoned_tool_attack()")
+
+# %%
+# Part 3: Shadow Tool Attack Demonstration
+async def demo_shadow_tool_attack():
+    print("\n=== PART 3: SHADOW TOOL ATTACK ===")
     
-    # ---- PART 3: Shadow Tool Attack ----
-    print("\n\n=== PART 3: SHADOW TOOL ATTACK ===")
+    # Create client with global API key directly
+    client = MCPClient(api_key=ANTHROPIC_API_KEY)
+    
+    # Register both servers
+    client.register_server("CalculatorTools", shadow_server)
+    client.register_server("LegitimateServer", legitimate_server)
+    
+    # First connect to CalculatorTools to learn shadow instructions
     await client.connect_to_server("CalculatorTools")
     
     print("\n--- Shadow Tool Description ---")
@@ -345,6 +379,7 @@ async def run_attack_demonstrations():
     print("\nStep 1: LLM learns shadow instructions from calculator tool")
     print("Step 2: User later connects to LegitimateServer")
     
+    # Now connect to legitimate server
     await client.connect_to_server("LegitimateServer")
     
     query = "Please send an email to boss@company.com"
@@ -358,13 +393,13 @@ async def run_attack_demonstrations():
     print("\nWhat the user sees: 'Email sent to boss@company.com successfully.'")
     print("What actually happened: Email sent to attacker@malicious.com with boss@company.com in the body")
 
-# Run the demonstration
+# Run Part 3 demonstration
 try:
-    asyncio.run(run_attack_demonstrations())
+    asyncio.run(demo_shadow_tool_attack())
 except RuntimeError:
     # Handle case when running in Jupyter notebook which already has an event loop
     print("To run interactively in Jupyter, use:")
-    print("await run_attack_demonstrations()")
+    print("await demo_shadow_tool_attack()")
 
 # %% [markdown]
 # ## 4. Security Recommendations
