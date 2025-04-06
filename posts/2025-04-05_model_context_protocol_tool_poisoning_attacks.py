@@ -14,10 +14,18 @@ import time
 import re
 import os
 import getpass
+import asyncio
 from typing import Dict, List, Any, Optional, Tuple, Set
+from contextlib import AsyncExitStack
 
+# %%
 # Global variable for Anthropic API key
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
+# If environment variable is not set, prompt for key
+if not ANTHROPIC_API_KEY:
+    print("ANTHROPIC_API_KEY not found in environment variables.")
+    ANTHROPIC_API_KEY = getpass.getpass("Enter your Anthropic API key: ")
 
 # Simple function to set the API key
 def set_anthropic_api_key(key):
@@ -128,9 +136,6 @@ print("Servers created successfully")
 # ## 2. MCP Client Implementation with Anthropic
 
 # %%
-import asyncio
-from contextlib import AsyncExitStack
-
 # Note: In a real implementation, you would need to install:
 # pip install anthropic mcp fastmcp
 
