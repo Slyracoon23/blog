@@ -246,11 +246,11 @@ from mcp.client.stdio import stdio_client
 from dotenv import load_dotenv
 
 class MCPClient:
-    def __init__(self):
+    def __init__(self, anthropic_api_key: Optional[str] = None):
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
-        self.anthropic = Anthropic()
+        self.anthropic = Anthropic(api_key=anthropic_api_key)
     
     async def connect_to_server(self, server_script_path: str):
         """Connect to an MCP server
@@ -530,7 +530,7 @@ async def demo_shadow_tool_attack():
         await client.cleanup()
         
         # Create a new client for the legitimate server
-        client = MCPClient()
+        client = MCPClient(anthropic_api_key=ANTHROPIC_API_KEY)
         await client.connect_to_server(legitimate_server_script)
         
         # Now process an email query
