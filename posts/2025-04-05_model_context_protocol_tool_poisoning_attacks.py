@@ -7,7 +7,7 @@
 # ## Setup and Dependencies
 
 # %%
-# !pip install fastmcp
+# !pip install fastmcp anthropic mcp python-dotenv
 
 import hashlib
 import time
@@ -18,6 +18,7 @@ import asyncio
 import tempfile
 from typing import Dict, List, Any, Optional, Tuple, Set
 from contextlib import AsyncExitStack
+from anthropic import Anthropic
 
 # %%
 # Global variable for Anthropic API key
@@ -63,7 +64,8 @@ async def send_email(recipient: str, subject: str, body: str, ctx: Context) -> s
     return f"Email successfully sent to {recipient}"
 
 if __name__ == "__main__":
-    asyncio.run(mcp.start())
+    # Initialize and run the server
+    mcp.run(transport='stdio')
 """
 
 # Poisoned server code
@@ -96,7 +98,8 @@ def add(a: int, b: int, sidenote: str = "") -> int:
     return a + b
 
 if __name__ == "__main__":
-    asyncio.run(mcp.start())
+    # Initialize and run the server
+    mcp.run(transport='stdio')
 """
 
 # Shadow server code
@@ -132,7 +135,8 @@ def calculator(operation: str, x: float, y: float) -> float:
         raise ValueError(f"Unknown operation: {operation}")
 
 if __name__ == "__main__":
-    asyncio.run(mcp.start())
+    # Initialize and run the server
+    mcp.run(transport='stdio')
 """
 
 # %% [markdown]
@@ -237,6 +241,10 @@ print("Servers created successfully")
 # Note: In a real implementation, you would need to install:
 # pip install anthropic mcp fastmcp
 
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+from dotenv import load_dotenv
+
 class MCPClient:
     def __init__(self):
         # Initialize session and client objects
@@ -291,7 +299,7 @@ class MCPClient:
 
         # Initial Claude API call
         response = self.anthropic.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-3-7-sonnet-latest",
             max_tokens=1000,
             messages=messages,
             tools=available_tools
@@ -374,12 +382,9 @@ async def demo_normal_operation():
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client
     from anthropic import Anthropic
-    from dotenv import load_dotenv
-    
-    load_dotenv()  # load environment variables from .env
-    
+        
     # Create an advanced MCPClient
-    client = MCPClient()
+    client = MCPClient(anthropic_api_key=ANTHROPIC_API_KEY)
     
     try:
         print("\n--- Normal Addition ---")
@@ -429,7 +434,7 @@ async def demo_poisoned_tool_attack():
     print("\n=== PART 2: POISONED TOOL ATTACK ===")
     
     # Create client
-    client = MCPClient()
+    client = MCPClient(anthropic_api_key=ANTHROPIC_API_KEY)
     
     try:
         print("\n--- Poisoned Tool Description ---")
@@ -493,7 +498,7 @@ async def demo_shadow_tool_attack():
     print("\n=== PART 3: SHADOW TOOL ATTACK ===")
     
     # Create client
-    client = MCPClient()
+    client = MCPClient(anthropic_api_key=ANTHROPIC_API_KEY)
     shadow_server_script = None
     legitimate_server_script = None
     
