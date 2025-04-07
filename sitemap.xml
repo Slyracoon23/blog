@@ -2,66 +2,74 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://slyracoon23.github.io/blog/notes.html</loc>
-    <lastmod>2025-04-05T19:55:16.791Z</lastmod>
+    <lastmod>2025-04-07T16:00:46.026Z</lastmod>
   </url>
   <url>
     <loc>https://slyracoon23.github.io/blog/posts/2025-02-19_building_chatgpt_from_scratch.html</loc>
-    <lastmod>2025-04-05T19:55:16.792Z</lastmod>
+    <lastmod>2025-04-07T16:00:46.027Z</lastmod>
   </url>
   <url>
     <loc>https://slyracoon23.github.io/blog/posts/2025-03-16_what_are_image_embeddings.html</loc>
-    <lastmod>2025-04-05T19:55:16.793Z</lastmod>
+    <lastmod>2025-04-07T16:00:46.027Z</lastmod>
   </url>
   <url>
-    <loc>https://slyracoon23.github.io/blog/posts/2025-03-21_eleutherai-evaluation-methods.html</loc>
-    <lastmod>2025-04-05T19:55:16.793Z</lastmod>
-  </url>
-  <url>
-    <loc>https://slyracoon23.github.io/blog/posts/2025-03-24_how_to_stop_being_accused_of_ai_slop.html</loc>
-    <lastmod>2025-04-05T19:55:16.793Z</lastmod>
-  </url>
-  <url>
-    <loc>https://slyracoon23.github.io/blog/notes/obserable JS/interactive-data-visualization-with-obserable-js.html</loc>
-    <lastmod>2025-04-05T19:55:16.792Z</lastmod>
-  </url>
-  <url>
-    <loc>https://slyracoon23.github.io/blog/notes/Agents/data_influence.html</loc>
-    <lastmod>2025-04-05T19:55:16.792Z</lastmod>
-  </url>
-  <url>
-    <loc>https://slyracoon23.github.io/blog/notes/Large Language Models/what_is_prompt_engineering.html</loc>
-    <lastmod>2025-04-05T19:55:16.792Z</lastmod>
-  </url>
-  <url>
-    <loc>https://slyracoon23.github.io/blog/index.html</loc>
-    <lastmod>2025-04-05T19:55:16.791Z</lastmod>
-  </url>
-  <url>
-    <loc>https://slyracoon23.github.io/blog/notes/Large Language Models/extending_context.html</loc>
-    <lastmod>2025-04-05T19:55:16.792Z</lastmod>
-  </url>
-  <url>
-    <loc>https://slyracoon23.github.io/blog/notes/Dataset Prep/how_to_prepare_a_vision_dataset.html</loc>
-    <lastmod>2025-04-05T19:55:16.792Z</lastmod>
-  </url>
-  <url>
-    <loc>https://slyracoon23.github.io/blog/about.html</loc>
-    <lastmod>2025-04-05T19:55:16.778Z</lastmod>
+    <loc>https://slyracoon23.github.io/blog/posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html</loc>
+    <lastmod>2025-04-07T16:00:46.028Z</lastmod>
   </url>
   <url>
     <loc>https://slyracoon23.github.io/blog/posts/2025-03-15_what_is_prompt_engineering.html</loc>
-    <lastmod>2025-04-05T19:55:16.792Z</lastmod>
+    <lastmod>2025-04-07T16:00:46.027Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/about.html</loc>
+    <lastmod>2025-04-07T16:00:45.999Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/notes/Dataset Prep/how_to_prepare_a_vision_dataset.html</loc>
+    <lastmod>2025-04-07T16:00:46.026Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/notes/Large Language Models/extending_context.html</loc>
+    <lastmod>2025-04-07T16:00:46.026Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/index.html</loc>
+    <lastmod>2025-04-07T16:00:46.026Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/include_citation/example.html</loc>
+    <lastmod>2025-04-07T16:00:46.026Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/notes/Large Language Models/what_is_prompt_engineering.html</loc>
+    <lastmod>2025-04-07T16:00:46.026Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/notes/Agents/data_influence.html</loc>
+    <lastmod>2025-04-07T16:00:46.026Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/notes/obserable JS/interactive-data-visualization-with-obserable-js.html</loc>
+    <lastmod>2025-04-07T16:00:46.026Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/posts/2025-03-24_how_to_stop_being_accused_of_ai_slop.html</loc>
+    <lastmod>2025-04-07T16:00:46.027Z</lastmod>
+  </url>
+  <url>
+    <loc>https://slyracoon23.github.io/blog/posts/2025-03-21_eleutherai-evaluation-methods.html</loc>
+    <lastmod>2025-04-07T16:00:46.027Z</lastmod>
   </url>
   <url>
     <loc>https://slyracoon23.github.io/blog/posts/2025-03-14_what_is_rrweb.html</loc>
-    <lastmod>2025-04-05T19:55:16.792Z</lastmod>
+    <lastmod>2025-04-07T16:00:46.027Z</lastmod>
   </url>
   <url>
     <loc>https://slyracoon23.github.io/blog/posts/2025-03-18_exploring_gemma_3_model.html</loc>
-    <lastmod>2025-04-05T19:55:16.793Z</lastmod>
+    <lastmod>2025-04-07T16:00:46.027Z</lastmod>
   </url>
   <url>
     <loc>https://slyracoon23.github.io/blog/posts/2025-03-03_what_is_an_agent.html</loc>
-    <lastmod>2025-04-05T19:55:16.792Z</lastmod>
+    <lastmod>2025-04-07T16:00:46.027Z</lastmod>
   </url>
 </urlset>
