@@ -50,11 +50,18 @@ website:
               href: posts/2025-03-18_exploring_gemma_3_model.html
             - text: "EleutherAI's lm-evaluation-harness"
               href: posts/2025-03-21_eleutherai-evaluation-methods.html
+            - text: "Model Context Protocol Tool Poisoning Attacks"
+              href: posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html
         - text: "---"
         - section: "🌐 **Web Technologies**"
           contents:
             - text: "What is rrweb?"
               href: posts/2025-03-14_what_is_rrweb.html
+        - text: "---"
+        - section: "📝 **Writing & Content**"
+          contents:
+            - text: "How to Stop Being Accused of AI Slop"
+              href: posts/2025-03-24_how_to_stop_being_accused_of_ai_slop.html
 
     - id: notes
       title: "Notes"
