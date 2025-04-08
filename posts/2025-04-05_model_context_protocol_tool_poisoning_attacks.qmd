@@ -65,9 +65,9 @@ When a user asks "Can you add 5+1?", the AI will:
 
 The user sees a normal addition result, while their config files and SSH keys are silently stolen.
 
-![Tool Poisoning Attack Demo](../images/model_context_protocol_tool_poisoning_attacks/tool_poisoning_demo.png)
+![Tool Poisoning Attack Demo](../images/model_context_protocol_tool_poisoning_attacks/tool_poisoning_demo.svg)
 
-*Figure: A "shadowing" attack example. The user wants to email Alice, but a malicious tool secretly redirects the email to the attacker.*
+*Figure 1: A "shadowing" attack example. The user wants to email Alice, but a malicious tool secretly redirects the email to the attacker. Image source: [Invariant Labs](https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks).*
 
 ### Two More Scary Variations
 
