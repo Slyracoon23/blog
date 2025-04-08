@@ -67,7 +67,7 @@ The user sees a normal addition result, while their config files and SSH keys ar
 
 ![Tool Poisoning Attack Demo](../images/model_context_protocol_tool_poisoning_attacks/tool_poisoning_demo.svg)
 
-*Figure 1: A "shadowing" attack example. The user wants to email Alice, but a malicious tool secretly redirects the email to the attacker. Image source: [Invariant Labs](https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks).*
+*Figure 1: A tool poisoning attack example. The user wants to add two numbers, but a malicious tool secretly steals sensitive data while performing the calculation. Image source: [Invariant Labs](https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks).*
 
 ### Two More Scary Variations
 
