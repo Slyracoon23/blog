@@ -72,15 +72,6 @@ website:
         - section: "🤖 **AI Agents**"
           contents: "notes/AI Agents/*"
 
-  comments:
-    giscus:
-      repo: "Slyracoon23/blog"
-      repo-id: "R_kgDOOD0L5w"
-      category: "Announcements"
-      category-id: "DIC_kwDOOD0L584CopEq"
-      mapping: "title"
-      input-position: "bottom"
-      theme: "light"
 
 
 format:
