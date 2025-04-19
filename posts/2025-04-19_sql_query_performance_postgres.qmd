@@ -18,6 +18,8 @@ Grab a coffee — let's dive in!
 
 ## Introduction to PostgreSQL and Its Architecture
 
+![PostgreSQL Architecture: postmaster, backends, background workers, shared memory](https://i.imgur.com/d0gT1YZ.jpeg)
+
 PostgreSQL (aka "Postgres") is a powerful open-source relational database known for its robustness and extensibility. It has a **client-server architecture**: your application (the client) connects to the PostgreSQL server which manages your data. Unlike some systems that use threads, Postgres uses a **process-per-connection model**. This means each new client connection forks a new process on the server. 
 
 When Postgres starts up, a **postmaster** (master process) is launched to handle initialization and then listen for connections. For every client that connects, the postmaster forks a **backend process** to handle that session's queries. In addition, Postgres runs a handful of **background processes** to maintain the database: a write-ahead log (WAL) writer to ensure durability, a background writer and checkpointer to flush cached data to disk, an autovacuum daemon to clean up old rows, etc. All these processes communicate via shared memory for efficiency. The shared memory contains the **buffer cache** (shared buffers) where frequently used data pages are kept, as well as the **WAL buffers** for transactional logs. In short, the architecture ensures that Postgres can handle multiple clients at once, each with their own process, while sharing common data and coordinating through background workers.
@@ -26,13 +28,23 @@ When Postgres starts up, a **postmaster** (master process) is launched to handle
 
 ## SQL Queries Under the Hood: SELECT, WHERE, JOIN, ORDER BY
 
+![SQL Query Lifecycle: SQL → Parser → Planner → Executor → Plan Tree](https://i.imgur.com/rdgrfnl.jpeg)
+
 Writing an SQL query in Postgres is declarative — you describe *what* data you want, and the database engine figures out *how* to get it. Under the hood, PostgreSQL parses your SQL, generates a **query plan**, and executes that plan step by step. To a developer, `SELECT * FROM users WHERE id = 123;` is one line of code; to Postgres, it's a series of operations: scan a table (or index), filter rows, and return results. Let's break down the basic SQL operations and what the database does under the hood:
 
 - **SELECT-FROM (Table Scan):** When you select data, Postgres needs to retrieve rows from the table (the `FROM` clause). The simplest approach is a **sequential scan** ("Seq Scan") which reads all rows of the table one-by-one. This is fine for small tables or when you need most of the data, but it's slow if you only need a few rows out of a large table. If an appropriate **index** exists, Postgres can do an **index scan** to find specific rows quickly ([Supabase documentation explains these operations well](https://supabase.com/docs/guides/database/query-optimization)). Think of a sequential scan like reading an entire phone book to find one name, versus an index scan like flipping directly to the "Smith" section. PostgreSQL supports different index types (B-tree indexes are the common default) which are optimized tree structures that allow logarithmic-time lookups ([PostgreSQL documentation on indexes](https://www.postgresql.org/docs/current/indexes.html)). An index scan uses these structures to jump directly to matching data rather than scanning everything.
 
+::: {.callout-note title="Diagram Placeholder"}
+**DIAGRAM:** Table Scan vs Index Scan (showing all rows read vs. targeted lookup via B-tree)
+:::
+
 - **WHERE (Filtering):** The WHERE clause is a filter on rows. If there's an index on the filtered column(s), the planner may use an **Index Scan** with an index **condition** to retrieve only matching rows (e.g. using a B-tree index to find `value = 100`). Without an index, the executor will do a Seq Scan and check each row against the WHERE condition, discarding those that don't match (this is essentially a **filter** operation on each tuple). Under the hood, each row is pulled from storage and the condition is evaluated; rows that fail the condition are skipped. This is why missing indexes on frequently searched columns can cause big slowdowns – the database ends up doing a lot of extra work scanning irrelevant rows.
 
 - **JOIN (Combining Tables):** SQL joins combine rows from multiple tables. PostgreSQL's query planner can choose among several **join algorithms**: **Nested Loop, Hash Join,** or **Merge Join**. A Nested Loop Join is simple: for each row in table A, scan table B for matches (perhaps using an index on B if available). This works fine for small tables or when an index can limit the inner loop, but it can become slow if both tables are large (O(N×M) in the worst case). A Hash Join is often faster for larger data sets: Postgres will read the smaller table, build an in-memory hash table by the join key, then scan the larger table and probe the hash table for matches ([PgMustard has a great explanation of join types](https://www.pgmustard.com/blog/joins-in-postgresql)). This way, each table is scanned just once (ideal for equality joins). A Merge Join is used when both inputs are already sorted on the join key (or can be sorted cheaply). The database can then step through two sorted lists in order, like merging two sorted files, which is very efficient. Each algorithm has its sweet spot: nested loops for small or index-driven joins, hash for large unsorted joins, and merge for pre-sorted data. The planner will estimate costs and pick what it thinks is best – and it usually does a good job, though occasionally it might guess wrong.
+
+::: {.callout-note title="Diagram Placeholder"}
+**DIAGRAM:** Join Algorithms (Nested Loop, Hash Join, Merge Join) with two tables and arrows showing matching process
+:::
 
 - **ORDER BY (Sorting):** After getting the result rows, if an ordering is required, Postgres must ensure the output is sorted. This might involve a **sort operation** (quickSort or similar under the hood) on the result set. Sorting is O(N log N) so it adds latency, especially for large N. However, if there is an index on the column(s) used in ORDER BY, the planner can sometimes skip an explicit sort by scanning the index in order. For example, if you do `SELECT * FROM items ORDER BY created_at`, and `created_at` has an index, Postgres can perform an **Index Scan** that returns rows already sorted by `created_at` – essentially killing two birds with one stone (getting data and sorting it). In execution, an ORDER BY without an index will pull all results then sort them, which can be memory-intensive (and may spill to disk if the data is huge and memory is limited). This is a common culprit for slow queries if not planned carefully.
 
@@ -62,6 +74,10 @@ To sum up, **query latency = time spent reading data + processing it + waiting o
 
 ## Tools for Analyzing Query Performance
 
+::: {.callout-note title="Diagram Placeholder"}
+**DIAGRAM:** Query Plan Tree Example (nodes for scan, join, filter, sort)
+:::
+
 How do we peek under the hood to see what Postgres is doing with our SQL? This is where performance analysis tools come in. The three primary tools we'll discuss are:
 
 - `EXPLAIN` 
@@ -69,6 +85,10 @@ How do we peek under the hood to see what Postgres is doing with our SQL? This i
 - `pg_stat_statements` (an extension for tracking query stats across the system)
 
 ### EXPLAIN: The Query Plan Revealed
+
+::: {.callout-note title="Diagram Placeholder"}
+**DIAGRAM:** Annotated EXPLAIN Output (highlighting cost, rows, node types)
+:::
 
 The `EXPLAIN` command in PostgreSQL shows the *planned execution* for a given query, without actually running the query. It's like asking the planner, "Hey, how *would* you execute this if I ran it?" The output of EXPLAIN is the **query plan**: a tree of steps with cost estimates. Each line in an EXPLAIN output is one node in the plan (indented to show tree structure). For example:
 ```sql
@@ -163,6 +183,10 @@ We won't dive deep, but be aware there are other helpful tools:
 Now that we have the theory and tools in mind, let's put this knowledge into practice with a hands-on example.
 
 ## Hands-On: Tuning Query Performance (Dockerized Postgres Tutorial)
+
+::: {.callout-note title="Diagram Placeholder"}
+**DIAGRAM:** Dockerized Setup (Docker container, Postgres, client connection)
+:::
 
 Enough talk – time to get our hands dirty. In this section, we'll set up a local PostgreSQL environment using Docker, load some sample data, and walk through optimizing a query. Follow along step-by-step to reproduce the tests.
 
@@ -317,6 +341,10 @@ Now, 15 ms isn't terrible, but remember this is a contrived smallish dataset on 
 
 ### 4. Optimizing the Query: Adding an Index
 
+::: {.callout-note title="Diagram Placeholder"}
+**DIAGRAM:** Before/After Query Plan (showing plan tree or bar chart of query time)
+:::
+
 The obvious optimization is to add an index on the `items.name` or on `orders.item_id` (or both). Which one helps more? 
 
 - Index on `items.name` would make finding "Item 50000" very fast (index lookup instead of seq scan on items). But items is only 100k rows and fairly static, and scanning 100k in memory is like ~0.01 seconds, not huge. The bigger cost was scanning orders.
@@ -395,6 +423,10 @@ In our hands-on scenario, adding an index was the obvious fix. In other cases, y
 Our example was straightforward and common: speeding up a selective query by indexing. In practice, many performance problems have similar straightforward solutions once identified, while some require more thought and testing.
 
 ## Conclusion
+
+::: {.callout-note title="Diagram Placeholder"}
+**DIAGRAM:** Summary Infographic (main performance factors and tools)
+:::
 
 PostgreSQL is a brilliant piece of software that usually does the right thing automatically – but as engineers, understanding *why* it does what it does allows us to write better queries and design better database schemas. We saw that under the hood, Postgres executes queries through plan nodes (scans, joins, sorts) and each has implications for performance. We used EXPLAIN and EXPLAIN ANALYZE to reveal those inner workings, and `pg_stat_statements` to find slow queries systematically. Our hands-on example showed how a seemingly innocent query can be slow without proper indexing, and how a simple index can improve it by an order of magnitude.
 
