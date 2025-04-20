@@ -34,17 +34,13 @@ Writing an SQL query in Postgres is declarative — you describe *what* data you
 
 - **SELECT-FROM (Table Scan):** When you select data, Postgres needs to retrieve rows from the table (the `FROM` clause). The simplest approach is a **sequential scan** ("Seq Scan") which reads all rows of the table one-by-one. This is fine for small tables or when you need most of the data, but it's slow if you only need a few rows out of a large table. If an appropriate **index** exists, Postgres can do an **index scan** to find specific rows quickly ([Supabase documentation explains these operations well](https://supabase.com/docs/guides/database/query-optimization)). Think of a sequential scan like reading an entire phone book to find one name, versus an index scan like flipping directly to the "Smith" section. PostgreSQL supports different index types (B-tree indexes are the common default) which are optimized tree structures that allow logarithmic-time lookups ([PostgreSQL documentation on indexes](https://www.postgresql.org/docs/current/indexes.html)). An index scan uses these structures to jump directly to matching data rather than scanning everything.
 
-::: {.callout-note title="Diagram Placeholder"}
-**DIAGRAM:** Table Scan vs Index Scan (showing all rows read vs. targeted lookup via B-tree)
-:::
+![Table Scan vs Index Scan: all rows read vs targeted lookup via B-tree](https://i.imgur.com/IQPxmOE.jpeg)
 
 - **WHERE (Filtering):** The WHERE clause is a filter on rows. If there's an index on the filtered column(s), the planner may use an **Index Scan** with an index **condition** to retrieve only matching rows (e.g. using a B-tree index to find `value = 100`). Without an index, the executor will do a Seq Scan and check each row against the WHERE condition, discarding those that don't match (this is essentially a **filter** operation on each tuple). Under the hood, each row is pulled from storage and the condition is evaluated; rows that fail the condition are skipped. This is why missing indexes on frequently searched columns can cause big slowdowns – the database ends up doing a lot of extra work scanning irrelevant rows.
 
 - **JOIN (Combining Tables):** SQL joins combine rows from multiple tables. PostgreSQL's query planner can choose among several **join algorithms**: **Nested Loop, Hash Join,** or **Merge Join**. A Nested Loop Join is simple: for each row in table A, scan table B for matches (perhaps using an index on B if available). This works fine for small tables or when an index can limit the inner loop, but it can become slow if both tables are large (O(N×M) in the worst case). A Hash Join is often faster for larger data sets: Postgres will read the smaller table, build an in-memory hash table by the join key, then scan the larger table and probe the hash table for matches ([PgMustard has a great explanation of join types](https://www.pgmustard.com/blog/joins-in-postgresql)). This way, each table is scanned just once (ideal for equality joins). A Merge Join is used when both inputs are already sorted on the join key (or can be sorted cheaply). The database can then step through two sorted lists in order, like merging two sorted files, which is very efficient. Each algorithm has its sweet spot: nested loops for small or index-driven joins, hash for large unsorted joins, and merge for pre-sorted data. The planner will estimate costs and pick what it thinks is best – and it usually does a good job, though occasionally it might guess wrong.
 
-::: {.callout-note title="Diagram Placeholder"}
-**DIAGRAM:** Join Algorithms (Nested Loop, Hash Join, Merge Join) with two tables and arrows showing matching process
-:::
+![Join Algorithms: Nested Loop, Hash Join, Merge Join — visualized with two tables and arrows showing matching process](https://i.imgur.com/4DkyrCo.jpeg)
 
 - **ORDER BY (Sorting):** After getting the result rows, if an ordering is required, Postgres must ensure the output is sorted. This might involve a **sort operation** (quickSort or similar under the hood) on the result set. Sorting is O(N log N) so it adds latency, especially for large N. However, if there is an index on the column(s) used in ORDER BY, the planner can sometimes skip an explicit sort by scanning the index in order. For example, if you do `SELECT * FROM items ORDER BY created_at`, and `created_at` has an index, Postgres can perform an **Index Scan** that returns rows already sorted by `created_at` – essentially killing two birds with one stone (getting data and sorting it). In execution, an ORDER BY without an index will pull all results then sort them, which can be memory-intensive (and may spill to disk if the data is huge and memory is limited). This is a common culprit for slow queries if not planned carefully.
 
@@ -74,9 +70,8 @@ To sum up, **query latency = time spent reading data + processing it + waiting o
 
 ## Tools for Analyzing Query Performance
 
-::: {.callout-note title="Diagram Placeholder"}
-**DIAGRAM:** Query Plan Tree Example (nodes for scan, join, filter, sort)
-:::
+![Query Plan Tree Example: nodes for scan, join, filter, sort](https://i.imgur.com/PgWYFad.png)
+
 
 How do we peek under the hood to see what Postgres is doing with our SQL? This is where performance analysis tools come in. The three primary tools we'll discuss are:
 
