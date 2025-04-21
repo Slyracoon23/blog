@@ -296,7 +296,7 @@ Nested Loop  (cost=0.00..???? rows=?)
 
 **What does this mean?** The planner sees a filter on `i.name = 'Item 50000'`. We did NOT create an index on `items.name`, so by default, it has to Seq Scan `items` to find that item. Since there's only one matching item (if names are unique), it estimates 1 row. For each item found (just one), it then does an Index Scan on orders... but wait, do we have an index on `orders.item_id`? We did not explicitly create one. However, recall we made `item_id` a foreign key. Postgres does **not** automatically index foreign keys (unlike primary keys). So currently, `orders.item_id` has no index. That means the planner cannot actually do an Index Scan on orders by item_id. Instead, likely it will do a **Seq Scan on orders** and filter each by matching item_id. The plan might actually be:
 
-```
+```text
 Hash Join  (cost=... )
   -> Seq Scan on items i ...  (filter name)
   -> Seq Scan on orders o ... (filtered by hash join on item_id)
@@ -316,7 +316,7 @@ WHERE i.name = 'Item 50000';
 
 You might see output indicating a hash join and the time, for example (pseudo-output):
 
-```
+```text
 Hash Join  (actual time=0.2..15.0 rows=Random loops=1)
   Hash Cond: (o.item_id = i.item_id)
   -> Seq Scan on orders o  (actual time=0.02..10.00 rows=100000 loops=1)
@@ -334,9 +334,14 @@ Now, 15 ms isn't terrible, but remember this is a contrived smallish dataset on 
 
 ### 4. Optimizing the Query: Adding an Index
 
-::: {.callout-note title="Diagram Placeholder"}
-**DIAGRAM:** Before/After Query Plan (showing plan tree or bar chart of query time)
-:::
+| Aspect | Before Index | After Index (on orders.item_id) |
+|--------|-------------|--------------------------------|
+| **Plan Type** | Hash Join | Nested Loop Join |
+| **Plan Details** | Seq Scan on items + Seq Scan on orders | Seq Scan on items + Index Scan on orders |
+| **Rows Scanned (orders)** | 100,000 (all rows) | ~1-3 (only matching rows) |
+| **Execution Time** | ~15 ms | ~0.5 ms |
+| **Performance Gain** | - | 30x faster |
+| **Scalability** | Poor (O(N) with table size) | Good (logarithmic with table size) |
 
 The obvious optimization is to add an index on the `items.name` or on `orders.item_id` (or both). Which one helps more? 
 
@@ -357,7 +362,7 @@ EXPLAIN SELECT ... (same query) ...;
 
 Expected new plan:
 
-```
+```text
 Nested Loop  (cost=... rows=...)
   -> Seq Scan on items i  (cost=... rows=1)
        Filter: (name = 'Item 50000')
@@ -367,12 +372,12 @@ Nested Loop  (cost=... rows=...)
 
 Because now the planner knows it can find orders by item_id quickly using the index. The Seq Scan on items remains (we didn't index name yet), but that's minor. The big change is an Index Scan on orders. With EXPLAIN ANALYZE, we'd likely see:
 
-```
+```text
 Nested Loop  (actual time=0.1..0.5 rows=X loops=1)
   -> Seq Scan on items i  (actual time=0.01..0.02 rows=1 loops=1)
-        Filter: (name = 'Item 50000')
+       Filter: (name = 'Item 50000')
   -> Index Scan using idx_orders_item on orders o  (actual time=0.05..0.40 rows=X loops=1)
-        Index Cond: (item_id = i.item_id)
+       Index Cond: (item_id = i.item_id)
 ```
 
 The index scan will only fetch orders where item_id matches our item. If, say, there were 3 orders of Item 50000, then rows=3 for that index scan. The actual time would be very small (the index lookup is very fast, plus fetching 3 table rows). The total time might drop to ~0.5 ms or so (plus the overhead of client display). A dramatic improvement from 15 ms to ~0.5 ms, which is **30x faster** in this toy example. More importantly, the workload scales: even if orders table had 100 million rows, an index scan to find a few orders would remain fast (logarithmic time to traverse the index, then retrieving a few rows). The seq scan approach would balloon to scanning all 100 million rows, which is obviously much slower.
@@ -417,9 +422,18 @@ Our example was straightforward and common: speeding up a selective query by ind
 
 ## Conclusion
 
-::: {.callout-note title="Diagram Placeholder"}
-**DIAGRAM:** Summary Infographic (main performance factors and tools)
-:::
+| Performance Factor | Impact | Tools for Analysis | Optimization Techniques |
+|-------------------|--------|-------------------|------------------------|
+| **Query Planning** | High | EXPLAIN, EXPLAIN ANALYZE | Query rewriting, schema optimization |
+| **Indexing** | Very High | EXPLAIN (look for Seq Scans) | Create appropriate indexes on filter/join columns |
+| **I/O Operations** | High | EXPLAIN ANALYZE (actual rows/time) | Optimize buffer cache, reduce disk reads |
+| **Table Statistics** | Medium | ANALYZE, pg_stat* views | Regular ANALYZE, monitor data changes |
+| **Join Methods** | High | EXPLAIN (Nested Loop vs Hash Join) | Choose right join type, index join columns |
+| **Memory Usage** | Medium | EXPLAIN BUFFERS | Tune work_mem, maintenance_work_mem |
+| **Connection Overhead** | Low-Medium | pg_stat_activity | Connection pooling (PgBouncer) |
+| **Query Complexity** | High | Query parsing | Simplify complex queries, use CTEs |
+| **Concurrency** | Medium | pg_stat_activity | Manage connection limits, query timeouts |
+| **Data Volume** | Very High | Table size statistics | Partitioning, archiving old data |
 
 PostgreSQL is a brilliant piece of software that usually does the right thing automatically – but as engineers, understanding *why* it does what it does allows us to write better queries and design better database schemas. We saw that under the hood, Postgres executes queries through plan nodes (scans, joins, sorts) and each has implications for performance. We used EXPLAIN and EXPLAIN ANALYZE to reveal those inner workings, and `pg_stat_statements` to find slow queries systematically. Our hands-on example showed how a seemingly innocent query can be slow without proper indexing, and how a simple index can improve it by an order of magnitude.
 
