@@ -58,6 +58,11 @@ website:
             - text: "What is rrweb?"
               href: posts/2025-03-14_what_is_rrweb.html
         - text: "---"
+        - section: "🗄️ **Databases**"
+          contents:
+            - text: "How to Measure SQL Query Performance on Postgres"
+              href: posts/2025-04-19_sql_query_performance_postgres.html
+        - text: "---"
         - section: "📝 **Writing & Content**"
           contents:
             - text: "How to Stop Being Accused of AI Slop"
