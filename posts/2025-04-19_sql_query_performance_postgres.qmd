@@ -81,9 +81,9 @@ How do we peek under the hood to see what Postgres is doing with our SQL? This i
 
 ### EXPLAIN: The Query Plan Revealed
 
-::: {.callout-note title="Diagram Placeholder"}
-**DIAGRAM:** Annotated EXPLAIN Output (highlighting cost, rows, node types)
-:::
+![Annotated EXPLAIN Output: cost, rows, node types explained](https://i.imgur.com/UtYqwbu.jpeg)
+
+*Above: Example EXPLAIN output with annotations showing cost estimates, estimated rows, and plan node types. This helps you understand how to read the plan tree and spot key details for performance analysis.*
 
 The `EXPLAIN` command in PostgreSQL shows the *planned execution* for a given query, without actually running the query. It's like asking the planner, "Hey, how *would* you execute this if I ran it?" The output of EXPLAIN is the **query plan**: a tree of steps with cost estimates. Each line in an EXPLAIN output is one node in the plan (indented to show tree structure). For example:
 ```sql
@@ -179,9 +179,7 @@ Now that we have the theory and tools in mind, let's put this knowledge into pra
 
 ## Hands-On: Tuning Query Performance (Dockerized Postgres Tutorial)
 
-::: {.callout-note title="Diagram Placeholder"}
-**DIAGRAM:** Dockerized Setup (Docker container, Postgres, client connection)
-:::
+> ![Dockerized Setup: Docker container, Postgres, client connection](https://i.imgur.com/RpKqNGf.jpeg)
 
 Enough talk – time to get our hands dirty. In this section, we'll set up a local PostgreSQL environment using Docker, load some sample data, and walk through optimizing a query. Follow along step-by-step to reproduce the tests.
 
