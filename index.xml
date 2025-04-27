@@ -12,7 +12,7 @@
 <generator>quarto-1.6.43</generator>
 <lastBuildDate>Sun, 27 Apr 2025 00:00:00 GMT</lastBuildDate>
 <item>
-  <title>2D Spatial Understanding with Gemini 2.0</title>
+  <title>2D Spatial Understanding with Gemini 2.5</title>
   <dc:creator>Earl Potters</dc:creator>
   <link>https://slyracoon23.github.io/blog/posts/2025-04-27_gemini-image-segmentation.html</link>
   <description><![CDATA[ 
@@ -21,7 +21,20 @@
 
 
 
-<p>This notebook explores Gemini 2.0’s spatial understanding capabilities, including object detection, bounding boxes, and segmentation. Building on the <a href="https://aistudio.google.com/starter-apps/spatial">Spatial understanding example</a> from AI Studio, we’ll demonstrate how to use the Gemini API to detect objects in images, draw bounding boxes, and generate segmentation masks.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Disclaimer
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is a copy of the AI Jupyter post from <a href="https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb#scrollTo=906e07f6e562">this Colab notebook</a>. All rights and credit go to the original author.</p>
+</div>
+</div>
+<p>This notebook explores Gemini 2.5’s spatial understanding capabilities, including object detection, bounding boxes, and segmentation. Building on the <a href="https://aistudio.google.com/starter-apps/spatial">Spatial understanding example</a> from AI Studio, we’ll demonstrate how to use the Gemini API to detect objects in images, draw bounding boxes, and generate segmentation masks.</p>
 <blockquote class="blockquote">
 <p><strong>Note:</strong> The complete code for this article is available in this <a href="https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb">Colab notebook</a>.</p>
 </blockquote>
@@ -40,7 +53,7 @@
 <section id="setting-up-the-environment" class="level2">
 <h2 class="anchored" data-anchor-id="setting-up-the-environment">Setting Up the Environment</h2>
 <p>Before we dive into the examples, let’s set up our environment by installing the required packages, configuring the API key, and initializing the client.</p>
-<div id="b3b256dc" class="cell" data-execution_count="1">
+<div id="320c02bb" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Install the Google Gen AI SDK</span></span>
@@ -133,7 +146,7 @@ font-style: inherit;">=</span>GOOGLE_API_KEY)</span></code></pre></div>
 <section id="choosing-the-right-model" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-the-right-model">Choosing the Right Model</h2>
 <p>Spatial understanding works best with Gemini’s newer models. For our examples, we’ll use the <code>gemini-2.5-pro-exp-03-25</code> model, which offers enhanced spatial reasoning capabilities and supports segmentation. You can also use other Gemini 2.0 models like <code>gemini-2.0-flash</code> for faster processing, though with potentially less accurate results.</p>
-<div id="a7a981bd" class="cell" data-execution_count="2">
+<div id="8f25d6c0" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Select a model for spatial understanding</span></span>
@@ -190,7 +203,7 @@ font-style: inherit;">"BLOCK_ONLY_HIGH"</span>,</span>
 <section id="utility-functions-for-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="utility-functions-for-visualization">Utility Functions for Visualization</h2>
 <p>We’ll create some helper functions to parse the model’s output and visualize the bounding boxes and segmentation masks.</p>
-<div id="793d41f8" class="cell" data-execution_count="3">
+<div id="d59b1fe7" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to draw bounding boxes on an image</span></span>
@@ -593,7 +606,7 @@ font-style: inherit;">return</span> img</span></code></pre></div>
 <section id="object-detection-with-bounding-boxes" class="level2">
 <h2 class="anchored" data-anchor-id="object-detection-with-bounding-boxes">Object Detection with Bounding Boxes</h2>
 <p>Our first example demonstrates basic object detection. We’ll ask Gemini to identify objects in an image and draw bounding boxes around them.</p>
-<div id="df645a70" class="cell" data-execution_count="4">
+<div id="192c0b5c" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load a sample image</span></span>
@@ -705,7 +718,7 @@ font-style: inherit;"># Display the original image</span></span>
 </div>
 </div>
 <p>Now let’s detect objects in the image. We’ll ask Gemini to identify the cupcakes and label them based on their toppings.</p>
-<div id="780dc184" class="cell" data-execution_count="5">
+<div id="6a0a8fa1" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Import Pydantic for schema definition</span></span>
@@ -816,19 +829,19 @@ font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span
 <div class="cell-output cell-output-stdout">
 <pre><code>Model response:
 [
-  {"box_2d": [393, 61, 556, 206], "label": "red sprinkles on chocolate frosting"},
-  {"box_2d": [381, 247, 540, 371], "label": "pink frosting with colorful sprinkles"},
-  {"box_2d": [554, 41, 728, 201], "label": "white frosting with colorful sprinkles and two candy eyes"},
-  {"box_2d": [369, 396, 502, 505], "label": "pink frosting with sprinkles"},
-  {"box_2d": [542, 293, 699, 445], "label": "white frosting with colorful sprinkles and two candy eyes on a chocolate cupcake"},
-  {"box_2d": [443, 432, 597, 567], "label": "pink frosting with candy eyes"},
-  {"box_2d": [659, 353, 820, 515], "label": "white frosting with three candy eyes on a chocolate cupcake"},
-  {"box_2d": [743, 134, 919, 309], "label": "white frosting with two candy eyes"},
-  {"box_2d": [371, 528, 521, 652], "label": "pink frosting with blue candy balls"},
-  {"box_2d": [531, 512, 714, 664], "label": "white frosting with colorful sprinkles and two candy eyes"},
-  {"box_2d": [476, 628, 641, 770], "label": "white frosting with colorful sprinkles"},
-  {"box_2d": [379, 739, 536, 868], "label": "chocolate frosting swirl"},
-  {"box_2d": [510, 799, 690, 963], "label": "white frosting with colorful round candies and sprinkles"}
+  {"box_2d": [393, 62, 556, 207], "label": "red sprinkle frosting"},
+  {"box_2d": [384, 250, 540, 371], "label": "pink frosting with sprinkles"},
+  {"box_2d": [369, 396, 500, 503], "label": "pink frosting with sprinkles"},
+  {"box_2d": [442, 434, 594, 565], "label": "pink frosting with candy eyes"},
+  {"box_2d": [371, 528, 521, 651], "label": "pink frosting with blue candy balls"},
+  {"box_2d": [375, 739, 534, 867], "label": "chocolate frosting"},
+  {"box_2d": [556, 40, 729, 201], "label": "vanilla frosting with sprinkles and candy eyes"},
+  {"box_2d": [544, 295, 700, 445], "label": "chocolate base, vanilla frosting with sprinkles and candy eyes"},
+  {"box_2d": [546, 514, 713, 664], "label": "vanilla frosting with sprinkles and candy eyes"},
+  {"box_2d": [479, 629, 638, 771], "label": "vanilla frosting with sprinkles"},
+  {"box_2d": [511, 800, 688, 962], "label": "vanilla frosting with colorful candy pieces"},
+  {"box_2d": [744, 135, 921, 307], "label": "vanilla frosting with two candy eyes"},
+  {"box_2d": [658, 353, 819, 514], "label": "chocolate base, vanilla frosting with three candy eyes"}
 ]</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="5">
@@ -851,7 +864,7 @@ font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span
 <section id="searching-within-an-image" class="level2">
 <h2 class="anchored" data-anchor-id="searching-within-an-image">Searching Within an Image</h2>
 <p>Gemini can also perform targeted searches within images, identifying specific objects that match certain criteria. Let’s try this with a different image.</p>
-<div id="712edb23" class="cell" data-execution_count="6">
+<div id="71eceb9b" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load a different image for search example</span></span>
@@ -936,8 +949,8 @@ font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span
 <div class="cell-output cell-output-stdout">
 <pre><code>Model response:
 [
-  {"box_2d": [57, 248, 386, 516], "label": "left sock with face"},
-  {"box_2d": [238, 630, 652, 860], "label": "right sock with face"}
+  {"box_2d": [57, 249, 387, 516], "label": "light blue sock with face (top left)"},
+  {"box_2d": [235, 631, 650, 860], "label": "light blue sock with face (top right)"}
 ]</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="6">
@@ -959,7 +972,7 @@ font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span
 <section id="multilingual-capabilities" class="level2">
 <h2 class="anchored" data-anchor-id="multilingual-capabilities">Multilingual Capabilities</h2>
 <p>Gemini’s multimodal understanding extends to multiple languages. Let’s demonstrate this by asking the model to label food items in a Japanese bento box with both Japanese characters and English translations.</p>
-<div id="2bb9f80b" class="cell" data-execution_count="7">
+<div id="68712f0c" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the Japanese bento image</span></span>
@@ -1048,7 +1061,7 @@ font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span
 <section id="advanced-reasoning-with-spatial-understanding" class="level2">
 <h2 class="anchored" data-anchor-id="advanced-reasoning-with-spatial-understanding">Advanced Reasoning with Spatial Understanding</h2>
 <p>Gemini can go beyond simple object detection to perform more complex spatial reasoning tasks. Let’s demonstrate this by asking the model to find the shadow of a specific origami figure.</p>
-<div id="290e6eee" class="cell" data-execution_count="8">
+<div id="690766d7" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the origami image</span></span>
@@ -1143,7 +1156,7 @@ font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span
 <section id="image-segmentation-with-gemini-2.5" class="level2">
 <h2 class="anchored" data-anchor-id="image-segmentation-with-gemini-2.5">Image Segmentation with Gemini 2.5</h2>
 <p>With Gemini 2.5 models, we can go beyond bounding boxes to generate more precise segmentation masks that outline the exact boundaries of objects. Let’s implement the necessary utilities and demonstrate this capability.</p>
-<div id="c3c6df3a" class="cell" data-execution_count="9">
+<div id="71ec77e7" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Utilities for segmentation masks</span></span>
@@ -1896,7 +1909,7 @@ font-weight: bold;
 font-style: inherit;">return</span> img</span></code></pre></div>
 </div>
 <p>Now let’s test the segmentation capability with an image containing cupcakes.</p>
-<div id="f23f128a" class="cell" data-execution_count="10">
+<div id="cae88e2d" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Define Pydantic model for segmentation masks</span></span>

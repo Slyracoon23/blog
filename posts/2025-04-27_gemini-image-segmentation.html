@@ -9,7 +9,7 @@
 <meta name="author" content="Earl Potters">
 <meta name="dcterms.date" content="2025-04-27">
 
-<title>2D Spatial Understanding with Gemini 2.0 – Earl Potters</title>
+<title>2D Spatial Understanding with Gemini 2.5 – Earl Potters</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -126,14 +126,14 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="../assets/citations.css">
-<meta property="og:title" content="2D Spatial Understanding with Gemini 2.0 – Earl Potters">
-<meta property="og:description" content="Object detection, bounding boxes, and segmentation with Gemini 2.0 API">
+<meta property="og:title" content="2D Spatial Understanding with Gemini 2.5 – Earl Potters">
+<meta property="og:description" content="Object detection, bounding boxes, and segmentation with Gemini 2.5 API">
 <meta property="og:image" content="https://slyracoon23.github.io/blog/images/gemini_image_segmentation/thumbnail.png">
 <meta property="og:site_name" content="Earl Potters">
 <meta property="og:image:height" content="1024">
 <meta property="og:image:width" content="1024">
-<meta name="twitter:title" content="2D Spatial Understanding with Gemini 2.0 – Earl Potters">
-<meta name="twitter:description" content="Object detection, bounding boxes, and segmentation with Gemini 2.0 API">
+<meta name="twitter:title" content="2D Spatial Understanding with Gemini 2.5 – Earl Potters">
+<meta name="twitter:description" content="Object detection, bounding boxes, and segmentation with Gemini 2.5 API">
 <meta name="twitter:image" content="https://slyracoon23.github.io/blog/images/gemini_image_segmentation/thumbnail.png">
 <meta name="twitter:image-height" content="1024">
 <meta name="twitter:image-width" content="1024">
@@ -206,8 +206,8 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../posts/2025-02-19_building_chatgpt_from_scratch.html">🗣️ <strong>Large Language Models</strong></a></li><li class="breadcrumb-item"><a href="../posts/2025-04-27_gemini-image-segmentation.html">Gemini Image Segmentation</a></li></ol></nav>
-      <h1 class="title">2D Spatial Understanding with Gemini 2.0</h1>
-            <p class="subtitle lead">Object detection, bounding boxes, and segmentation with Gemini 2.0 API</p>
+      <h1 class="title">2D Spatial Understanding with Gemini 2.5</h1>
+            <p class="subtitle lead">Object detection, bounding boxes, and segmentation with Gemini 2.5 API</p>
                                 <div class="quarto-categories">
                 <div class="quarto-category">Computer Vision</div>
                 <div class="quarto-category">Machine Learning</div>
@@ -398,7 +398,20 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 
 
 
-<p>This notebook explores Gemini 2.0’s spatial understanding capabilities, including object detection, bounding boxes, and segmentation. Building on the <a href="https://aistudio.google.com/starter-apps/spatial">Spatial understanding example</a> from AI Studio, we’ll demonstrate how to use the Gemini API to detect objects in images, draw bounding boxes, and generate segmentation masks.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Disclaimer
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is a copy of the AI Jupyter post from <a href="https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb#scrollTo=906e07f6e562">this Colab notebook</a>. All rights and credit go to the original author.</p>
+</div>
+</div>
+<p>This notebook explores Gemini 2.5’s spatial understanding capabilities, including object detection, bounding boxes, and segmentation. Building on the <a href="https://aistudio.google.com/starter-apps/spatial">Spatial understanding example</a> from AI Studio, we’ll demonstrate how to use the Gemini API to detect objects in images, draw bounding boxes, and generate segmentation masks.</p>
 <blockquote class="blockquote">
 <p><strong>Note:</strong> The complete code for this article is available in this <a href="https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb">Colab notebook</a>.</p>
 </blockquote>
@@ -417,7 +430,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <section id="setting-up-the-environment" class="level2">
 <h2 class="anchored" data-anchor-id="setting-up-the-environment">Setting Up the Environment</h2>
 <p>Before we dive into the examples, let’s set up our environment by installing the required packages, configuring the API key, and initializing the client.</p>
-<div id="b3b256dc" class="cell" data-execution_count="1">
+<div id="320c02bb" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install the Google Gen AI SDK</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install <span class="op">-</span>U <span class="op">-</span>q google<span class="op">-</span>genai</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -448,7 +461,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <section id="choosing-the-right-model" class="level2">
 <h2 class="anchored" data-anchor-id="choosing-the-right-model">Choosing the Right Model</h2>
 <p>Spatial understanding works best with Gemini’s newer models. For our examples, we’ll use the <code>gemini-2.5-pro-exp-03-25</code> model, which offers enhanced spatial reasoning capabilities and supports segmentation. You can also use other Gemini 2.0 models like <code>gemini-2.0-flash</code> for faster processing, though with potentially less accurate results.</p>
-<div id="a7a981bd" class="cell" data-execution_count="2">
+<div id="8f25d6c0" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select a model for spatial understanding</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>model_name <span class="op">=</span> <span class="st">"gemini-2.5-pro-exp-03-25"</span>  <span class="co"># Best for segmentation and detailed spatial analysis</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternative models: "gemini-2.0-flash" for faster processing</span></span>
@@ -471,7 +484,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <section id="utility-functions-for-visualization" class="level2">
 <h2 class="anchored" data-anchor-id="utility-functions-for-visualization">Utility Functions for Visualization</h2>
 <p>We’ll create some helper functions to parse the model’s output and visualize the bounding boxes and segmentation masks.</p>
-<div id="793d41f8" class="cell" data-execution_count="3">
+<div id="d59b1fe7" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to draw bounding boxes on an image</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_bounding_boxes(im, bounding_boxes):</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -557,7 +570,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <section id="object-detection-with-bounding-boxes" class="level2">
 <h2 class="anchored" data-anchor-id="object-detection-with-bounding-boxes">Object Detection with Bounding Boxes</h2>
 <p>Our first example demonstrates basic object detection. We’ll ask Gemini to identify objects in an image and draw bounding boxes around them.</p>
-<div id="df645a70" class="cell" data-execution_count="4">
+<div id="192c0b5c" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load a sample image</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_image(url):</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Load an image from a URL or local path."""</span></span>
@@ -595,7 +608,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 </div>
 </div>
 <p>Now let’s detect objects in the image. We’ll ask Gemini to identify the cupcakes and label them based on their toppings.</p>
-<div id="780dc184" class="cell" data-execution_count="5">
+<div id="6a0a8fa1" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Pydantic for schema definition</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, Field</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> List</span>
@@ -631,19 +644,19 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <div class="cell-output cell-output-stdout">
 <pre><code>Model response:
 [
-  {"box_2d": [393, 61, 556, 206], "label": "red sprinkles on chocolate frosting"},
-  {"box_2d": [381, 247, 540, 371], "label": "pink frosting with colorful sprinkles"},
-  {"box_2d": [554, 41, 728, 201], "label": "white frosting with colorful sprinkles and two candy eyes"},
-  {"box_2d": [369, 396, 502, 505], "label": "pink frosting with sprinkles"},
-  {"box_2d": [542, 293, 699, 445], "label": "white frosting with colorful sprinkles and two candy eyes on a chocolate cupcake"},
-  {"box_2d": [443, 432, 597, 567], "label": "pink frosting with candy eyes"},
-  {"box_2d": [659, 353, 820, 515], "label": "white frosting with three candy eyes on a chocolate cupcake"},
-  {"box_2d": [743, 134, 919, 309], "label": "white frosting with two candy eyes"},
-  {"box_2d": [371, 528, 521, 652], "label": "pink frosting with blue candy balls"},
-  {"box_2d": [531, 512, 714, 664], "label": "white frosting with colorful sprinkles and two candy eyes"},
-  {"box_2d": [476, 628, 641, 770], "label": "white frosting with colorful sprinkles"},
-  {"box_2d": [379, 739, 536, 868], "label": "chocolate frosting swirl"},
-  {"box_2d": [510, 799, 690, 963], "label": "white frosting with colorful round candies and sprinkles"}
+  {"box_2d": [393, 62, 556, 207], "label": "red sprinkle frosting"},
+  {"box_2d": [384, 250, 540, 371], "label": "pink frosting with sprinkles"},
+  {"box_2d": [369, 396, 500, 503], "label": "pink frosting with sprinkles"},
+  {"box_2d": [442, 434, 594, 565], "label": "pink frosting with candy eyes"},
+  {"box_2d": [371, 528, 521, 651], "label": "pink frosting with blue candy balls"},
+  {"box_2d": [375, 739, 534, 867], "label": "chocolate frosting"},
+  {"box_2d": [556, 40, 729, 201], "label": "vanilla frosting with sprinkles and candy eyes"},
+  {"box_2d": [544, 295, 700, 445], "label": "chocolate base, vanilla frosting with sprinkles and candy eyes"},
+  {"box_2d": [546, 514, 713, 664], "label": "vanilla frosting with sprinkles and candy eyes"},
+  {"box_2d": [479, 629, 638, 771], "label": "vanilla frosting with sprinkles"},
+  {"box_2d": [511, 800, 688, 962], "label": "vanilla frosting with colorful candy pieces"},
+  {"box_2d": [744, 135, 921, 307], "label": "vanilla frosting with two candy eyes"},
+  {"box_2d": [658, 353, 819, 514], "label": "chocolate base, vanilla frosting with three candy eyes"}
 ]</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="5">
@@ -666,7 +679,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <section id="searching-within-an-image" class="level2">
 <h2 class="anchored" data-anchor-id="searching-within-an-image">Searching Within an Image</h2>
 <p>Gemini can also perform targeted searches within images, identifying specific objects that match certain criteria. Let’s try this with a different image.</p>
-<div id="712edb23" class="cell" data-execution_count="6">
+<div id="71eceb9b" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load a different image for search example</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> load_image(image_urls[<span class="st">"socks"</span>])</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>image.thumbnail([<span class="dv">640</span>, <span class="dv">640</span>], Image.Resampling.LANCZOS)</span>
@@ -697,8 +710,8 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <div class="cell-output cell-output-stdout">
 <pre><code>Model response:
 [
-  {"box_2d": [57, 248, 386, 516], "label": "left sock with face"},
-  {"box_2d": [238, 630, 652, 860], "label": "right sock with face"}
+  {"box_2d": [57, 249, 387, 516], "label": "light blue sock with face (top left)"},
+  {"box_2d": [235, 631, 650, 860], "label": "light blue sock with face (top right)"}
 ]</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="6">
@@ -720,7 +733,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <section id="multilingual-capabilities" class="level2">
 <h2 class="anchored" data-anchor-id="multilingual-capabilities">Multilingual Capabilities</h2>
 <p>Gemini’s multimodal understanding extends to multiple languages. Let’s demonstrate this by asking the model to label food items in a Japanese bento box with both Japanese characters and English translations.</p>
-<div id="2bb9f80b" class="cell" data-execution_count="7">
+<div id="68712f0c" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the Japanese bento image</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> load_image(image_urls[<span class="st">"bento"</span>])</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>image.thumbnail([<span class="dv">640</span>, <span class="dv">640</span>], Image.Resampling.LANCZOS)</span>
@@ -763,7 +776,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <section id="advanced-reasoning-with-spatial-understanding" class="level2">
 <h2 class="anchored" data-anchor-id="advanced-reasoning-with-spatial-understanding">Advanced Reasoning with Spatial Understanding</h2>
 <p>Gemini can go beyond simple object detection to perform more complex spatial reasoning tasks. Let’s demonstrate this by asking the model to find the shadow of a specific origami figure.</p>
-<div id="290e6eee" class="cell" data-execution_count="8">
+<div id="690766d7" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the origami image</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> load_image(image_urls[<span class="st">"origami"</span>])</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>image.thumbnail([<span class="dv">640</span>, <span class="dv">640</span>], Image.Resampling.LANCZOS)</span>
@@ -812,7 +825,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <section id="image-segmentation-with-gemini-2.5" class="level2">
 <h2 class="anchored" data-anchor-id="image-segmentation-with-gemini-2.5">Image Segmentation with Gemini 2.5</h2>
 <p>With Gemini 2.5 models, we can go beyond bounding boxes to generate more precise segmentation masks that outline the exact boundaries of objects. Let’s implement the necessary utilities and demonstrate this capability.</p>
-<div id="c3c6df3a" class="cell" data-execution_count="9">
+<div id="71ec77e7" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Utilities for segmentation masks</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dataclasses</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> base64</span>
@@ -974,7 +987,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <span id="cb11-159"><a href="#cb11-159" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> img</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now let’s test the segmentation capability with an image containing cupcakes.</p>
-<div id="f23f128a" class="cell" data-execution_count="10">
+<div id="cae88e2d" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define Pydantic model for segmentation masks</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SegmentationMaskModel(BaseModel):</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    box_2d: List[<span class="bu">int</span>] <span class="op">=</span> Field(description<span class="op">=</span><span class="st">"Normalized coordinates [y0, x0, y1, x1] from 0-1000"</span>)</span>
