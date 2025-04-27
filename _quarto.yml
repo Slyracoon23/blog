@@ -52,6 +52,8 @@ website:
               href: posts/2025-03-21_eleutherai-evaluation-methods.html
             - text: "Model Context Protocol Tool Poisoning Attacks"
               href: posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html
+            - text: "Gemini Image Segmentation"
+              href: posts/2025-04-27_gemini-image-segmentation.html
         - text: "---"
         - section: "🌐 **Web Technologies**"
           contents:
