@@ -4,14 +4,20 @@
 # categories: ["Computer Vision", "Machine Learning", "Gemini API"]
 # date: "2025-04-27"
 # image: "/images/gemini_image_segmentation/thumbnail.png"
-# title: "2D Spatial Understanding with Gemini 2.0"
-# subtitle: "Object detection, bounding boxes, and segmentation with Gemini 2.0 API"
+# title: "2D Spatial Understanding with Gemini 2.5"
+# subtitle: "Object detection, bounding boxes, and segmentation with Gemini 2.5 API"
 # colab: '<a href="https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb"><img src="images/colab.svg" alt="Open In Colab"></a>'
 # format: "html"
 # ---
 
 # %% [markdown]
-# This notebook explores Gemini 2.0's spatial understanding capabilities, including object detection, bounding boxes, and segmentation. Building on the [Spatial understanding example](https://aistudio.google.com/starter-apps/spatial) from AI Studio, we'll demonstrate how to use the Gemini API to detect objects in images, draw bounding boxes, and generate segmentation masks.
+# ::: {.callout-note}
+# ## Disclaimer
+# This is a copy of the AI Jupyter post from [this Colab notebook](https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb#scrollTo=906e07f6e562). All rights and credit go to the original author.
+# :::
+
+# %% [markdown]
+# This notebook explores Gemini 2.5's spatial understanding capabilities, including object detection, bounding boxes, and segmentation. Building on the [Spatial understanding example](https://aistudio.google.com/starter-apps/spatial) from AI Studio, we'll demonstrate how to use the Gemini API to detect objects in images, draw bounding boxes, and generate segmentation masks.
 # 
 # > **Note:** The complete code for this article is available in this [Colab notebook](https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb).
 
@@ -628,5 +634,3 @@ result_image
 # These capabilities open up numerous possibilities for developers, from enhancing accessibility to creating immersive AR experiences. By combining Gemini's visual understanding with its language capabilities, you can build intuitive, powerful applications that bridge the gap between vision and language.
 # 
 # For more examples and applications, check out the [Spatial understanding example](https://aistudio.google.com/starter-apps/spatial) from AI Studio, or explore the [Gemini 2.0 cookbook](https://github.com/google-gemini/cookbook/tree/main/gemini-2/) for other examples of Gemini's capabilities.
-
-# %%
