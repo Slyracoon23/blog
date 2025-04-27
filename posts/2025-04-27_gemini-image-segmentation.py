@@ -114,10 +114,30 @@ def plot_bounding_boxes(im, bounding_boxes):
         'violet', 'gold', 'silver'
     ] + [colorname for (colorname, colorcode) in ImageColor.colormap.items()]
     
-    # Load a font for text labels
+    # Try to load a font that supports CJK characters
+    font = None
     try:
-        font = ImageFont.truetype("NotoSansCJK-Regular.ttc", size=14)
-    except:
+        # Try different fonts that might support CJK characters
+        font_paths = [
+            "NotoSansCJK-Regular.ttc",
+            "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",  # Common on macOS
+            "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",  # Common on Linux
+            "/Library/Fonts/Arial Unicode.ttf"
+        ]
+        
+        for path in font_paths:
+            try:
+                font = ImageFont.truetype(path, size=14)
+                break
+            except (OSError, IOError):
+                continue
+                
+    except Exception as e:
+        print(f"Could not load CJK font: {e}")
+    
+    # If no CJK fonts are available, use a basic approach that avoids Unicode issues
+    if font is None:
+        print("Warning: No CJK font found. Text with non-Latin characters may not display correctly.")
         font = ImageFont.load_default()
     
     # Iterate over the bounding boxes
@@ -142,7 +162,12 @@ def plot_bounding_boxes(im, bounding_boxes):
         
         # Draw the text label if present
         if hasattr(bounding_box, "label"):
-            draw.text((abs_x1 + 8, abs_y1 + 6), bounding_box.label, fill=color, font=font)
+            try:
+                draw.text((abs_x1 + 8, abs_y1 + 6), bounding_box.label, fill=color, font=font)
+            except UnicodeEncodeError:
+                # Fallback for Unicode errors - print ASCII version of label
+                ascii_label = bounding_box.label.encode('ascii', 'replace').decode('ascii')
+                draw.text((abs_x1 + 8, abs_y1 + 6), ascii_label, fill=color, font=font)
     
     return img
 
@@ -463,10 +488,30 @@ def plot_segmentation_masks(img: Image, segmentation_masks: list[SegmentationMas
         'brown', 'gray', 'beige', 'turquoise', 'cyan', 'magenta'
     ] + [colorname for (colorname, colorcode) in ImageColor.colormap.items()]
     
-    # Load font
+    # Try to load a font that supports CJK characters
+    font = None
     try:
-        font = ImageFont.truetype("NotoSansCJK-Regular.ttc", size=14)
-    except:
+        # Try different fonts that might support CJK characters
+        font_paths = [
+            "NotoSansCJK-Regular.ttc",
+            "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",  # Common on macOS
+            "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",  # Common on Linux
+            "/Library/Fonts/Arial Unicode.ttf"
+        ]
+        
+        for path in font_paths:
+            try:
+                font = ImageFont.truetype(path, size=14)
+                break
+            except (OSError, IOError):
+                continue
+                
+    except Exception as e:
+        print(f"Could not load CJK font: {e}")
+    
+    # If no CJK fonts are available, use a basic approach that avoids Unicode issues
+    if font is None:
+        print("Warning: No CJK font found. Text with non-Latin characters may not display correctly.")
         font = ImageFont.load_default()
     
     # Create a copy of the image
@@ -489,7 +534,12 @@ def plot_segmentation_masks(img: Image, segmentation_masks: list[SegmentationMas
     for i, mask in enumerate(segmentation_masks):
         color = colors[i % len(colors)]
         if mask.label != "":
-            draw.text((mask.x0 + 8, mask.y0 - 20), mask.label, fill=color, font=font)
+            try:
+                draw.text((mask.x0 + 8, mask.y0 - 20), mask.label, fill=color, font=font)
+            except UnicodeEncodeError:
+                # Fallback for Unicode errors - print ASCII version of label
+                ascii_label = mask.label.encode('ascii', 'replace').decode('ascii')
+                draw.text((mask.x0 + 8, mask.y0 - 20), ascii_label, fill=color, font=font)
     
     return img
 
@@ -578,3 +628,5 @@ result_image
 # These capabilities open up numerous possibilities for developers, from enhancing accessibility to creating immersive AR experiences. By combining Gemini's visual understanding with its language capabilities, you can build intuitive, powerful applications that bridge the gap between vision and language.
 # 
 # For more examples and applications, check out the [Spatial understanding example](https://aistudio.google.com/starter-apps/spatial) from AI Studio, or explore the [Gemini 2.0 cookbook](https://github.com/google-gemini/cookbook/tree/main/gemini-2/) for other examples of Gemini's capabilities.
+
+# %%
