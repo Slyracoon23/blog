@@ -14,7 +14,7 @@
 # ::: {.callout-note}
 # ## Disclaimer
 # This is a copy of the AI Jupyter post from [this Colab notebook](https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb#scrollTo=906e07f6e562). All rights and credit go to the original author.
-# 
+# :::
 
 # %% [markdown]
 # This notebook explores Gemini 2.0's spatial understanding capabilities, including object detection, bounding boxes, and segmentation. Building on the [Spatial understanding example](https://aistudio.google.com/starter-apps/spatial) from AI Studio, we'll demonstrate how to use the Gemini API to detect objects in images, draw bounding boxes, and generate segmentation masks.
