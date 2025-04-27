@@ -49,7 +49,7 @@ from dotenv import load_dotenv
 
 
 
-load_dotenv(dotenv_path='.env')
+load_dotenv(dotenv_path='/Users/earlpotters/Documents/personal/blog/.env')
 
 # Initialize the Google Gen AI client
 from google import genai
