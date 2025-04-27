@@ -12,6 +12,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2025-04-27_gemini-image-segmentation.html",
       "/posts/2025-04-19_sql_query_performance_postgres.html",
       "/posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html",
       "/posts/2025-03-24_how_to_stop_being_accused_of_ai_slop.html",

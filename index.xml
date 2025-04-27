@@ -10,7 +10,2074 @@
 <atom:link href="https://slyracoon23.github.io/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>Technical articles about programming, large language models, and AI agents.</description>
 <generator>quarto-1.6.43</generator>
-<lastBuildDate>Sat, 19 Apr 2025 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 27 Apr 2025 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>2D Spatial Understanding with Gemini 2.0</title>
+  <dc:creator>Earl Potters</dc:creator>
+  <link>https://slyracoon23.github.io/blog/posts/2025-04-27_gemini-image-segmentation.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>This notebook explores Gemini 2.0’s spatial understanding capabilities, including object detection, bounding boxes, and segmentation. Building on the <a href="https://aistudio.google.com/starter-apps/spatial">Spatial understanding example</a> from AI Studio, we’ll demonstrate how to use the Gemini API to detect objects in images, draw bounding boxes, and generate segmentation masks.</p>
+<blockquote class="blockquote">
+<p><strong>Note:</strong> The complete code for this article is available in this <a href="https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb">Colab notebook</a>.</p>
+</blockquote>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The ability to understand spatial relationships and identify objects in images is a fundamental aspect of computer vision. Gemini 2.0, with its multimodal capabilities, excels at this task without requiring specialized computer vision training or object detection models. Using Gemini’s API, you can:</p>
+<ul>
+<li><strong>Detect objects</strong> and draw bounding boxes around them</li>
+<li><strong>Search for specific items</strong> within an image</li>
+<li><strong>Label objects</strong> in multiple languages</li>
+<li><strong>Apply the model’s reasoning abilities</strong> to understand spatial relationships</li>
+<li><strong>Generate segmentation masks</strong> for precise object boundaries (with Gemini 2.5)</li>
+</ul>
+<p>In this post, we’ll explore how to implement these capabilities using the Google Gen AI SDK, with practical examples for each use case.</p>
+</section>
+<section id="setting-up-the-environment" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-the-environment">Setting Up the Environment</h2>
+<p>Before we dive into the examples, let’s set up our environment by installing the required packages, configuring the API key, and initializing the client.</p>
+<div id="b3b256dc" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Install the Google Gen AI SDK</span></span>
+<span id="cb1-2"><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>pip install <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>U <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>q google<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>genai</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Import the necessary libraries</span></span>
+<span id="cb1-5"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> os</span>
+<span id="cb1-6"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> requests</span>
+<span id="cb1-7"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> io</span>
+<span id="cb1-8"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> json</span>
+<span id="cb1-9"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb1-10"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> PIL <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Image, ImageDraw, ImageFont, ImageColor</span>
+<span id="cb1-11"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> torch</span>
+<span id="cb1-12"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> dotenv <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> load_dotenv</span>
+<span id="cb1-13"></span>
+<span id="cb1-14"></span>
+<span id="cb1-15"></span>
+<span id="cb1-16">load_dotenv(dotenv_path<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/Users/earlpotters/Documents/personal/blog/.env'</span>)</span>
+<span id="cb1-17"></span>
+<span id="cb1-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Initialize the Google Gen AI client</span></span>
+<span id="cb1-19"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> google <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> genai</span>
+<span id="cb1-20"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> google.genai <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> types</span>
+<span id="cb1-21"></span>
+<span id="cb1-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Set your API key</span></span>
+<span id="cb1-23"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># In a production environment, use environment variables or secure secret management</span></span>
+<span id="cb1-24">GOOGLE_API_KEY <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> os.environ.get(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'GOOGLE_API_KEY'</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Replace with your API key</span></span>
+<span id="cb1-25">client <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> genai.Client(api_key<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>GOOGLE_API_KEY)</span></code></pre></div>
+</div>
+</section>
+<section id="choosing-the-right-model" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-the-right-model">Choosing the Right Model</h2>
+<p>Spatial understanding works best with Gemini’s newer models. For our examples, we’ll use the <code>gemini-2.5-pro-exp-03-25</code> model, which offers enhanced spatial reasoning capabilities and supports segmentation. You can also use other Gemini 2.0 models like <code>gemini-2.0-flash</code> for faster processing, though with potentially less accurate results.</p>
+<div id="a7a981bd" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Select a model for spatial understanding</span></span>
+<span id="cb2-2">model_name <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"gemini-2.5-pro-exp-03-25"</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Best for segmentation and detailed spatial analysis</span></span>
+<span id="cb2-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Alternative models: "gemini-2.0-flash" for faster processing</span></span>
+<span id="cb2-4"></span>
+<span id="cb2-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Configure system instructions for better results</span></span>
+<span id="cb2-6">bounding_box_system_instructions <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb2-7"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">    Return bounding boxes as a JSON array with labels. Never return masks or code fencing. Limit to 25 objects.</span></span>
+<span id="cb2-8"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">    If an object is present multiple times, name them according to their unique characteristic (colors, size, position, unique characteristics, etc..).</span></span>
+<span id="cb2-9"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb2-10"></span>
+<span id="cb2-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Configure safety settings</span></span>
+<span id="cb2-12">safety_settings <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb2-13">    types.SafetySetting(</span>
+<span id="cb2-14">        category<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"HARM_CATEGORY_DANGEROUS_CONTENT"</span>,</span>
+<span id="cb2-15">        threshold<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BLOCK_ONLY_HIGH"</span>,</span>
+<span id="cb2-16">    ),</span>
+<span id="cb2-17">]</span></code></pre></div>
+</div>
+</section>
+<section id="utility-functions-for-visualization" class="level2">
+<h2 class="anchored" data-anchor-id="utility-functions-for-visualization">Utility Functions for Visualization</h2>
+<p>We’ll create some helper functions to parse the model’s output and visualize the bounding boxes and segmentation masks.</p>
+<div id="793d41f8" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function to draw bounding boxes on an image</span></span>
+<span id="cb3-2"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> plot_bounding_boxes(im, bounding_boxes):</span>
+<span id="cb3-3">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb3-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Plots bounding boxes on an image with markers for each name, using PIL, normalized coordinates, and different colors.</span></span>
+<span id="cb3-5"></span>
+<span id="cb3-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Args:</span></span>
+<span id="cb3-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        im: The PIL Image object.</span></span>
+<span id="cb3-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">        bounding_boxes: A list of BoundingBox objects.</span></span>
+<span id="cb3-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb3-10">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a copy of the image to draw on</span></span>
+<span id="cb3-11">    img <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> im.copy()</span>
+<span id="cb3-12">    width, height <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> img.size</span>
+<span id="cb3-13">    </span>
+<span id="cb3-14">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a drawing object</span></span>
+<span id="cb3-15">    draw <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ImageDraw.Draw(img)</span>
+<span id="cb3-16">    </span>
+<span id="cb3-17">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a list of colors for different objects</span></span>
+<span id="cb3-18">    colors <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb3-19">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'red'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'green'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'blue'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'yellow'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'orange'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'pink'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'purple'</span>,</span>
+<span id="cb3-20">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'brown'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'gray'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'beige'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'turquoise'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'cyan'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'magenta'</span>,</span>
+<span id="cb3-21">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'lime'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'navy'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'maroon'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'teal'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'olive'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'coral'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'lavender'</span>,</span>
+<span id="cb3-22">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'violet'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'gold'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'silver'</span></span>
+<span id="cb3-23">    ] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> [colorname <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (colorname, colorcode) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> ImageColor.colormap.items()]</span>
+<span id="cb3-24">    </span>
+<span id="cb3-25">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Try to load a font that supports CJK characters</span></span>
+<span id="cb3-26">    font <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span></span>
+<span id="cb3-27">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">try</span>:</span>
+<span id="cb3-28">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Try different fonts that might support CJK characters</span></span>
+<span id="cb3-29">        font_paths <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb3-30">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NotoSansCJK-Regular.ttc"</span>,</span>
+<span id="cb3-31">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc"</span>,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Common on macOS</span></span>
+<span id="cb3-32">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"</span>,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Common on Linux</span></span>
+<span id="cb3-33">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/Library/Fonts/Arial Unicode.ttf"</span></span>
+<span id="cb3-34">        ]</span>
+<span id="cb3-35">        </span>
+<span id="cb3-36">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> path <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> font_paths:</span>
+<span id="cb3-37">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">try</span>:</span>
+<span id="cb3-38">                font <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ImageFont.truetype(path, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>)</span>
+<span id="cb3-39">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">break</span></span>
+<span id="cb3-40">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">except</span> (<span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">OSError</span>, <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">IOError</span>):</span>
+<span id="cb3-41">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">continue</span></span>
+<span id="cb3-42">                </span>
+<span id="cb3-43">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">except</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Exception</span> <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> e:</span>
+<span id="cb3-44">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Could not load CJK font: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>e<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb3-45">    </span>
+<span id="cb3-46">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If no CJK fonts are available, use a basic approach that avoids Unicode issues</span></span>
+<span id="cb3-47">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> font <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">is</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>:</span>
+<span id="cb3-48">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Warning: No CJK font found. Text with non-Latin characters may not display correctly."</span>)</span>
+<span id="cb3-49">        font <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ImageFont.load_default()</span>
+<span id="cb3-50">    </span>
+<span id="cb3-51">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Iterate over the bounding boxes</span></span>
+<span id="cb3-52">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, bounding_box <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(bounding_boxes):</span>
+<span id="cb3-53">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Select a color from the list</span></span>
+<span id="cb3-54">        color <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> colors[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(colors)]</span>
+<span id="cb3-55">        </span>
+<span id="cb3-56">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert normalized coordinates to absolute coordinates</span></span>
+<span id="cb3-57">        abs_y1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(bounding_box.box_2d[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> height)</span>
+<span id="cb3-58">        abs_x1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(bounding_box.box_2d[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> width)</span>
+<span id="cb3-59">        abs_y2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(bounding_box.box_2d[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> height)</span>
+<span id="cb3-60">        abs_x2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(bounding_box.box_2d[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> width)</span>
+<span id="cb3-61">        </span>
+<span id="cb3-62">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Ensure coordinates are in the correct order</span></span>
+<span id="cb3-63">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> abs_x1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> abs_x2:</span>
+<span id="cb3-64">            abs_x1, abs_x2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> abs_x2, abs_x1</span>
+<span id="cb3-65">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> abs_y1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> abs_y2:</span>
+<span id="cb3-66">            abs_y1, abs_y2 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> abs_y2, abs_y1</span>
+<span id="cb3-67">        </span>
+<span id="cb3-68">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Draw the bounding box</span></span>
+<span id="cb3-69">        draw.rectangle(((abs_x1, abs_y1), (abs_x2, abs_y2)), outline<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>color, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)</span>
+<span id="cb3-70">        </span>
+<span id="cb3-71">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Draw the text label if present</span></span>
+<span id="cb3-72">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">hasattr</span>(bounding_box, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"label"</span>):</span>
+<span id="cb3-73">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">try</span>:</span>
+<span id="cb3-74">                draw.text((abs_x1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, abs_y1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>), bounding_box.label, fill<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>color, font<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>font)</span>
+<span id="cb3-75">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">except</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">UnicodeEncodeError</span>:</span>
+<span id="cb3-76">                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fallback for Unicode errors - print ASCII version of label</span></span>
+<span id="cb3-77">                ascii_label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> bounding_box.label.encode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ascii'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'replace'</span>).decode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ascii'</span>)</span>
+<span id="cb3-78">                draw.text((abs_x1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, abs_y1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>), ascii_label, fill<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>color, font<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>font)</span>
+<span id="cb3-79">    </span>
+<span id="cb3-80">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> img</span></code></pre></div>
+</div>
+</section>
+<section id="object-detection-with-bounding-boxes" class="level2">
+<h2 class="anchored" data-anchor-id="object-detection-with-bounding-boxes">Object Detection with Bounding Boxes</h2>
+<p>Our first example demonstrates basic object detection. We’ll ask Gemini to identify objects in an image and draw bounding boxes around them.</p>
+<div id="df645a70" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load a sample image</span></span>
+<span id="cb4-2"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> load_image(url):</span>
+<span id="cb4-3">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Load an image from a URL or local path."""</span></span>
+<span id="cb4-4">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> url.startswith((<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'http://'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'https://'</span>)):</span>
+<span id="cb4-5">        response <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> requests.get(url, stream<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb4-6">        img <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Image.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(io.BytesIO(response.content))</span>
+<span id="cb4-7">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb4-8">        img <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Image.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(url)</span>
+<span id="cb4-9">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> img</span>
+<span id="cb4-10"></span>
+<span id="cb4-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Sample image URLs</span></span>
+<span id="cb4-12">image_urls <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {</span>
+<span id="cb4-13">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cupcakes"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://storage.googleapis.com/generativeai-downloads/images/Cupcakes.jpg"</span>,</span>
+<span id="cb4-14">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"socks"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://storage.googleapis.com/generativeai-downloads/images/socks.jpg"</span>,</span>
+<span id="cb4-15">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"vegetables"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://storage.googleapis.com/generativeai-downloads/images/vegetables.jpg"</span>,</span>
+<span id="cb4-16">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bento"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://storage.googleapis.com/generativeai-downloads/images/Japanese_Bento.png"</span>,</span>
+<span id="cb4-17">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"origami"</span>: <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"https://storage.googleapis.com/generativeai-downloads/images/origamis.jpg"</span></span>
+<span id="cb4-18">}</span>
+<span id="cb4-19"></span>
+<span id="cb4-20"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Download a sample image</span></span>
+<span id="cb4-21">image_url <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> image_urls[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cupcakes"</span>]</span>
+<span id="cb4-22">image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> load_image(image_url)</span>
+<span id="cb4-23"></span>
+<span id="cb4-24"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Resize the image for better performance</span></span>
+<span id="cb4-25">image.thumbnail([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>], Image.Resampling.LANCZOS)</span>
+<span id="cb4-26"></span>
+<span id="cb4-27"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display the original image</span></span>
+<span id="cb4-28">image</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+<figure class="figure">
+<p><img src="https://slyracoon23.github.io/blog/posts/2025-04-27_gemini-image-segmentation_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now let’s detect objects in the image. We’ll ask Gemini to identify the cupcakes and label them based on their toppings.</p>
+<div id="780dc184" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Import Pydantic for schema definition</span></span>
+<span id="cb5-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> pydantic <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> BaseModel, Field</span>
+<span id="cb5-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> typing <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> List</span>
+<span id="cb5-4"></span>
+<span id="cb5-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define our Pydantic model for object detection</span></span>
+<span id="cb5-6"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> BoundingBox(BaseModel):</span>
+<span id="cb5-7">    box_2d: List[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Normalized coordinates [y1, x1, y2, x2] from 0-1000"</span>)</span>
+<span id="cb5-8">    label: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Description of the object's appearance"</span>)</span>
+<span id="cb5-9"></span>
+<span id="cb5-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define our prompt for object detection</span></span>
+<span id="cb5-11">prompt <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Detect the 2d bounding boxes of the cupcakes (with 'label' as topping description)"</span></span>
+<span id="cb5-12"></span>
+<span id="cb5-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Send the request to the Gemini API</span></span>
+<span id="cb5-14">response <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> client.models.generate_content(</span>
+<span id="cb5-15">    model<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>model_name,</span>
+<span id="cb5-16">    contents<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[prompt, image],</span>
+<span id="cb5-17">    config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>types.GenerateContentConfig(</span>
+<span id="cb5-18">        response_schema<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[BoundingBox],</span>
+<span id="cb5-19">        response_mime_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"application/json"</span>,</span>
+<span id="cb5-20">        system_instruction<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>bounding_box_system_instructions,</span>
+<span id="cb5-21">        temperature<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb5-22">        safety_settings<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>safety_settings,</span>
+<span id="cb5-23">    )</span>
+<span id="cb5-24">)</span>
+<span id="cb5-25"></span>
+<span id="cb5-26"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display the model's response</span></span>
+<span id="cb5-27"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Model response:"</span>)</span>
+<span id="cb5-28"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(response.text)</span>
+<span id="cb5-29"></span>
+<span id="cb5-30"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Visualize the bounding boxes</span></span>
+<span id="cb5-31">result_image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span>
+<span id="cb5-32">result_image</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model response:
+[
+  {"box_2d": [393, 61, 556, 206], "label": "red sprinkles on chocolate frosting"},
+  {"box_2d": [381, 247, 540, 371], "label": "pink frosting with colorful sprinkles"},
+  {"box_2d": [554, 41, 728, 201], "label": "white frosting with colorful sprinkles and two candy eyes"},
+  {"box_2d": [369, 396, 502, 505], "label": "pink frosting with sprinkles"},
+  {"box_2d": [542, 293, 699, 445], "label": "white frosting with colorful sprinkles and two candy eyes on a chocolate cupcake"},
+  {"box_2d": [443, 432, 597, 567], "label": "pink frosting with candy eyes"},
+  {"box_2d": [659, 353, 820, 515], "label": "white frosting with three candy eyes on a chocolate cupcake"},
+  {"box_2d": [743, 134, 919, 309], "label": "white frosting with two candy eyes"},
+  {"box_2d": [371, 528, 521, 652], "label": "pink frosting with blue candy balls"},
+  {"box_2d": [531, 512, 714, 664], "label": "white frosting with colorful sprinkles and two candy eyes"},
+  {"box_2d": [476, 628, 641, 770], "label": "white frosting with colorful sprinkles"},
+  {"box_2d": [379, 739, 536, 868], "label": "chocolate frosting swirl"},
+  {"box_2d": [510, 799, 690, 963], "label": "white frosting with colorful round candies and sprinkles"}
+]</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+<figure class="figure">
+<p><img src="https://slyracoon23.github.io/blog/posts/2025-04-27_gemini-image-segmentation_files/figure-html/cell-6-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As you can see, Gemini successfully identified each cupcake and provided a descriptive label for each topping. The model returns bounding box coordinates in a normalized format (0-1000 range) with the structure <code>[y1, x1, y2, x2]</code>, where:</p>
+<ul>
+<li><code>y1</code>: Top edge (normalized)</li>
+<li><code>x1</code>: Left edge (normalized)</li>
+<li><code>y2</code>: Bottom edge (normalized)</li>
+<li><code>x2</code>: Right edge (normalized)</li>
+</ul>
+<p>Note that Gemini places the y-coordinates first, contrary to the common convention in computer vision libraries where x-coordinates typically come first.</p>
+</section>
+<section id="searching-within-an-image" class="level2">
+<h2 class="anchored" data-anchor-id="searching-within-an-image">Searching Within an Image</h2>
+<p>Gemini can also perform targeted searches within images, identifying specific objects that match certain criteria. Let’s try this with a different image.</p>
+<div id="712edb23" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load a different image for search example</span></span>
+<span id="cb7-2">image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> load_image(image_urls[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"socks"</span>])</span>
+<span id="cb7-3">image.thumbnail([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>], Image.Resampling.LANCZOS)</span>
+<span id="cb7-4"></span>
+<span id="cb7-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a search prompt</span></span>
+<span id="cb7-6">prompt <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Show me the positions of the socks with the face"</span></span>
+<span id="cb7-7"></span>
+<span id="cb7-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Send the request to the Gemini API</span></span>
+<span id="cb7-9">response <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> client.models.generate_content(</span>
+<span id="cb7-10">    model<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>model_name,</span>
+<span id="cb7-11">    contents<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[prompt, image],</span>
+<span id="cb7-12">    config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>types.GenerateContentConfig(</span>
+<span id="cb7-13">        response_schema<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[BoundingBox],</span>
+<span id="cb7-14">        response_mime_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"application/json"</span>,</span>
+<span id="cb7-15">        system_instruction<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>bounding_box_system_instructions,</span>
+<span id="cb7-16">        temperature<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb7-17">        safety_settings<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>safety_settings,</span>
+<span id="cb7-18">    )</span>
+<span id="cb7-19">)</span>
+<span id="cb7-20"></span>
+<span id="cb7-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Display the model's response</span></span>
+<span id="cb7-22"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Model response:"</span>)</span>
+<span id="cb7-23"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(response.text)</span>
+<span id="cb7-24"></span>
+<span id="cb7-25"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Visualize the search results</span></span>
+<span id="cb7-26">result_image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span>
+<span id="cb7-27">result_image</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model response:
+[
+  {"box_2d": [57, 248, 386, 516], "label": "left sock with face"},
+  {"box_2d": [238, 630, 652, 860], "label": "right sock with face"}
+]</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+<figure class="figure">
+<p><img src="https://slyracoon23.github.io/blog/posts/2025-04-27_gemini-image-segmentation_files/figure-html/cell-7-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This example demonstrates Gemini’s ability to understand natural language queries about visual content. The model identified specifically the socks with faces on them, ignoring other socks in the image. This capability is particularly useful for:</p>
+<ul>
+<li><strong>Content moderation</strong>: Finding specific objects or content that may require review</li>
+<li><strong>Visual search</strong>: Enabling users to search for specific items within images</li>
+<li><strong>Product identification</strong>: Locating particular products in retail or inventory images</li>
+<li><strong>Data annotation</strong>: Automating the process of identifying and labeling specific objects</li>
+</ul>
+</section>
+<section id="multilingual-capabilities" class="level2">
+<h2 class="anchored" data-anchor-id="multilingual-capabilities">Multilingual Capabilities</h2>
+<p>Gemini’s multimodal understanding extends to multiple languages. Let’s demonstrate this by asking the model to label food items in a Japanese bento box with both Japanese characters and English translations.</p>
+<div id="2bb9f80b" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load the Japanese bento image</span></span>
+<span id="cb9-2">image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> load_image(image_urls[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bento"</span>])</span>
+<span id="cb9-3">image.thumbnail([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>], Image.Resampling.LANCZOS)</span>
+<span id="cb9-4"></span>
+<span id="cb9-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a multilingual prompt</span></span>
+<span id="cb9-6">prompt <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Detect food, label them with Japanese characters + english translation."</span></span>
+<span id="cb9-7"></span>
+<span id="cb9-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Send the request to the Gemini API</span></span>
+<span id="cb9-9">response <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> client.models.generate_content(</span>
+<span id="cb9-10">    model<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>model_name,</span>
+<span id="cb9-11">    contents<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[prompt, image],</span>
+<span id="cb9-12">    config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>types.GenerateContentConfig(</span>
+<span id="cb9-13">        response_schema<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[BoundingBox],</span>
+<span id="cb9-14">        response_mime_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"application/json"</span>,</span>
+<span id="cb9-15">        system_instruction<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>bounding_box_system_instructions,</span>
+<span id="cb9-16">        temperature<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb9-17">        safety_settings<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>safety_settings,</span>
+<span id="cb9-18">    )</span>
+<span id="cb9-19">)</span>
+<span id="cb9-20"></span>
+<span id="cb9-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Visualize the multilingual labels</span></span>
+<span id="cb9-22">result_image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span>
+<span id="cb9-23">result_image</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div>
+<figure class="figure">
+<p><img src="https://slyracoon23.github.io/blog/posts/2025-04-27_gemini-image-segmentation_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This example showcases Gemini’s multilingual capabilities. The model correctly identified different Japanese food items and provided both Japanese characters and English translations in the labels. This functionality is valuable for:</p>
+<ul>
+<li><strong>Cross-cultural applications</strong>: Creating inclusive experiences for users from different linguistic backgrounds</li>
+<li><strong>Translation services</strong>: Providing visual translation for food items, products, or signs</li>
+<li><strong>Educational tools</strong>: Teaching vocabulary in different languages with visual references</li>
+<li><strong>Cultural understanding</strong>: Helping users understand items from different cultures</li>
+</ul>
+</section>
+<section id="advanced-reasoning-with-spatial-understanding" class="level2">
+<h2 class="anchored" data-anchor-id="advanced-reasoning-with-spatial-understanding">Advanced Reasoning with Spatial Understanding</h2>
+<p>Gemini can go beyond simple object detection to perform more complex spatial reasoning tasks. Let’s demonstrate this by asking the model to find the shadow of a specific origami figure.</p>
+<div id="290e6eee" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load the origami image</span></span>
+<span id="cb10-2">image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> load_image(image_urls[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"origami"</span>])</span>
+<span id="cb10-3">image.thumbnail([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">640</span>], Image.Resampling.LANCZOS)</span>
+<span id="cb10-4"></span>
+<span id="cb10-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a prompt that requires spatial reasoning</span></span>
+<span id="cb10-6">prompt <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Draw a square around the fox's shadow"</span></span>
+<span id="cb10-7"></span>
+<span id="cb10-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Send the request to the Gemini API</span></span>
+<span id="cb10-9">response <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> client.models.generate_content(</span>
+<span id="cb10-10">    model<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>model_name,</span>
+<span id="cb10-11">    contents<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[prompt, image],</span>
+<span id="cb10-12">    config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>types.GenerateContentConfig(</span>
+<span id="cb10-13">        response_schema<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[BoundingBox],</span>
+<span id="cb10-14">        response_mime_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"application/json"</span>,</span>
+<span id="cb10-15">        system_instruction<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>bounding_box_system_instructions,</span>
+<span id="cb10-16">        temperature<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb10-17">        safety_settings<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>safety_settings,</span>
+<span id="cb10-18">    )</span>
+<span id="cb10-19">)</span>
+<span id="cb10-20"></span>
+<span id="cb10-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Visualize the result of the spatial reasoning task</span></span>
+<span id="cb10-22">result_image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plot_bounding_boxes(image, response.parsed)</span>
+<span id="cb10-23">result_image</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+<figure class="figure">
+<p><img src="https://slyracoon23.github.io/blog/posts/2025-04-27_gemini-image-segmentation_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This example demonstrates Gemini’s sophisticated visual reasoning capabilities. The model was able to:</p>
+<ol type="1">
+<li>Identify the fox origami figure in the image</li>
+<li>Understand the concept of a shadow</li>
+<li>Locate the shadow cast by the fox figure</li>
+<li>Draw a bounding box specifically around the shadow</li>
+</ol>
+<p>This type of spatial reasoning can be applied to numerous real-world scenarios:</p>
+<ul>
+<li><strong>Scene understanding</strong>: Analyzing relationships between objects in a scene</li>
+<li><strong>Visual reasoning</strong>: Answering questions about spatial arrangements</li>
+<li><strong>Assistive technology</strong>: Helping visually impaired users understand spatial relationships</li>
+</ul>
+</section>
+<section id="image-segmentation-with-gemini-2.5" class="level2">
+<h2 class="anchored" data-anchor-id="image-segmentation-with-gemini-2.5">Image Segmentation with Gemini 2.5</h2>
+<p>With Gemini 2.5 models, we can go beyond bounding boxes to generate more precise segmentation masks that outline the exact boundaries of objects. Let’s implement the necessary utilities and demonstrate this capability.</p>
+<div id="c3c6df3a" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Utilities for segmentation masks</span></span>
+<span id="cb11-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> dataclasses</span>
+<span id="cb11-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> base64</span>
+<span id="cb11-4"></span>
+<span id="cb11-5"><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">@dataclasses.dataclass</span>(frozen<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb11-6"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> SegmentationMask:</span>
+<span id="cb11-7">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># bounding box pixel coordinates (not normalized)</span></span>
+<span id="cb11-8">    y0: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># in [0..height - 1]</span></span>
+<span id="cb11-9">    x0: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># in [0..width - 1]</span></span>
+<span id="cb11-10">    y1: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># in [0..height - 1]</span></span>
+<span id="cb11-11">    x1: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># in [0..width - 1]</span></span>
+<span id="cb11-12">    mask: np.array  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># [img_height, img_width] with values 0..255</span></span>
+<span id="cb11-13">    label: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span></span>
+<span id="cb11-14"></span>
+<span id="cb11-15"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> parse_segmentation_masks(</span>
+<span id="cb11-16">    predicted_str: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>, <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>, img_height: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>, img_width: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span></span>
+<span id="cb11-17">) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[SegmentationMask]:</span>
+<span id="cb11-18">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Parse segmentation masks from model output."""</span></span>
+<span id="cb11-19">    items <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> json.loads(predicted_str)</span>
+<span id="cb11-20">    masks <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb11-21">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> item <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> items:</span>
+<span id="cb11-22">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extract bounding box coordinates</span></span>
+<span id="cb11-23">        abs_y0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(item[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"box_2d"</span>][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> img_height)</span>
+<span id="cb11-24">        abs_x0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(item[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"box_2d"</span>][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> img_width)</span>
+<span id="cb11-25">        abs_y1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(item[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"box_2d"</span>][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> img_height)</span>
+<span id="cb11-26">        abs_x1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(item[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"box_2d"</span>][<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> img_width)</span>
+<span id="cb11-27">        </span>
+<span id="cb11-28">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Validate bounding box</span></span>
+<span id="cb11-29">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> abs_y0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> abs_y1 <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">or</span> abs_x0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> abs_x1:</span>
+<span id="cb11-30">            <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Invalid bounding box"</span>, item[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"box_2d"</span>])</span>
+<span id="cb11-31">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">continue</span></span>
+<span id="cb11-32">            </span>
+<span id="cb11-33">        label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> item[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"label"</span>]</span>
+<span id="cb11-34">        png_str <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> item[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mask"</span>]</span>
+<span id="cb11-35">        </span>
+<span id="cb11-36">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Validate mask format</span></span>
+<span id="cb11-37">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">not</span> png_str.startswith(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data:image/png;base64,"</span>):</span>
+<span id="cb11-38">            <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Invalid mask"</span>)</span>
+<span id="cb11-39">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">continue</span></span>
+<span id="cb11-40">            </span>
+<span id="cb11-41">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Decode mask</span></span>
+<span id="cb11-42">        png_str <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> png_str.removeprefix(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data:image/png;base64,"</span>)</span>
+<span id="cb11-43">        png_str <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> base64.b64decode(png_str)</span>
+<span id="cb11-44">        mask <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Image.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(io.BytesIO(png_str))</span>
+<span id="cb11-45">        </span>
+<span id="cb11-46">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Calculate dimensions</span></span>
+<span id="cb11-47">        bbox_height <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> abs_y1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> abs_y0</span>
+<span id="cb11-48">        bbox_width <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> abs_x1 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> abs_x0</span>
+<span id="cb11-49">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> bbox_height <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">or</span> bbox_width <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>:</span>
+<span id="cb11-50">            <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Invalid bounding box"</span>)</span>
+<span id="cb11-51">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">continue</span></span>
+<span id="cb11-52">            </span>
+<span id="cb11-53">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Resize mask to match bounding box</span></span>
+<span id="cb11-54">        mask <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mask.resize((bbox_width, bbox_height), resample<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>Image.Resampling.BILINEAR)</span>
+<span id="cb11-55">        np_mask <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.zeros((img_height, img_width), dtype<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>np.uint8)</span>
+<span id="cb11-56">        np_mask[abs_y0:abs_y1, abs_x0:abs_x1] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mask</span>
+<span id="cb11-57">        </span>
+<span id="cb11-58">        masks.append(SegmentationMask(abs_y0, abs_x0, abs_y1, abs_x1, np_mask, label))</span>
+<span id="cb11-59">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> masks</span>
+<span id="cb11-60"></span>
+<span id="cb11-61"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> overlay_mask_on_img(</span>
+<span id="cb11-62">    img: Image,</span>
+<span id="cb11-63">    mask: np.ndarray,</span>
+<span id="cb11-64">    color: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>,</span>
+<span id="cb11-65">    alpha: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span></span>
+<span id="cb11-66">) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-&gt;</span> Image.Image:</span>
+<span id="cb11-67">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Overlay a segmentation mask on an image."""</span></span>
+<span id="cb11-68">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">not</span> (<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.0</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> alpha <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span>):</span>
+<span id="cb11-69">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">raise</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">ValueError</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alpha must be between 0.0 and 1.0"</span>)</span>
+<span id="cb11-70"></span>
+<span id="cb11-71">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert the color name to RGB</span></span>
+<span id="cb11-72">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">try</span>:</span>
+<span id="cb11-73">        color_rgb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ImageColor.getrgb(color)</span>
+<span id="cb11-74">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">except</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">ValueError</span> <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> e:</span>
+<span id="cb11-75">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">raise</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">ValueError</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Invalid color name '</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>color<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'. Error: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>e<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb11-76"></span>
+<span id="cb11-77">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Prepare the image for alpha compositing</span></span>
+<span id="cb11-78">    img_rgba <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> img.convert(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"RGBA"</span>)</span>
+<span id="cb11-79">    width, height <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> img_rgba.size</span>
+<span id="cb11-80"></span>
+<span id="cb11-81">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create the colored overlay</span></span>
+<span id="cb11-82">    alpha_int <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(alpha <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">255</span>)</span>
+<span id="cb11-83">    overlay_color_rgba <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> color_rgb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> (alpha_int,)</span>
+<span id="cb11-84"></span>
+<span id="cb11-85">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a transparent layer</span></span>
+<span id="cb11-86">    colored_mask_layer_np <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.zeros((height, width, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>), dtype<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>np.uint8)</span>
+<span id="cb11-87"></span>
+<span id="cb11-88">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Apply the overlay color where the mask is active</span></span>
+<span id="cb11-89">    mask_np_logical <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mask <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">127</span></span>
+<span id="cb11-90">    colored_mask_layer_np[mask_np_logical] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> overlay_color_rgba</span>
+<span id="cb11-91"></span>
+<span id="cb11-92">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert back to PIL and composite</span></span>
+<span id="cb11-93">    colored_mask_layer_pil <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Image.fromarray(colored_mask_layer_np, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'RGBA'</span>)</span>
+<span id="cb11-94">    result_img <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Image.alpha_composite(img_rgba, colored_mask_layer_pil)</span>
+<span id="cb11-95"></span>
+<span id="cb11-96">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> result_img</span>
+<span id="cb11-97"></span>
+<span id="cb11-98"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> plot_segmentation_masks(img: Image, segmentation_masks: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[SegmentationMask]):</span>
+<span id="cb11-99">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Plot segmentation masks, bounding boxes, and labels on an image."""</span></span>
+<span id="cb11-100">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define colors</span></span>
+<span id="cb11-101">    colors <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb11-102">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'red'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'green'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'blue'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'yellow'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'orange'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'pink'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'purple'</span>,</span>
+<span id="cb11-103">        <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'brown'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'gray'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'beige'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'turquoise'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'cyan'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'magenta'</span></span>
+<span id="cb11-104">    ] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> [colorname <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (colorname, colorcode) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> ImageColor.colormap.items()]</span>
+<span id="cb11-105">    </span>
+<span id="cb11-106">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Try to load a font that supports CJK characters</span></span>
+<span id="cb11-107">    font <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span></span>
+<span id="cb11-108">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">try</span>:</span>
+<span id="cb11-109">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Try different fonts that might support CJK characters</span></span>
+<span id="cb11-110">        font_paths <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [</span>
+<span id="cb11-111">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"NotoSansCJK-Regular.ttc"</span>,</span>
+<span id="cb11-112">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc"</span>,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Common on macOS</span></span>
+<span id="cb11-113">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"</span>,  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Common on Linux</span></span>
+<span id="cb11-114">            <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/Library/Fonts/Arial Unicode.ttf"</span></span>
+<span id="cb11-115">        ]</span>
+<span id="cb11-116">        </span>
+<span id="cb11-117">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> path <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> font_paths:</span>
+<span id="cb11-118">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">try</span>:</span>
+<span id="cb11-119">                font <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ImageFont.truetype(path, size<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>)</span>
+<span id="cb11-120">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">break</span></span>
+<span id="cb11-121">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">except</span> (<span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">OSError</span>, <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">IOError</span>):</span>
+<span id="cb11-122">                <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">continue</span></span>
+<span id="cb11-123">                </span>
+<span id="cb11-124">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">except</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">Exception</span> <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> e:</span>
+<span id="cb11-125">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Could not load CJK font: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>e<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb11-126">    </span>
+<span id="cb11-127">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># If no CJK fonts are available, use a basic approach that avoids Unicode issues</span></span>
+<span id="cb11-128">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> font <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">is</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>:</span>
+<span id="cb11-129">        <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Warning: No CJK font found. Text with non-Latin characters may not display correctly."</span>)</span>
+<span id="cb11-130">        font <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ImageFont.load_default()</span>
+<span id="cb11-131">    </span>
+<span id="cb11-132">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a copy of the image</span></span>
+<span id="cb11-133">    img <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> img.copy()</span>
+<span id="cb11-134">    </span>
+<span id="cb11-135">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step 1: Overlay all masks</span></span>
+<span id="cb11-136">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, mask <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(segmentation_masks):</span>
+<span id="cb11-137">        color <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> colors[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(colors)]</span>
+<span id="cb11-138">        img <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> overlay_mask_on_img(img, mask.mask, color)</span>
+<span id="cb11-139"></span>
+<span id="cb11-140">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step 2: Draw all bounding boxes</span></span>
+<span id="cb11-141">    draw <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> ImageDraw.Draw(img)</span>
+<span id="cb11-142">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, mask <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(segmentation_masks):</span>
+<span id="cb11-143">        color <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> colors[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(colors)]</span>
+<span id="cb11-144">        draw.rectangle(</span>
+<span id="cb11-145">            ((mask.x0, mask.y0), (mask.x1, mask.y1)), outline<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>color, width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span></span>
+<span id="cb11-146">        )</span>
+<span id="cb11-147"></span>
+<span id="cb11-148">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Step 3: Draw all text labels</span></span>
+<span id="cb11-149">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, mask <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(segmentation_masks):</span>
+<span id="cb11-150">        color <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> colors[i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(colors)]</span>
+<span id="cb11-151">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> mask.label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>:</span>
+<span id="cb11-152">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">try</span>:</span>
+<span id="cb11-153">                draw.text((mask.x0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, mask.y0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>), mask.label, fill<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>color, font<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>font)</span>
+<span id="cb11-154">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">except</span> <span class="pp" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">UnicodeEncodeError</span>:</span>
+<span id="cb11-155">                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fallback for Unicode errors - print ASCII version of label</span></span>
+<span id="cb11-156">                ascii_label <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> mask.label.encode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ascii'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'replace'</span>).decode(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ascii'</span>)</span>
+<span id="cb11-157">                draw.text((mask.x0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>, mask.y0 <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>), ascii_label, fill<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>color, font<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>font)</span>
+<span id="cb11-158">    </span>
+<span id="cb11-159">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> img</span></code></pre></div>
+</div>
+<p>Now let’s test the segmentation capability with an image containing cupcakes.</p>
+<div id="f23f128a" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define Pydantic model for segmentation masks</span></span>
+<span id="cb12-2"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> SegmentationMaskModel(BaseModel):</span>
+<span id="cb12-3">    box_2d: List[<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Normalized coordinates [y0, x0, y1, x1] from 0-1000"</span>)</span>
+<span id="cb12-4">    mask: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Base64-encoded PNG image representing the segmentation mask"</span>)</span>
+<span id="cb12-5">    label: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Field(description<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Description of the object"</span>)</span>
+<span id="cb12-6"></span>
+<span id="cb12-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load the cupcakes image for segmentation</span></span>
+<span id="cb12-8">image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> load_image(image_urls[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cupcakes"</span>])</span>
+<span id="cb12-9">image.thumbnail([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1024</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1024</span>], Image.Resampling.LANCZOS)</span>
+<span id="cb12-10"></span>
+<span id="cb12-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define a prompt for segmentation</span></span>
+<span id="cb12-12">prompt <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"""Give the segmentation masks for each cupcake. </span></span>
+<span id="cb12-13"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">Output a JSON list of segmentation masks where each entry contains the 2D bounding box in the key "box_2d", </span></span>
+<span id="cb12-14"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">the segmentation mask in key "mask", and the text label in the key "label" describing the topping."""</span></span>
+<span id="cb12-15"></span>
+<span id="cb12-16"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Send the request to the Gemini API (note: no system instruction for segmentation)</span></span>
+<span id="cb12-17">response <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> client.models.generate_content(</span>
+<span id="cb12-18">    model<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>model_name,</span>
+<span id="cb12-19">    contents<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[prompt, image],</span>
+<span id="cb12-20">    config<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>types.GenerateContentConfig(</span>
+<span id="cb12-21">        response_schema<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">list</span>[SegmentationMaskModel],</span>
+<span id="cb12-22">        response_mime_type<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"application/json"</span>,</span>
+<span id="cb12-23">        temperature<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>,</span>
+<span id="cb12-24">        safety_settings<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>safety_settings,</span>
+<span id="cb12-25">    )</span>
+<span id="cb12-26">)</span>
+<span id="cb12-27"></span>
+<span id="cb12-28"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Parse and visualize the segmentation masks</span></span>
+<span id="cb12-29">segmentation_masks <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> parse_segmentation_masks(response.text, img_height<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>image.size[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>], img_width<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>image.size[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>])</span>
+<span id="cb12-30">result_image <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plot_segmentation_masks(image, segmentation_masks)</span>
+<span id="cb12-31">result_image</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+<figure class="figure">
+<p><img src="https://slyracoon23.github.io/blog/posts/2025-04-27_gemini-image-segmentation_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="understanding-geminis-segmentation-output" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-geminis-segmentation-output">Understanding Gemini’s Segmentation Output</h2>
+<p>Gemini’s segmentation output is more complex than simple bounding boxes. Let’s break down what the model returns:</p>
+<ol type="1">
+<li><p><strong>Bounding box (<code>box_2d</code>)</strong>: A 4-element array <code>[y0, x0, y1, x1]</code> with normalized coordinates between 0 and 1000.</p></li>
+<li><p><strong>Label (<code>label</code>)</strong>: A text string describing the segmented object.</p></li>
+<li><p><strong>Mask (<code>mask</code>)</strong>: A base64-encoded PNG image representing the segmentation mask. This mask is:</p>
+<ul>
+<li>Sized to match the dimensions of the bounding box</li>
+<li>Contains grayscale values (0-255) indicating the probability that each pixel belongs to the object</li>
+<li>Needs to be decoded, resized, and applied to the original image</li>
+</ul></li>
+</ol>
+<p>The segmentation process involves:</p>
+<ol type="1">
+<li><strong>Decoding</strong>: Converting the base64 string to an image</li>
+<li><strong>Resizing</strong>: Matching the mask to the bounding box dimensions</li>
+<li><strong>Thresholding</strong>: Deciding which pixels belong to the object (typically values &gt; 127)</li>
+<li><strong>Integration</strong>: Placing the mask in the correct position in the full-sized image</li>
+<li><strong>Visualization</strong>: Overlaying the mask with a semi-transparent color</li>
+</ol>
+<p>This detailed segmentation capability allows for much more precise object delineation than bounding boxes alone, making it valuable for:</p>
+<ul>
+<li><strong>Image editing</strong>: Precisely separating objects from backgrounds</li>
+<li><strong>Medical imaging</strong>: Outlining organs or anomalies</li>
+<li><strong>Product visualization</strong>: Creating cutouts of products</li>
+<li><strong>AR/VR applications</strong>: Precise occlusion and placement of virtual objects</li>
+</ul>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>In this post, we’ve explored Gemini 2.0’s spatial understanding capabilities, from basic object detection with bounding boxes to sophisticated segmentation with Gemini 2.5. These capabilities enable a wide range of applications without requiring specialized computer vision expertise or custom models.</p>
+<p>Key takeaways:</p>
+<ol type="1">
+<li><p><strong>Simple integration</strong>: With just a few lines of code, you can implement powerful object detection and segmentation.</p></li>
+<li><p><strong>Natural language interface</strong>: Use plain language to describe what you’re looking for, making the API accessible to users without technical expertise.</p></li>
+<li><p><strong>Multilingual support</strong>: Label objects in multiple languages, facilitating cross-cultural applications.</p></li>
+<li><p><strong>Advanced reasoning</strong>: Leverage Gemini’s understanding of spatial relationships to solve complex visual tasks.</p></li>
+<li><p><strong>Precise segmentation</strong>: With Gemini 2.5, get pixel-perfect object boundaries for detailed image analysis.</p></li>
+</ol>
+<p>These capabilities open up numerous possibilities for developers, from enhancing accessibility to creating immersive AR experiences. By combining Gemini’s visual understanding with its language capabilities, you can build intuitive, powerful applications that bridge the gap between vision and language.</p>
+<p>For more examples and applications, check out the <a href="https://aistudio.google.com/starter-apps/spatial">Spatial understanding example</a> from AI Studio, or explore the <a href="https://github.com/google-gemini/cookbook/tree/main/gemini-2/">Gemini 2.0 cookbook</a> for other examples of Gemini’s capabilities.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>Computer Vision</category>
+  <category>Machine Learning</category>
+  <category>Gemini API</category>
+  <guid>https://slyracoon23.github.io/blog/posts/2025-04-27_gemini-image-segmentation.html</guid>
+  <pubDate>Sun, 27 Apr 2025 00:00:00 GMT</pubDate>
+  <media:content url="https://slyracoon23.github.io/blog/images/gemini_image_segmentation/thumbnail.png" medium="image" type="image/png" height="144" width="144"/>
+</item>
 <item>
   <title>How to Measure SQL Query Performance on Postgres</title>
   <dc:creator>Earl Potters</dc:creator>
