@@ -1,0 +1,149 @@
+---
+title: "{{< fa bullseye >}} 2025 Goals & Resolutions"
+description: "A log of my 2025 goals and resolutions, organized by month and week (most recent first)."
+page-layout: full
+sidebar: true
+title-block-banner: true
+---
+
+Welcome to my 2025 Goals & Resolutions log! This page tracks my progress and intentions for the year, organized by month and week (most recent first). Each week shows the date range for easy reference.
+
+# Goal Categories
+
+- **Health and Fitness**: Goals related to physical well-being, with a focus on climbing.
+- **Career**: Objectives focused on professional development as an AI engineer and job advancement.
+- **Personal Learning and Growth**: Aspirations for blogging and learning about AI and engineering.
+
+---
+
+# April 2025
+
+## Monthly Goals
+- **Health and Fitness:** <!-- Set your climbing and fitness goals for April here -->
+- **Career:** <!-- Set your AI engineering career goals for April here -->
+- **Personal Learning and Growth:** <!-- Set your blogging and AI learning goals for April here -->
+
+## Month-End Recap
+<!-- At the end of April, write your recap of goal achievements here -->
+
+## Week 4 (Apr 22–Apr 28)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 3 (Apr 15–Apr 21)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 2 (Apr 8–Apr 14)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 1 (Apr 1–Apr 7)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+# March 2025
+
+## Monthly Goals
+- **Health and Fitness:** <!-- Set your climbing and fitness goals for March here -->
+- **Career:** <!-- Set your AI engineering career goals for March here -->
+- **Personal Learning and Growth:** <!-- Set your blogging and AI learning goals for March here -->
+
+## Month-End Recap
+<!-- At the end of March, write your recap of goal achievements here -->
+
+## Week 5 (Mar 29–Mar 31)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 4 (Mar 22–Mar 28)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 3 (Mar 15–Mar 21)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 2 (Mar 8–Mar 14)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 1 (Mar 1–Mar 7)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+# February 2025
+
+## Monthly Goals
+- **Health and Fitness:** <!-- Set your climbing and fitness goals for February here -->
+- **Career:** <!-- Set your AI engineering career goals for February here -->
+- **Personal Learning and Growth:** <!-- Set your blogging and AI learning goals for February here -->
+
+## Month-End Recap
+<!-- At the end of February, write your recap of goal achievements here -->
+
+## Week 4 (Feb 22–Feb 28)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 3 (Feb 15–Feb 21)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 2 (Feb 8–Feb 14)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 1 (Feb 1–Feb 7)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+# January 2025
+
+## Monthly Goals
+- **Health and Fitness:** <!-- Set your climbing and fitness goals for January here -->
+- **Career:** <!-- Set your AI engineering career goals for January here -->
+- **Personal Learning and Growth:** <!-- Set your blogging and AI learning goals for January here -->
+
+## Month-End Recap
+<!-- At the end of January, write your recap of goal achievements here -->
+
+## Week 5 (Jan 29–Jan 31)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 4 (Jan 22–Jan 28)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 3 (Jan 15–Jan 21)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 2 (Jan 8–Jan 14)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+## Week 1 (Jan 1–Jan 7)
+- **Health and Fitness:** <!-- Add your health and fitness goals or progress for this week here -->
+- **Career:** <!-- Add your career goals or progress for this week here -->
+- **Personal Learning and Growth:** <!-- Add your personal learning and growth goals or progress for this week here -->
+
+---
