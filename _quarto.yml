@@ -79,7 +79,14 @@ website:
         - section: "🤖 **AI Agents**"
           contents: "notes/AI Agents/*"
 
-
+    - id: goals
+      title: "Goals"
+      style: "floating"
+      collapse-level: 2
+      align: left
+      contents:
+        - section: "🎯 **Goals**"
+          contents: "goals/*"
 
 format:
   html:
