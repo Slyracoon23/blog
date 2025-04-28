@@ -1,0 +1,324 @@
+---
+title: "{{< fa bullseye >}} 2025 Goals & Resolutions"
+description: "A richly detailed, narrative log of my 2025 goals and weekly progress, organized by month and week."
+page-layout: full
+sidebar: true
+title-block-banner: true
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    smooth-scroll: true
+---
+
+Welcome to my **2025 Goals & Resolutions** log! This is more than a checklist—it's a living journal capturing the emotions, challenges, and small victories that mark each week of my year. Organized by month (most recent first) and broken down into detailed weekly entries, this QMD file gives you a natural, conversational account of my journey.
+
+# Goal Categories
+
+- 🧗‍♂️ **Health and Fitness**: Progression in bouldering, from mastering V1–V2 basics to conquering V3–V4 challenges, with strength, technique, and injury prevention.
+- 💻 **Career**: Growth as an AI engineer—completing certifications, driving infrastructure projects, and sharing knowledge via talks and team mentorship.
+- 🚀 **Personal Learning & Growth**: Crafting blog posts, experimenting with LLM fine-tuning, and building side projects to deepen my skills.
+
+---
+
+# April 2025
+
+## Monthly Goals
+- 🧗‍♂️ **Health & Fitness:** [✓] Climb V3 problems reliably and push at least two V4 attempts every week.
+- 🎓 **Career:** [✓] Finish the advanced AI alignment certification and deliver one technical presentation to my engineering peers.
+- 📝 **Personal Learning:** [⚠️] Publish two deep-dive posts on LLM fine-tuning experiments; kick off a new mini-project integrating a custom retriever.
+
+## Month-End Recap
+- **Health & Fitness:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 90%; background-color: #34c759; border-radius: 10px;"></div></div> 90% — Fingertip strain lingered early in April, but targeted rest and tendon glides paid off.
+- **Career:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 100%; background-color: #0077ff; border-radius: 10px;"></div></div> 100% — Certification complete; talk scheduled and delivered with strong engagement.
+- **Personal Learning:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 85%; background-color: #ff9500; border-radius: 10px;"></div></div> 85% — Two posts live; third draft underway but delayed by unexpected research detours.
+
+
+## Week 4 (Apr 22–Apr 28)
+
+**Health & Fitness:**
+I arrived at the gym on Tuesday stiff from weekend hiking, but after my usual 10-minute foam-rolling warm-up, I managed three solid sessions. Thursday was electric: after eight tries and a mental pep talk, I stuck the crux sequence on the V4 line "Blue Slab Monster." 🎯 My shoulders ached, but that sweet send adrenaline made it worth every pump. I skipped hangboard this week—my coach reminded me that more climbing variety beats over-focusing on one tool.
+
+**Career:**
+Monday involved a deep dive into alignment theory as I wrapped up Module 5 of the certification. By Wednesday afternoon, I had polished my slides for Friday's brown-bag talk on "Scaling Reward Models Safely." 🎤 The talk went smoothly—questions around failure modes sparked a great team discussion, and my manager gave positive feedback.
+
+**Personal Learning:**
+Blog post #1 on RAG + Mistral went live Wednesday. I embedded interactive HF Spaces demos, which garnered over 200 clicks in the first 24 hours. 🚀 That evening I sketched the outline for post #2 on custom retrieval pipelines—something I can't wait to explore further.
+
+<aside>
+💡 **Reflection:** Balancing physical fatigue with creative energy is a dance. Pacing my hangboard routine will be key to avoid burnout.
+</aside>
+
+---
+
+## Week 3 (Apr 15–Apr 21)
+
+**Health & Fitness:**
+After tweaking a finger pulley last week, I started gentle fingerboard hangs (2x20min) focusing on tendon-friendly grips. Climbed twice, dialing in on heel hooks and flagging. On Sunday I nearly topped a V4—fell just below the final jug. 💪 Confidence is mounting.
+
+**Career:**
+Completed 3 of 5 modules in the advanced alignment course, each with dense reading on robust delegation and interpretability. I drafted the initial technical proposal for our new embedding architecture and scheduled a review with my lead next Tuesday. 📊
+
+**Personal Learning:**
+This week was all about code cleanup. API changes in Transformers v5 broke my RAG examples, so I spent two evenings refactoring. Documentation now includes a troubleshooting section, making it easier for readers to follow. 🛠️
+
+<aside>
+📘 **Learning:** Good code is as much about error messages as functionality—clear logs save hours of debugging.
+</aside>
+
+---
+
+## Week 2 (Apr 8–Apr 14)
+
+**Health & Fitness:**
+Three sessions on steep overhangs taught me the power of rest pauses at knee bars. My footwork improved dramatically—a small tweak in technique that felt like unlocking a secret level. 🔑
+
+**Career:**
+Dove into Module 1 and 2 of the AI alignment cert. The unit on "human feedback loops" sparked ideas for an internal tooling dashboard. I also hosted a one-hour mini-workshop for a junior engineer on prompt de-biasing techniques. 👨‍🏫
+
+**Personal Learning:**
+Sketching the RAG blog post outline felt cathartic. I mapped key sections: introduction, dataset prep, retrieval tuning, and analysis. Still haven't started writing, but the roadmap is clear. 🗺️
+
+<aside>
+🗺️ **Takeaway:** Outlining first avoids blank-page paralysis.
+</aside>
+
+---
+
+## Week 1 (Apr 1–Apr 7)
+
+**Health & Fitness:**
+Eased into April with two gym days focusing on balance drills and slow foot placements. Completed three distinct V3 lines—felt stable in my stance for the first time. 🧘‍♂️
+
+**Career:**
+Closed out Q1 with an end-of-quarter retrospective. Leadership greenlit my embedding model proof-of-concept; now I need to draft milestones and risk assessments. 📈
+
+**Personal Learning:**
+Gathered 10+ research papers on retrieval-augmented generation. Spent hours highlighting key quotes and diagrams. The draft outline for my next blog post is forming in my notebook. 📚
+
+<aside>
+🎯 **Planning:** Q2 intentions defined—time to shift from ideation to execution.
+</aside>
+
+---
+
+# March 2025
+
+## Monthly Goals
+- 🧗‍♂️ **Health & Fitness:** [✓] Hone technique on dynamic V3 moves and integrate core circuits.
+- 📊 **Career:** [✓] Submit my quarter-end report; scope the upcoming embedding optimization project.
+- 📚 **Personal Learning:** [✓] Publish a comprehensive tutorial on fine-tuning compact LLMs.
+
+## Month-End Recap
+- **Health & Fitness:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 90%; background-color: #34c759; border-radius: 10px;"></div></div> 90% — Felt stronger, but lingering shoulder tightness held me back late-month.
+- **Career:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 100%; background-color: #0077ff; border-radius: 10px;"></div></div> 100% — Report praised by senior management.
+- **Personal Learning:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 100%; background-color: #ff9500; border-radius: 10px;"></div></div> 100% — Tutorial published; 500+ views and positive comments.
+
+## Week 5 (Mar 29–Mar 31)
+
+**Health & Fitness:**
+A quick two-day sprint: Wednesday's session added dynamic jump moves on V3s, and Friday I tried a mini hangboard primer—felt over eager, so I kept intensity low. 🌱
+
+**Career:**
+Finalized my quarter-end report with metrics on uptime, inference latency, and team contributions. Presented findings in a concise slide deck; executive feedback was encouraging. 👔
+
+**Personal Learning:**
+Incorporated peer review notes into my LLM fine-tuning tutorial. Streamlined code examples so they run in under 10 minutes locally. Hit "Publish" on Saturday afternoon. 🎉
+
+---
+
+## Week 4 (Mar 22–Mar 28)
+
+**Health & Fitness:**
+Three gym days focusing on lock-off strength and core bracing. Sent two new V3s, including one with an awkward drop knee sequence I'd avoided for weeks. 🏆
+
+**Career:**
+Compiled production logs and metrics for the report. Wrote the impact analysis section, correlating reduced latency with 12% higher usage in peak hours. 📊
+
+**Personal Learning:**
+Completed all code samples for the tutorial. Tested edge cases: low-memory environments, slow GPUs, and missing dependencies. Added a troubleshooting appendix. 🧪
+
+---
+
+## Week 3 (Mar 15–Mar 21)
+
+**Health & Fitness:**
+Pushed through two sessions despite a busy workweek. Focus: core circuits (planks, L-sits) followed by overhang practice. Nearly topped the crux of a trickier V3 overhang. 💪
+
+**Career:**
+Drafted the first 5 pages of the quarter-end report. Led a team meeting to align on optimization goals for embedding models. Captured notes on scope and risks. 📝
+
+**Personal Learning:**
+Wrote 50% of the tutorial's narrative sections—introduction and data preprocessing went live in my private draft. Realized I need clearer illustrations, so I sketched a flow diagram. 🖌️
+
+---
+
+## Week 2 (Mar 8–Mar 14)
+
+**Health & Fitness:**
+Two dedicated sessions—nailing heel-hooks and slab footwork. Tried one V3; fell awkwardly but walked away uninjured. Victory! 🙌
+
+**Career:**
+Optimized inference time by 23% through model quantization experiments. Documented the pipeline improvements for the team wiki. ⚡
+
+**Personal Learning:**
+Outlined tutorial sections: model selection, fine-tuning hyperparameters, evaluation metrics. Drafted the introduction and setup scripts. 📋
+
+---
+
+## Week 1 (Mar 1–Mar 7)
+
+**Health & Fitness:**
+Three sessions—first real attempt at a V3 problem ("Green Crusher"). Missed the final hold but felt the pump. 🧗‍♂️
+
+**Career:**
+Diagnosed and fixed a critical production bug impacting our inference API. Wrote a postmortem and updated error monitoring rules. 🐛
+
+**Personal Learning:**
+Published a blog post on "Vector DB Retrieval Patterns for RAG." Engagement was strong, with several community suggestions I plan to integrate. 🔄
+
+---
+
+# February 2025
+
+## Monthly Goals
+- 🧗‍♂️ **Health & Fitness:** [✓] Consistent V2 sends; introducing V3 moves.
+- 🖥️ **Career:** [✓] Harden the model serving infrastructure; document best practices.
+- 📖 **Personal Learning:** [✓] Deep-dive blog series on AI engineering workflows.
+
+## Month-End Recap
+- **Health & Fitness:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 90%; background-color: #34c759; border-radius: 10px;"></div></div> 90% — Solid V2 foundation; V3 attempts encouraging.
+- **Career:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 100%; background-color: #0077ff; border-radius: 10px;"></div></div> 100% — Infrastructure docs live and adopted.
+- **Personal Growth:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 95%; background-color: #ff9500; border-radius: 10px;"></div></div> 95% — Blog posts well-received; one minor typo found post-publish.
+
+## Week 4 (Feb 22–Feb 28)
+
+**Health & Fitness:**
+Three gym visits wrapping up V2 routes—spiced it up with slab volume and technical footwork. Tried my first V3 move; slipped but took notes on foot positioning. 📝
+
+**Career:**
+Finalized and shared the model-serving best-practices doc. Incorporated feedback from our DevOps lead on failover scenarios. 📊
+
+**Personal Learning:**
+Published "Building LLM Evaluation Pipelines." Added code examples for HuggingFace Evaluate and custom metrics. Shared links in our team Slack. 🔍
+
+---
+
+## Week 3 (Feb 15–Feb 21)
+
+**Health & Fitness:**
+Balanced two climbing days with three core workouts. Focused on tension moves on V2s, which built stabilizer muscle strength. 💪
+
+**Career:**
+Reduced inference latency by 18% via async batch processing. Documented the new pipeline and presented it in our weekly stand‑up. ⏱️
+
+**Personal Learning:**
+Drafted the second AI engineering blog post on evaluation strategies. Created sample code for precision/recall metrics. 📊
+
+---
+
+## Week 2 (Feb 8–Feb 14)
+
+**Health & Fitness:**
+Two sessions emphasizing V2 slab and overhang technique. Started gentle hangboard hangs (3x per session) under coach guidance. 🧠
+
+**Career:**
+Built benchmarking suite for model serving with Python benchmarks and Grafana dashboards. Identified I/O bottlenecks. 📈
+
+**Personal Learning:**
+Published "Vector Database Selection for RAG." Compared FAISS, Pinecone, and Weaviate with performance charts. 📊
+
+---
+
+## Week 1 (Feb 1–Feb 7)
+
+**Health & Fitness:**
+Three sessions this week—transitioned fully to V2 circuits. Felt confident enough to try campus board footwork drills. 🔄
+
+**Career:**
+Analyzed serving performance metrics; drafted the Q1 optimization plan. Scheduled a feedback session with the SRE team. 📋
+
+**Personal Learning:**
+Outlined the vector DB blog post; started gathering benchmark data and writing the performance comparison table. 📑
+
+---
+
+# January 2025
+
+## Monthly Goals
+- 🧗‍♂️ **Health & Fitness:** [✓] Establish routine; master V1–V2 fundamentals.
+- 💼 **Career:** [✓] Improve AI infrastructure; share learnings.
+- 🚀 **Personal Learning:** [✓] Launch technical blog and first post.
+
+## Month-End Recap
+- **Health & Fitness:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 100%; background-color: #34c759; border-radius: 10px;"></div></div> 100% — Regular 2–3 sessions, all V1–V2 routes sent.
+- **Career:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 100%; background-color: #0077ff; border-radius: 10px;"></div></div> 100% — Model serving pipeline improved; cold-start time reduced by 30%.
+- **Personal Growth:** <div class="progress" style="height: 20px; width: 200px; background-color: #eee; border-radius: 10px; margin: 10px 0;"><div style="height: 100%; width: 100%; background-color: #ff9500; border-radius: 10px;"></div></div> 100% — Blog launched; first post received excellent feedback.
+
+## Week 5 (Jan 29–Jan 31)
+
+**Health & Fitness:**
+Quick Thursday session on V2 technique—pinpointed a grip adjustment that saved shoulder strain. Saturday I toyed with a V3 boulder, fell hilariously but learned key moves. 😄
+
+**Career:**
+Presented infrastructure improvements to leadership on Friday. They approved extra compute resources for our next quarter experiments. 💰
+
+**Personal Learning:**
+Mapped Q1 content calendar, picking topics that tie into ongoing projects. Sketched outlines for the next three blog posts. 📚
+
+---
+
+## Week 4 (Jan 22–Jan 28)
+
+**Health & Fitness:**
+Three days at the gym crushing V1 routes and tackling early V2s with mindful technique. Added a 10-minute core routine post-climb. 🔥
+
+**Career:**
+Deployed pipeline improvements; measured a consistent 30% reduction in cold-start delays. Documented the changes and updated runbooks. 📘
+
+**Personal Learning:**
+Published the inaugural blog post on LLM deployment. Shared on LinkedIn, sparking a handful of thoughtful comments I responded to. 🔄
+
+---
+
+## Week 3 (Jan 15–Jan 21)
+
+**Health & Fitness:**
+Two sessions plus daily stretching. Completed several V2 problems I once thought intimidating. My footwork finally feels intuitive. 🦶
+
+**Career:**
+Ran a team workshop identifying bottlenecks in model serving. Drafted an improvement roadmap with measurable KPIs. 🎯
+
+**Personal Learning:**
+Wrapped up writing and editing the first blog post. Set up the Quarto blog on GitHub Pages and tested the publishing workflow. 🚀
+
+---
+
+## Week 2 (Jan 8–Jan 14)
+
+**Health & Fitness:**
+Two focused climbing sessions—locked in V1 routes and attempted my first V2. Notated beta sequences for later repetition. 📝
+
+**Career:**
+Led a prompt-engineering knowledge share. Created quick reference cheatsheets and samples for the team. 👨‍🏫
+
+**Personal Learning:**
+Chose Quarto + GitHub Pages stack. Initialized repo, configured YAML, and verified local previews. ✅
+
+---
+
+## Week 1 (Jan 1–Jan 7)
+
+**Health & Fitness:**
+First two climbing sessions of 2025. Emphasized fundamentals: open-hand grips, body positioning, and controlled descents. 🧗‍♂️
+
+**Career:**
+Held 1:1 kickoff meetings to align on team Q1 engineering objectives. Defined my personal learning plan for AI alignment. 🔄
+
+**Personal Learning:**
+Researched blogging platforms extensively. Settled on Quarto for its markdown-first approach. Designed a minimal, clean theme. 🎨
+
+---
+
+> _"Consistency compounds small wins into monumental growth—one week, one climb, one line of code at a time."_ ✨
