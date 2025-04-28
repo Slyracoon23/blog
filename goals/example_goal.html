@@ -6,9 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Personal summaries and insights gathered from reading various research papers and articles.">
+<meta name="author" content="Earl Potters">
+<meta name="dcterms.date" content="2025-05-01">
+<meta name="description" content="Aim to publish a research paper on LLM agents in a top-tier AI conference.">
 
-<title> Research notes – Earl Potters</title>
+<title>Publish a Research Paper – Earl Potters</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -24,27 +26,25 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href=".//images/favicon.ico" rel="icon">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dc95f10abd972b9c41a78ec8992004fc.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-3bd83de773499feebddb85276c06f668.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
-<link href="site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="..//images/favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dc95f10abd972b9c41a78ec8992004fc.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-3bd83de773499feebddb85276c06f668.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,35 +72,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-image','listing-title','listing-description','listing-categories','listing-reading-time',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-4DWYJM47PC"></script>
 
 <script type="text/javascript">
@@ -110,7 +81,7 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 </script>
-<script src="./assets/citations.js"></script>
+<script src="../assets/citations.js"></script>
 <script>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId captureTraceFeedback captureTraceMetric".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     posthog.init('phc_3LFGZh7SWQGVrh5GwvDO3qwdESpdJb9AnpJHks39zdA', {
@@ -119,71 +90,30 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
     })
 </script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
- var mathElements = document.getElementsByClassName("math");
- var macros = [];
- for (var i = 0; i < mathElements.length; i++) {
-  var texText = mathElements[i].firstChild;
-  if (mathElements[i].tagName == "SPAN") {
-   katex.render(texText.data, mathElements[i], {
-    displayMode: mathElements[i].classList.contains('display'),
-    throwOnError: false,
-    macros: macros,
-    fleqn: false
-   });
-}}});
-  </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="./styles.css">
-<link rel="stylesheet" href="./assets/citations.css">
-<link rel="alternate" type="application/rss+xml" title="Earl Potters" href="notes.xml" data-external="1"><meta property="og:title" content=" Research notes – Earl Potters">
-<meta property="og:description" content="Personal summaries and insights gathered from reading various research papers and articles.">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="../assets/citations.css">
+<meta property="og:title" content="Publish a Research Paper – Earl Potters">
+<meta property="og:description" content="Aim to publish a research paper on LLM agents in a top-tier AI conference.">
+<meta property="og:image" content="https://slyracoon23.github.io/blog/goals/images/thumbnail_template.jpg">
 <meta property="og:site_name" content="Earl Potters">
-<meta name="twitter:title" content=" Research notes – Earl Potters">
-<meta name="twitter:description" content="Personal summaries and insights gathered from reading various research papers and articles.">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Publish a Research Paper – Earl Potters">
+<meta name="twitter:description" content="Aim to publish a research paper on LLM agents in a top-tier AI conference.">
+<meta name="twitter:image" content="https://slyracoon23.github.io/blog/goals/images/thumbnail_template.jpg">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
-    <img src="./images/logo.png" alt="" class="navbar-logo">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/logo.png" alt="" class="navbar-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Earl Potters</span>
     </a>
   </div>
@@ -194,7 +124,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../about.html"> 
 <span class="menu-text"><i class="fa-solid fa-address-card" aria-label="address-card"></i> About</span></a>
   </li>  
 </ul>
@@ -224,214 +154,127 @@ window.Quarto = {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../goals/example_goal.html">🎯 <strong>Goals</strong></a></li><li class="breadcrumb-item"><a href="../goals/example_goal.html">Publish a Research Paper</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page">
-      <h1 class="title"><i class="fa-solid fa-pen" aria-label="pen"></i> Research notes</h1>
+    <div class="quarto-title column-body"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../goals/example_goal.html">🎯 <strong>Goals</strong></a></li><li class="breadcrumb-item"><a href="../goals/example_goal.html">Publish a Research Paper</a></li></ol></nav>
+      <h1 class="title">Publish a Research Paper</h1>
                   <div>
         <div class="description">
-          Personal summaries and insights gathered from reading various research papers and articles.
+          Aim to publish a research paper on LLM agents in a top-tier AI conference.
         </div>
       </div>
-                </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">Research</div>
+                <div class="quarto-category">Career</div>
+              </div>
+                  </div>
   </div>
     
   
-  <div class="quarto-title-meta column-page">
+  <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Earl Potters </p>
+            </div>
+    </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">May 1, 2025</p>
+      </div>
+    </div>
     
       
     </div>
     
   
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">🎯 <strong>Goals</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../goals/example_goal.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Publish a Research Paper</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title"><strong>Sections</strong></h2>
+   
+  <ul class="collapse">
+  <li><a href="#why-this-goal" id="toc-why-this-goal" class="nav-link active" data-scroll-target="#why-this-goal">Why this goal?</a></li>
+  <li><a href="#steps" id="toc-steps" class="nav-link" data-scroll-target="#steps">Steps</a></li>
+  <li><a href="#progress" id="toc-progress" class="nav-link" data-scroll-target="#progress">Progress</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content quarto-banner-title-block column-page" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
 
-
-
-
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-left" data-index="0" data-categories="TWFjaGluZSUyMExlYXJuaW5n" data-listing-file-modified-sort="1745809843892" data-listing-reading-time-sort="5" data-listing-word-count-sort="803">
-<div class="thumbnail">
-<p><a href="./notes/Agents/data_influence.html" class="no-external"></a></p><a href="./notes/Agents/data_influence.html" class="no-external">
-<p class="card-img-top"><img src="images/thumbnail_template.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./notes/Agents/data_influence.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./notes/Agents/data_influence.html" class="no-external">Training Data Influence Analysis and Estimation A Survey</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./notes/Agents/data_influence.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('TWFjaGluZSUyMExlYXJuaW5n'); return false;">
-Machine Learning
-</div>
-</div>
-<div class="listing-description">
-<a href="./notes/Agents/data_influence.html" class="no-external">📝 <strong>Paper</strong>: https://arxiv.org/pdf/2212.04612.pdf</a>
-</div>
-</div>
-<div class="metadata">
-<p><a href="./notes/Agents/data_influence.html" class="no-external"></a></p><a href="./notes/Agents/data_influence.html" class="no-external">
-<div class="listing-reading-time">
-5 min
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-left" data-index="1" data-categories="RGF0YXNldCUyMFByZXBhcmF0aW9u" data-listing-date-sort="1748908800000" data-listing-file-modified-sort="1745809843892" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="1">
-<div class="thumbnail">
-<p><a href="./notes/Dataset Prep/how_to_prepare_a_vision_dataset.html" class="no-external"></a></p><a href="./notes/Dataset Prep/how_to_prepare_a_vision_dataset.html" class="no-external">
-<p class="card-img-top"><img src="images/thumbnail_template.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./notes/Dataset Prep/how_to_prepare_a_vision_dataset.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./notes/Dataset Prep/how_to_prepare_a_vision_dataset.html" class="no-external">NOTES: How to Prepare a Vision Dataset</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./notes/Dataset Prep/how_to_prepare_a_vision_dataset.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('RGF0YXNldCUyMFByZXBhcmF0aW9u'); return false;">
-Dataset Preparation
-</div>
-</div>
-<div class="listing-description">
-<a href="./notes/Dataset Prep/how_to_prepare_a_vision_dataset.html" class="no-external">
-
+<section id="why-this-goal" class="level2">
+<h2 class="anchored" data-anchor-id="why-this-goal">Why this goal?</h2>
+<p>Publishing in a top-tier conference will help establish credibility and contribute to the field.</p>
+</section>
+<section id="steps" class="level2">
+<h2 class="anchored" data-anchor-id="steps">Steps</h2>
 <ul>
-<li></li>
+<li>Identify a novel research topic</li>
+<li>Conduct experiments</li>
+<li>Write and submit the paper</li>
+<li>Address reviewer feedback</li>
+</ul>
+</section>
+<section id="progress" class="level2">
+<h2 class="anchored" data-anchor-id="progress">Progress</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Topic selected</label></li>
+<li><label><input type="checkbox">Experiments started</label></li>
+<li><label><input type="checkbox">Paper drafted</label></li>
+<li><label><input type="checkbox">Submitted</label></li>
+<li><label><input type="checkbox">Accepted</label></li>
 </ul>
 
 
-</a>
-</div>
-</div>
-<div class="metadata">
-<p><a href="./notes/Dataset Prep/how_to_prepare_a_vision_dataset.html" class="no-external"></a></p><a href="./notes/Dataset Prep/how_to_prepare_a_vision_dataset.html" class="no-external">
-<div class="listing-reading-time">
-1 min
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-left" data-index="2" data-categories="TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw==" data-listing-date-sort="1746230400000" data-listing-file-modified-sort="1745809843892" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="1">
-<div class="thumbnail">
-<p><a href="./notes/Large Language Models/what_is_prompt_engineering.html" class="no-external"></a></p><a href="./notes/Large Language Models/what_is_prompt_engineering.html" class="no-external">
-<p class="card-img-top"><img src="images/thumbnail_template.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./notes/Large Language Models/what_is_prompt_engineering.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./notes/Large Language Models/what_is_prompt_engineering.html" class="no-external">NOTES: What is Prompt Engineering?</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./notes/Large Language Models/what_is_prompt_engineering.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw=='); return false;">
-Large Language Models
-</div>
-</div>
-<div class="listing-description">
-<a href="./notes/Large Language Models/what_is_prompt_engineering.html" class="no-external">
+</section>
 
-
-
-</a>
-</div>
-</div>
-<div class="metadata">
-<p><a href="./notes/Large Language Models/what_is_prompt_engineering.html" class="no-external"></a></p><a href="./notes/Large Language Models/what_is_prompt_engineering.html" class="no-external">
-<div class="listing-reading-time">
-1 min
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-left" data-index="3" data-categories="SmF2YVNjcmlwdA==" data-listing-date-sort="1746230400000" data-listing-file-modified-sort="1745809843893" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="326">
-<div class="thumbnail">
-<p><a href="./notes/obserable JS/interactive-data-visualization-with-obserable-js.html" class="no-external"></a></p><a href="./notes/obserable JS/interactive-data-visualization-with-obserable-js.html" class="no-external">
-<p class="card-img-top"><img src="images/thumbnail_template.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./notes/obserable JS/interactive-data-visualization-with-obserable-js.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./notes/obserable JS/interactive-data-visualization-with-obserable-js.html" class="no-external">NOTES: Testing Observable JS</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./notes/obserable JS/interactive-data-visualization-with-obserable-js.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('SmF2YVNjcmlwdA=='); return false;">
-JavaScript
-</div>
-</div>
-<div class="listing-description">
-<a href="./notes/obserable JS/interactive-data-visualization-with-obserable-js.html" class="no-external">Observable JS is a powerful way to create interactive data visualizations within Quarto documents. Let’s…</a>
-</div>
-</div>
-<div class="metadata">
-<p><a href="./notes/obserable JS/interactive-data-visualization-with-obserable-js.html" class="no-external"></a></p><a href="./notes/obserable JS/interactive-data-visualization-with-obserable-js.html" class="no-external">
-<div class="listing-reading-time">
-2 min
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-left" data-index="4" data-categories="TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw==" data-listing-date-sort="1688688000000" data-listing-file-modified-sort="1745809843892" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="375">
-<div class="thumbnail">
-<p><a href="./notes/Large Language Models/extending_context.html" class="no-external"></a></p><a href="./notes/Large Language Models/extending_context.html" class="no-external">
-<p class="card-img-top"><img src="images/thumbnail_template.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./notes/Large Language Models/extending_context.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./notes/Large Language Models/extending_context.html" class="no-external">Extending the Context Window of LLMs</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./notes/Large Language Models/extending_context.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw=='); return false;">
-Large Language Models
-</div>
-</div>
-<div class="listing-description">
-<a href="./notes/Large Language Models/extending_context.html" class="no-external">📝 <strong>Article</strong>: https://kaiokendev.github.io/context</a>
-</div>
-</div>
-<div class="metadata">
-<p><a href="./notes/Large Language Models/extending_context.html" class="no-external"></a></p><a href="./notes/Large Language Models/extending_context.html" class="no-external">
-<div class="listing-reading-time">
-2 min
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
