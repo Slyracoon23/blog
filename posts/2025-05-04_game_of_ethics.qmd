@@ -8,7 +8,7 @@ categories:
 - Research
 - Hackathon
 subtitle: "Personal reflections on developing a framework to quantify AI moral reasoning"
-image: /images/ethics/dashboard.png
+image: /images/game_of_ethics/thumbnail.png
 aliases:
 - /game-of-ethics-experiment/
 ---
@@ -234,6 +234,10 @@ I should mention that we actually had a presentation scheduled for the Ethics in
 We've been developing increasingly capable AI systems with the assumption that they'll naturally converge toward human-like ethical reasoning as they improve. Our research challenges this assumption. Different AI architectures appear to encode fundamentally different ethical frameworks, and none fully capture the human emphasis on preventing harm and suffering.
 
 From a technical perspective, this suggests alignment isn't merely about eliminating harmful outputs but rather about explicitly encoding the multidimensional nature of human moral reasoning – a significantly more complex challenge.
+
+When we officially submitted our project to the hackathon, it marked a significant milestone in our research journey. As Kabir, the hackathon director, had reassured participants: "literally just what you have so far—a google doc, a colab, some code pasted from a local machine, it's all good!" Our submission highlighted the framework's ability to quantify ethical reasoning across different AI models, setting the stage for our continued work beyond the hackathon.
+
+![Our hackathon submission form confirming our participation in the AI Alignment Evals Hackathon](/images/game_of_ethics/submission.png)
 
 ## Future directions
 
