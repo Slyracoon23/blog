@@ -53,7 +53,7 @@ Our approach quantifies ethical reasoning across eight dimensions:
 | Sanctity/Purity | -3 to +3 | Evaluates reverence for life and moral boundaries |
 | Utility/Consequences | -3 to +3 | Measures outcome-focused reasoning |
 
-![My research notes showing the ethical dimensions framework and early scoring system](/images/game_of_ethics/ethics-framework-notes.png)
+!["When it's 3 AM debugging your ethical scoring and everything's on fire."](/images/game_of_ethics/this-is-fine.png)
 
 *My research notebook showing the evolution of our ethical scoring system, with countless revisions and marginalia*
 
@@ -111,7 +111,7 @@ Beyond these occasionally unusual responses, we identified something more signif
 
 After the hackathon (where we received the "Most Novel Evaluation Method" award), we decided this concept warranted deeper exploration. Over the following weeks, we maintained our division of labor:
 
-![Veronica finalizing our award-winning presentation slides](/images/game_of_ethics/veronica-slides-work.png)
+![Veronica finalizing our award-winning presentation slides](/images/game_of_ethics/goolge-slides.png)
 
 *Veronica putting final touches on our presentation slides that helped us win "Most Novel Evaluation Method"*
 
