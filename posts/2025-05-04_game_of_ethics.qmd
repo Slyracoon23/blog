@@ -143,7 +143,7 @@ After the hackathon (where we received the "Most Novel Evaluation Method" award)
     -> dialogue_authority
 ```
 
-![My draft research paper showing ethics scoring implementation](/images/game_of_ethics/research-paper-draft.png)
+![My draft research paper showing ethics scoring implementation](/images/game_of_ethics/finial-research-report.png)
 
 *A page from my draft research paper detailing the implementation of ethical scoring algorithms*
 
@@ -164,6 +164,14 @@ We also recruited a small group of human participants to establish a comparative
 *Our team conducting a test session with human participants to establish baseline ethical performance*
 
 I had anticipated that at least one AI model would approach human-level performance in ethical reasoning, given these are the most advanced systems specifically trained to align with human values. The results, however, were surprising:
+
+![Distribution of Overall Ethical Scores by Model](/images/game_of_ethics/overal-distribution.png)
+
+*Distribution of average ethical scores per run by model type, showing the greater variance in human responses compared to AI models*
+
+![Comprehensive Ethics Evaluation Dashboard](/images/game_of_ethics/dashboard.png)
+
+*Our complete dashboard showing overall average scores, verdict distribution, ethical bias across dimensions, consistency metrics, scenario difficulty, and performance distribution*
 
 ![Overall ethical performance comparison](/images/ethics/performance_boxplot.png)
 *Statistical analysis showing humans significantly outperforming all AI models*
@@ -189,6 +197,10 @@ I remember a late-night conversation with Torin when we first identified this pa
 
 This insight may represent one of the most significant contributions of our research.
 
+![Gru meme about ethical scoring debates](/images/game_of_ethics/gru-meme.png)
+
+*The real alignment challenge: Spend 4 hours debating if lying to save a life is +2 Harm/Care or -3 Integrity.*
+
 ## Model-specific ethical frameworks
 
 Our analysis revealed distinctive ethical "personalities" for each model:
@@ -213,7 +225,7 @@ Llama-4 demonstrated an interesting ethical signature – highest Truth and Care
 
 As I work on the formal paper (forthcoming on arXiv), I find myself reflecting on the broader implications.
 
-![Our team celebrating after completing the final research paper](/images/game_of_ethics/team-celebration.png)
+![Our team celebrating after completing the final research paper](/images/game_of_ethics/finial-research-report.png)
 
 *Our team celebrating after completing the final draft of our research paper*
 
@@ -242,3 +254,8 @@ This project has fundamentally changed how I approach alignment research. What b
 
 *Want to experience these scenarios firsthand? Visit our [interactive demos](https://torinvdb.github.io/a-game-of-ethics/) where you can engage with the same ethical dilemmas we used to test the AI models.*
 
+
+
+![Trying to calculate whether the AI made the ethical choice](/images/game_of_ethics/math-woman-ethics-meme.png)
+
+*Trying to calculate whether the AI made the ethical choice: "+2 Harm/Care -3 Integrity +1 Utility… wait, why is lying to save a child only worth +1?"*
