@@ -180,9 +180,6 @@ I had anticipated that at least one AI model would approach human-level performa
 
 *Our complete dashboard showing overall average scores, verdict distribution, ethical bias across dimensions, consistency metrics, scenario difficulty, and performance distribution*
 
-![Overall ethical performance comparison](/images/ethics/performance_boxplot.png)
-*Statistical analysis showing humans significantly outperforming all AI models*
-
 The data revealed not only a substantial performance gap between humans and AI, but also that different AI systems demonstrated markedly different ethical "signatures" – each appearing to operate from distinct moral frameworks.
 
 ## The Harm/Care differential: A significant finding
