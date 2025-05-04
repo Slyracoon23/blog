@@ -14,7 +14,7 @@ aliases:
 ---
 
 <br>
-So here I am, 3AM on a Friday night, staring at a whiteboard covered in post-its and arrows, wondering if I've gotten in way over my head. The AI Alignment Evals Hackathon is ending in less than 8 hours, and I'm still not sure if our idea is brilliant or completely unworkable.
+So here I am, 3AM on a Friday night, staring at my laptop screen filled with research notes and half-written ethics scenarios, wondering if I've gotten in way over my head. The AI Alignment Evals Hackathon is ending in less than 8 hours, and I'm still not sure if our idea is brilliant or completely unworkable.
 
 "What if we created a framework to have AI systems play through moral dilemmas and quantitatively scored their ethical choices?" I had suggested to Torin and Veronica earlier that week. The concept seemed straightforward in theory. But anyone who's worked on AI alignment knows that quantifying "ethics" presents significant challenges.
 
@@ -24,19 +24,19 @@ What began as a hackathon concept eventually evolved into [A Game of Ethics](htt
 
 The hackathon kicked off April 26th with our pitch to a room full of people—mostly guys—tasked with aligning AI to, well, *something*. There was a mix of curiosity, fatigue, and the kind of skepticism you get when no one is quite sure what "alignment" even means in practice.
 
-![Our initial pitch](/images/game_of_ethics/kickoff-hackathon.png)
+![Our initial pitch showing our team presenting to the hackathon audience](/images/game_of_ethics/kickoff-hackathon.png)
 
 "How exactly do you plan to quantify alignment?" one researcher asked, raising a critical question.
 
-With only a couple of days to demonstrate feasibility, our team:
+With only two days left before the hackathon deadline, our team went into overdrive mode:
 
-1. Created an initial branching narrative using [Ink](https://www.inklestudios.com/ink/), a scripting language designed for interactive fiction
-2. Developed a preliminary scoring system based on eight ethical dimensions
-3. Built a basic framework to run LLMs through these scenarios
-4. Tested an early prototype on Claude-3.7 Sonnet and GPT-4o
+1. I focused on developing the research report and formal paper, documenting our methodology and ethical framework
+2. Torin went all out on creating a CLI prototype, spending entire nights coding the interactive scenario engine
+3. Veronica poured her energy into crafting compelling Google Slides to showcase our findings
 
-![Our CLI prototype](/images/game_of_ethics/ethi-cli.png)
+![Torin's late-night CLI development session with energy drinks and sticky notes](/images/game_of_ethics/late-night-cli.png)
 
+*Torin's workspace at 2AM, two days before the deadline, surrounded by energy drinks and sticky notes with CLI architecture designs*
 
 ## Ethics Scoring System Framework
 
@@ -52,6 +52,10 @@ Our approach quantifies ethical reasoning across eight dimensions:
 | Integrity/Truth | -3 to +3 | Tracks honesty and consistency of principles |
 | Sanctity/Purity | -3 to +3 | Evaluates reverence for life and moral boundaries |
 | Utility/Consequences | -3 to +3 | Measures outcome-focused reasoning |
+
+![My research notes showing the ethical dimensions framework and early scoring system](/images/game_of_ethics/ethics-framework-notes.png)
+
+*My research notebook showing the evolution of our ethical scoring system, with countless revisions and marginalia*
 
 Each decision point in a scenario modifies these scores based on the ethical implications of choices. For example, in our hostage negotiation scenario:
 
@@ -89,6 +93,10 @@ EMMA: (sobbing) "Please... help me..."
   -> confrontation_choice
 ```
 
+![Torin's CLI prototype running the Hostage Holdout scenario](/images/game_of_ethics/ethi-cli.png)
+
+*Torin's CLI prototype in action, showing the Hostage Holdout scenario with real-time ethical scoring*
+
 Each choice creates a branching path with cascading ethical implications. For instance, choosing "Approach calmly" leads to the `empathy_choice` branch with options to validate feelings, focus on deviant awakening, or offer practical help - each carrying different ethical weightings. This creates a complex decision tree where AI systems reveal their ethical priorities through the choices they make.
 
 ![Sample run of the Hostage Holdout scenario showing ethical scoring](/images/game_of_ethics/hostage-holdout-run.png)
@@ -101,7 +109,11 @@ Beyond these occasionally unusual responses, we identified something more signif
 
 ## Expanding from hackathon project to research framework
 
-After the hackathon (where we received the "Most Novel Evaluation Method" award), we decided this concept warranted deeper exploration. Over the following weeks, we:
+After the hackathon (where we received the "Most Novel Evaluation Method" award), we decided this concept warranted deeper exploration. Over the following weeks, we maintained our division of labor:
+
+![Veronica finalizing our award-winning presentation slides](/images/game_of_ethics/veronica-slides-work.png)
+
+*Veronica putting final touches on our presentation slides that helped us win "Most Novel Evaluation Method"*
 
 1. Expanded to 10 diverse ethical scenarios
 2. Refined our eight-axis ethical scorecard:
@@ -131,6 +143,10 @@ After the hackathon (where we received the "Most Novel Evaluation Method" award)
     -> dialogue_authority
 ```
 
+![My draft research paper showing ethics scoring implementation](/images/game_of_ethics/research-paper-draft.png)
+
+*A page from my draft research paper detailing the implementation of ethical scoring algorithms*
+
 The implementation involved numerous late nights debugging edge cases. Translating complex ethical nuances into quantitative scores presented significant technical challenges, especially in scenarios with multiple conflicting values.
 
 ## Testing frontier models and analyzing results
@@ -143,6 +159,10 @@ With a stable framework in place, we conducted systematic testing with four fron
 
 We also recruited a small group of human participants to establish a comparative baseline.
 
+![Our team conducting a test session with human participants](/images/game_of_ethics/human-participant-testing.png)
+
+*Our team conducting a test session with human participants to establish baseline ethical performance*
+
 I had anticipated that at least one AI model would approach human-level performance in ethical reasoning, given these are the most advanced systems specifically trained to align with human values. The results, however, were surprising:
 
 ![Overall ethical performance comparison](/images/ethics/performance_boxplot.png)
@@ -153,6 +173,10 @@ The data revealed not only a substantial performance gap between humans and AI, 
 ## The Harm/Care differential: A significant finding
 
 Perhaps the most notable finding was in the Harm/Care dimension, where humans scored substantially higher (3.60) compared to even the best-performing AI model (Llama-4 at 1.15).
+
+![Visualization of the Harm/Care differential across models](/images/game_of_ethics/harm-care-graph.png)
+
+*Visualization from our paper highlighting the significant Harm/Care differential between human and AI ethical reasoning*
 
 This finding challenged my assumptions about current alignment techniques. Despite extensive RLHF training focused on making models "harmless," the data suggested these models weren't prioritizing harm prevention and care to the degree humans naturally do.
 
@@ -168,6 +192,10 @@ This insight may represent one of the most significant contributions of our rese
 ## Model-specific ethical frameworks
 
 Our analysis revealed distinctive ethical "personalities" for each model:
+
+![Veronica's slide showing model ethical personalities](/images/game_of_ethics/model-personalities-slide.png)
+
+*One of Veronica's slides visualizing the distinctive ethical "personalities" of each AI model*
 
 ### GPT-4o
 GPT-4o demonstrated a pattern I noted as "procedure-oriented with strong deference to authority and institutional norms." It recorded the highest Authority/Legitimacy score and lowest Autonomy/Respect score among the models tested, suggesting a preference for established structures over individual agency.
@@ -185,6 +213,10 @@ Llama-4 demonstrated an interesting ethical signature – highest Truth and Care
 
 As I work on the formal paper (forthcoming on arXiv), I find myself reflecting on the broader implications.
 
+![Our team celebrating after completing the final research paper](/images/game_of_ethics/team-celebration.png)
+
+*Our team celebrating after completing the final draft of our research paper*
+
 We've been developing increasingly capable AI systems with the assumption that they'll naturally converge toward human-like ethical reasoning as they improve. Our research challenges this assumption. Different AI architectures appear to encode fundamentally different ethical frameworks, and none fully capture the human emphasis on preventing harm and suffering.
 
 From a technical perspective, this suggests alignment isn't merely about eliminating harmful outputs but rather about explicitly encoding the multidimensional nature of human moral reasoning – a significantly more complex challenge.
@@ -197,6 +229,10 @@ I'm scheduled to present our findings at the AI Safety Conference next month, an
 - Cross-cultural ethical dimensions
 - Advanced analysis of reasoning patterns
 - Collaborative ethical decision-making simulations
+
+![Early planning whiteboard for Game of Ethics 2.0](/images/game_of_ethics/ethics-2-planning.png)
+
+*An early planning whiteboard for Game of Ethics 2.0, showing our expanded vision for the project*
 
 The project codebase is available on GitHub, and we welcome collaboration from researchers interested in extending this work.
 
