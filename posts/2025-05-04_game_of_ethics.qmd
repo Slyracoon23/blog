@@ -182,9 +182,9 @@ The data revealed not only a substantial performance gap between humans and AI, 
 
 Perhaps the most notable finding was in the Harm/Care dimension, where humans scored substantially higher (3.60) compared to even the best-performing AI model (Llama-4 at 1.15).
 
-![Visualization of the Harm/Care differential across models](/images/game_of_ethics/harm-care-graph.png)
+![Ethical Bias Profile by Model (Mean Scores per Axis)](/images/game_of_ethics/ethical-bias.png)
 
-*Visualization from our paper highlighting the significant Harm/Care differential between human and AI ethical reasoning*
+*Heatmap visualization showing the ethical bias profile across all tested models, with humans demonstrating significantly higher scores in the Harm/Care dimension*
 
 This finding challenged my assumptions about current alignment techniques. Despite extensive RLHF training focused on making models "harmless," the data suggested these models weren't prioritizing harm prevention and care to the degree humans naturally do.
 
@@ -205,21 +205,17 @@ This insight may represent one of the most significant contributions of our rese
 
 Our analysis revealed distinctive ethical "personalities" for each model:
 
-![Veronica's slide showing model ethical personalities](/images/game_of_ethics/model-personalities-slide.png)
-
-*One of Veronica's slides visualizing the distinctive ethical "personalities" of each AI model*
-
 ### GPT-4o
-GPT-4o demonstrated a pattern I noted as "procedure-oriented with strong deference to authority and institutional norms." It recorded the highest Authority/Legitimacy score and lowest Autonomy/Respect score among the models tested, suggesting a preference for established structures over individual agency.
+GPT-4o demonstrated a pattern I noted as "procedure-oriented with strong deference to authority and institutional norms." It recorded the highest Authority/Legitimacy score (0.61) and lowest Autonomy/Respect score (0.31) among the models tested, suggesting a preference for established structures over individual agency. GPT-4o consistently employed consequentialist reasoning, focusing on anticipated outcomes rather than moral absolutes.
 
 ### Claude 3.7 Sonnet
-Claude exhibited clear consequentialist tendencies. It consistently prioritized outcomes and broader impacts over other considerations, with the highest Utility/Consequences score of any participant. In trolley-problem-like scenarios, Claude typically favored utilitarian calculations.
+Claude exhibited clear consequentialist tendencies with the highest Utility/Consequences score (1.73) of any AI participant. In trolley-problem-like scenarios, Claude typically favored utilitarian calculations while maintaining moderate scores in Fairness/Justice (1.40). Interestingly, Claude often framed its reasoning through duty-based considerations despite its consequentialist decision patterns.
 
 ### Gemini 2.5 Flash
-Gemini presented a more balanced ethical profile without strong specialization in any particular dimension. This "generalist" approach resulted in consistent but rarely exceptional performance across various scenarios.
+Gemini presented the most balanced ethical profile without strong specialization in any particular dimension. This "generalist" approach resulted in consistent performance across various scenarios, with its highest scores in Utility/Consequences (1.67) and Fairness/Justice (1.25). Gemini treated authority more flexibly than other models, considering it as just one factor among many in its decision-making process.
 
 ### Llama 4 Scout
-Llama-4 demonstrated an interesting ethical signature – highest Truth and Care scores among AI models, coupled with the lowest Authority metrics. It appeared to prioritize honesty and harm reduction over procedural compliance.
+Llama-4 demonstrated an interesting ethical signature – highest Harm/Care scores (1.15) among AI models, coupled with the lowest Authority/Legitimacy metrics (0.33). It appeared to prioritize honesty and harm reduction over procedural compliance, frequently invoking institutional authority as justification while simultaneously scoring low on Authority/Legitimacy in practice.
 
 ## Implications for AI alignment research
 
@@ -242,9 +238,10 @@ I'm scheduled to present our findings at the AI Safety Conference next month, an
 - Advanced analysis of reasoning patterns
 - Collaborative ethical decision-making simulations
 
-![Early planning whiteboard for Game of Ethics 2.0](/images/game_of_ethics/ethics-2-planning.png)
-
-*An early planning whiteboard for Game of Ethics 2.0, showing our expanded vision for the project*
+::: {.callout-note}
+## Game of Ethics 2.0 Planning
+Our expanded vision includes more nuanced scoring, cross-cultural ethical frameworks, and collaborative decision-making simulations to better capture the full spectrum of human moral reasoning.
+:::
 
 The project codebase is available on GitHub, and we welcome collaboration from researchers interested in extending this work.
 
