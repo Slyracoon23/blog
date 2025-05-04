@@ -253,9 +253,3 @@ This project has fundamentally changed how I approach alignment research. What b
 ---
 
 *Want to experience these scenarios firsthand? Visit our [interactive demos](https://torinvdb.github.io/a-game-of-ethics/) where you can engage with the same ethical dilemmas we used to test the AI models.*
-
-
-
-![Trying to calculate whether the AI made the ethical choice](/images/game_of_ethics/math-woman-ethics-meme.png)
-
-*Trying to calculate whether the AI made the ethical choice: "+2 Harm/Care -3 Integrity +1 Utility… wait, why is lying to save a child only worth +1?"*
