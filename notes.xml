@@ -9,7 +9,7 @@
 <link>https://slyracoon23.github.io/blog/notes.html</link>
 <atom:link href="https://slyracoon23.github.io/blog/notes.xml" rel="self" type="application/rss+xml"/>
 <description>Personal summaries and insights gathered from reading various research papers and articles.</description>
-<generator>quarto-1.6.43</generator>
+<generator>quarto-1.7.31</generator>
 <lastBuildDate>Tue, 03 Jun 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>NOTES: How to Prepare a Vision Dataset</title>
@@ -751,7 +751,7 @@ font-style: inherit;">table</span>(scaled_data)</span></code></pre></div>
  ]]></description>
   <category>Machine Learning</category>
   <guid>https://slyracoon23.github.io/blog/notes/Agents/data_influence.html</guid>
-  <pubDate>Mon, 28 Apr 2025 03:11:21 GMT</pubDate>
+  <pubDate>Mon, 19 May 2025 22:27:17 GMT</pubDate>
 </item>
 </channel>
 </rss>

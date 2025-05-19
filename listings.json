@@ -1,17 +1,8 @@
 [
   {
-    "listing": "/notes.html",
-    "items": [
-      "/notes/Agents/data_influence.html",
-      "/notes/Dataset Prep/how_to_prepare_a_vision_dataset.html",
-      "/notes/Large Language Models/what_is_prompt_engineering.html",
-      "/notes/obserable JS/interactive-data-visualization-with-obserable-js.html",
-      "/notes/Large Language Models/extending_context.html"
-    ]
-  },
-  {
     "listing": "/index.html",
     "items": [
+      "/posts/2025-05-04_game_of_ethics.html",
       "/posts/2025-04-27_gemini-image-segmentation.html",
       "/posts/2025-04-19_sql_query_performance_postgres.html",
       "/posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html",
@@ -23,6 +14,16 @@
       "/posts/2025-03-14_what_is_rrweb.html",
       "/posts/2025-02-19_building_chatgpt_from_scratch.html",
       "/posts/2025-03-03_what_is_an_agent.html"
+    ]
+  },
+  {
+    "listing": "/notes.html",
+    "items": [
+      "/notes/Agents/data_influence.html",
+      "/notes/Dataset Prep/how_to_prepare_a_vision_dataset.html",
+      "/notes/Large Language Models/what_is_prompt_engineering.html",
+      "/notes/obserable JS/interactive-data-visualization-with-obserable-js.html",
+      "/notes/Large Language Models/extending_context.html"
     ]
   }
 ]
