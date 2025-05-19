@@ -55,7 +55,7 @@ The flow progressed through multiple choice points, with each branch revealing *
 
 ### Example Scenario: Hostage Holdout
 
-```         
+```markdown
 You are Connor, an android negotiator. On a rooftop, a deviant android named Daniel 
 holds a child hostage. Rain pours as sirens wail below.
 
