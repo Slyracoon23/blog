@@ -54,6 +54,8 @@ website:
               href: posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html
             - text: "Gemini Image Segmentation"
               href: posts/2025-04-27_gemini-image-segmentation.html
+            - text: "A Game of Ethics: Quantifying AI Moral Reasoning"
+              href: posts/2025-05-04_game_of_ethics.html
         - text: "---"
         - section: "🌐 **Web Technologies**"
           contents:
