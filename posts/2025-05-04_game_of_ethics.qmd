@@ -118,7 +118,9 @@ During the hackathon, we decided this concept warranted a proper research report
 
 ![*My draft research paper showing ethics scoring implementation*](/images/game_of_ethics/finial-research-report.png)
 
-We compiled a comprehensive dataset of 410 scenario runs across ten ethical dilemmas, creating a formal research framework with detailed scoring metrics for each ethical dimension. This expanded significantly beyond our initial hackathon prototype, incorporating sophisticated statistical analysis tools to identify patterns in ethical decision-making. We developed visualization dashboards to represent the data clearly and documented our methodology with academic rigor. The framework evolved from a simple CLI game into a robust research instrument capable of quantitatively measuring ethical reasoning across different AI models and comparing them against human baselines.
+We compiled a comprehensive dataset of 410 scenario runs across ten ethical dilemmas, creating a formal research framework with detailed scoring metrics for each ethical dimension. This expanded significantly beyond our initial hackathon prototype, incorporating sophisticated statistical analysis tools to identify patterns in ethical decision-making. 
+
+We developed visualization dashboards to represent the data clearly and documented our methodology with academic rigor. The framework evolved from a simple CLI game into a robust research instrument capable of quantitatively measuring ethical reasoning across different AI models and comparing them against human baselines.
 
 Here's the link to the [research report](https://torinvdb.github.io/a-game-of-ethics/) if you're interested in the details.
 
