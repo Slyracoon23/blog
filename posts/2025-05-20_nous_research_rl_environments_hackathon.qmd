@@ -1,0 +1,21 @@
+---
+aliases:
+- /nous-research-rl-hackathon/
+categories:
+- Reinforcement Learning
+- Hackathon
+date: '2025-05-20'
+image: /images/nous_research_rl_environments_hackathon/thumbnail.png
+title: "Nous Research RL Environments Hackathon"
+subtitle: "My experience participating in the reinforcement learning environments hackathon"
+format: html
+---
+
+![](/images/nous_research_rl_environments_hackathon/thumbnail.png)
+
+I recently participated in the Nous Research RL Environments Hackathon. It was a great experience and I learned a lot. I thought I'd share my experience here.
+
+## The Hackathon
+
+The hackathon was a 3 day event where we were tasked with building a reinforcement learning environment. We were given a prompt and we had to build an environment that would be able to solve the task.
+
