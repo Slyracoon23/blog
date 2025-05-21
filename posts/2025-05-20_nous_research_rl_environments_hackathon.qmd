@@ -11,11 +11,10 @@ subtitle: "My experience participating in the reinforcement learning environment
 format: html
 ---
 
-![](/images/nous_research_rl_environments_hackathon/thumbnail.png)
+![](/images/nous_research_rl_environments_hackathon/thumbnail.png){width="1000"}
 
 I recently participated in the Nous Research RL Environments Hackathon. It was a great experience and I learned a lot. I thought I'd share my experience here.
 
 ## The Hackathon
 
-The hackathon was a 3 day event where we were tasked with building a reinforcement learning environment. We were given a prompt and we had to build an environment that would be able to solve the task.
-
+I am a long time lurker on various Discord channels related to AI such as vLLM, Axolotl and Nous Research. When they announced that they were planning on organizing a hackathon I immediately jumped in. I was particularly excited that this was an RL hackathon. I think first of it's
