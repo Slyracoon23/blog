@@ -184,9 +184,11 @@ print("💭 What do you notice? Shallow trees are simple (underfitting), deep tr
 # Let's demonstrate the difference between a single tree and boosting
 from sklearn.ensemble import GradientBoostingRegressor
 
-# Use our sine wave data from earlier
-X_train, X_test = X_demo[:200], X_demo[200:]
-y_train, y_test = y_demo[:200], y_demo[200:]
+# Use our sine wave data from earlier - but do a proper random split
+# so models interpolate rather than extrapolate
+X_train, X_test, y_train, y_test = train_test_split(
+    X_demo, y_demo, test_size=0.33, random_state=42
+)
 
 # Train different models
 single_tree = DecisionTreeRegressor(max_depth=3, random_state=42)
@@ -199,30 +201,39 @@ boosted_trees.fit(X_train, y_train)
 pred_single = single_tree.predict(X_test)
 pred_boosted = boosted_trees.predict(X_test)
 
+# For better visualization, let's sort the test data by X values
+sort_idx = np.argsort(X_test.ravel())
+X_test_sorted = X_test[sort_idx]
+y_test_sorted = y_test[sort_idx]
+pred_single_sorted = pred_single[sort_idx]
+pred_boosted_sorted = pred_boosted[sort_idx]
+
 # Visualize
 plt.figure(figsize=(15, 5))
 
 # Single tree
 plt.subplot(1, 3, 1)
-plt.scatter(X_train, y_train, alpha=0.5, s=20, label='Training data')
-plt.plot(X_test, pred_single, 'r-', linewidth=2, label='Single tree prediction')
+plt.scatter(X_train, y_train, alpha=0.5, s=20, label='Training data', color='lightblue')
+plt.plot(X_test_sorted, pred_single_sorted, 'r-', linewidth=2, label='Single tree prediction')
+plt.scatter(X_test, y_test, alpha=0.7, s=15, label='Test data', color='pink')
 plt.title('Single Decision Tree')
 plt.legend()
 plt.grid(True, alpha=0.3)
 
 # Boosted trees
 plt.subplot(1, 3, 2)
-plt.scatter(X_train, y_train, alpha=0.5, s=20, label='Training data')
-plt.plot(X_test, pred_boosted, 'g-', linewidth=2, label='Boosted trees prediction')
+plt.scatter(X_train, y_train, alpha=0.5, s=20, label='Training data', color='lightblue')
+plt.plot(X_test_sorted, pred_boosted_sorted, 'g-', linewidth=2, label='Boosted trees prediction')
+plt.scatter(X_test, y_test, alpha=0.7, s=15, label='Test data', color='pink')
 plt.title('Gradient Boosting (50 trees)')
 plt.legend()
 plt.grid(True, alpha=0.3)
 
 # Comparison
 plt.subplot(1, 3, 3)
-plt.plot(X_test, y_test, 'k-', linewidth=2, label='True function', alpha=0.7)
-plt.plot(X_test, pred_single, 'r--', linewidth=2, label='Single tree', alpha=0.7)
-plt.plot(X_test, pred_boosted, 'g--', linewidth=2, label='Boosted trees', alpha=0.7)
+plt.plot(X_test_sorted, y_test_sorted, 'k-', linewidth=2, label='True function', alpha=0.7)
+plt.plot(X_test_sorted, pred_single_sorted, 'r--', linewidth=2, label='Single tree', alpha=0.7)
+plt.plot(X_test_sorted, pred_boosted_sorted, 'g--', linewidth=2, label='Boosted trees', alpha=0.7)
 plt.title('Comparison')
 plt.legend()
 plt.grid(True, alpha=0.3)
@@ -236,6 +247,62 @@ mse_boosted = mean_squared_error(y_test, pred_boosted)
 print(f"📊 Single Tree MSE: {mse_single:.4f}")
 print(f"📊 Boosted Trees MSE: {mse_boosted:.4f}")
 print(f"🎯 Improvement: {(1 - mse_boosted/mse_single)*100:.1f}%")
+
+# %%
+# Let's visualize the structure of our single decision tree
+plt.figure(figsize=(12, 8))
+plot_tree(single_tree, 
+          filled=True, 
+          feature_names=['X'], 
+          rounded=True, 
+          fontsize=8,
+          proportion=False,
+          impurity=True,
+          class_names=None)
+plt.title('Decision Tree Structure (max_depth=3)\nShows how the tree partitions the input space', fontsize=16, pad=20)
+plt.tight_layout()
+plt.show()
+
+print("🌳 Understanding the Tree:")
+print("- Each box is a node showing the decision rule")
+print("- Colors represent different prediction values")
+print("- The tree creates step-like boundaries in the prediction")
+print("- This is why a single tree has limited flexibility for complex patterns!")
+
+# %% [markdown]
+# ### 🔍 Understanding the Decision Tree Values
+# 
+# Each node (box) in the tree contains important information:
+# 
+# **🎯 Decision Rule**: `X <= 2.207`
+# - This is the question the tree asks at each split
+# - Data points go **left (True)** if X ≤ 2.207, **right (False)** if X > 2.207
+# 
+# **📊 Squared Error**: `squared_error = 1.11`
+# - Measures how "pure" or homogeneous this node is
+# - Lower values = more consistent predictions in this region
+# - The tree tries to minimize this when choosing splits
+# 
+# **👥 Samples**: `samples = 201`
+# - Number of training data points that reach this node
+# - Root node has all 201 training samples
+# - Leaf nodes have fewer samples after successive splits
+# 
+# **🎯 Value**: `value = -0.067`
+# - The **prediction** for data points that end up in this node
+# - For regression: this is the average target value of samples in this node
+# - This is what the tree predicts for new data points reaching this node
+# 
+# **🎨 Colors**:
+# - **Darker orange**: Higher (more positive) predictions
+# - **Lighter colors**: Lower (more negative) predictions
+# - **White/Light**: Predictions close to zero
+# 
+# ### 🔄 How Predictions Work:
+# 1. Start at the **root node** (top)
+# 2. Follow the **decision rules** down the tree
+# 3. End at a **leaf node** (bottom row)
+# 4. Use that leaf's **value** as your prediction!
 
 # %% [markdown]
 # ## Lesson 4: How Gradient Boosting Works 🔧
