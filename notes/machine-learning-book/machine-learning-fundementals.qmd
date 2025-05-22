@@ -6,6 +6,13 @@ date: 05-21-2025
 
 ## Machine Learning Fundamentals
 
+-   XGboost
+-   Loss functions
+-   Activation functions
+-   Embeddings
 
+## XGboost
 
-
+-   XGBoost is a gradient boosting algorithm that uses decision trees as the base learners.
+-   It is a powerful and flexible machine learning algorithm that is widely used in practice.
+-   It is a popular choice for many machine learning competitions and is often used in production systems.
