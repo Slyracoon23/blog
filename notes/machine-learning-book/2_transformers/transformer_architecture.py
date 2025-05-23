@@ -139,33 +139,374 @@ result = simulate_rnn_processing()
 # %%
 # Let's visualize the transformer architecture
 def plot_transformer_architecture():
-    """Create a visual representation of the Transformer architecture"""
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 10))
+    """Create a detailed visual representation of the Transformer architecture"""
+    fig, ax = plt.subplots(1, 1, figsize=(16, 12))
     
-    # Encoder side
-    ax1.set_title("Encoder Stack", fontsize=16, fontweight='bold')
-    encoder_layers = ['Input\nEmbeddings', 'Positional\nEncoding', 'Multi-Head\nAttention', 
-                     'Add & Norm', 'Feed Forward', 'Add & Norm']
-    y_pos = np.arange(len(encoder_layers))
-    ax1.barh(y_pos, [1]*len(encoder_layers), color='lightblue', alpha=0.7)
-    ax1.set_yticks(y_pos)
-    ax1.set_yticklabels(encoder_layers)
-    ax1.set_xlabel('Processing Flow')
+    # Define colors
+    colors = {
+        'embedding': '#E8F4FD',
+        'attention': '#FFE4E1', 
+        'feedforward': '#E8F5E8',
+        'norm': '#FFF8DC',
+        'output': '#F0E68C',
+        'connection': '#B0B0B0'
+    }
     
-    # Decoder side
-    ax2.set_title("Decoder Stack", fontsize=16, fontweight='bold')
-    decoder_layers = ['Output\nEmbeddings', 'Positional\nEncoding', 'Masked Multi-Head\nAttention', 
-                     'Add & Norm', 'Encoder-Decoder\nAttention', 'Add & Norm', 'Feed Forward', 'Add & Norm']
-    y_pos = np.arange(len(decoder_layers))
-    ax2.barh(y_pos, [1]*len(decoder_layers), color='lightcoral', alpha=0.7)
-    ax2.set_yticks(y_pos)
-    ax2.set_yticklabels(decoder_layers)
-    ax2.set_xlabel('Processing Flow')
+    # Helper function to draw a component box
+    def draw_box(x, y, width, height, text, color, text_size=10):
+        rect = plt.Rectangle((x, y), width, height, 
+                           facecolor=color, edgecolor='black', linewidth=1.5)
+        ax.add_patch(rect)
+        ax.text(x + width/2, y + height/2, text, 
+               ha='center', va='center', fontsize=text_size, 
+               weight='bold', wrap=True)
+    
+    # Helper function to draw arrows
+    def draw_arrow(start_x, start_y, end_x, end_y, color='black', style='-'):
+        ax.annotate('', xy=(end_x, end_y), xytext=(start_x, start_y),
+                   arrowprops=dict(arrowstyle='->', color=color, lw=2, linestyle=style))
+    
+    # Component dimensions
+    box_width = 2.5
+    box_height = 0.8
+    small_box_height = 0.5
+    
+    # ENCODER SIDE (Left)
+    encoder_x = 1
+    
+    # Input embeddings
+    draw_box(encoder_x, 1, box_width, box_height, 
+             'Input\nEmbeddings', colors['embedding'])
+    
+    # Positional encoding
+    draw_box(encoder_x, 2, box_width, small_box_height, 
+             'Positional Encoding', colors['embedding'], 8)
+    
+    # Add symbol
+    ax.text(encoder_x + box_width/2, 3, '⊕', ha='center', va='center', 
+           fontsize=20, weight='bold')
+    
+    # Encoder layers (we'll show 2 layers for clarity)
+    for layer in range(2):
+        base_y = 4 + layer * 4
+        
+        # Multi-head attention
+        draw_box(encoder_x, base_y, box_width, box_height,
+                'Multi-Head\nSelf-Attention', colors['attention'])
+        
+        # Add & Norm
+        draw_box(encoder_x, base_y + 1, box_width, small_box_height,
+                'Add & Norm', colors['norm'], 8)
+        
+        # Feed Forward
+        draw_box(encoder_x, base_y + 1.7, box_width, box_height,
+                'Position-wise\nFeed Forward', colors['feedforward'])
+        
+        # Add & Norm
+        draw_box(encoder_x, base_y + 2.7, box_width, small_box_height,
+                'Add & Norm', colors['norm'], 8)
+        
+        # Residual connections (curved arrows)
+        ax.annotate('', xy=(encoder_x - 0.3, base_y + 1.25), 
+                   xytext=(encoder_x - 0.3, base_y + 0.4),
+                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
+                                 lw=2, connectionstyle="arc3,rad=0.3"))
+        
+        ax.annotate('', xy=(encoder_x - 0.5, base_y + 2.95), 
+                   xytext=(encoder_x - 0.5, base_y + 1.45),
+                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
+                                 lw=2, connectionstyle="arc3,rad=0.3"))
+    
+    # DECODER SIDE (Right)
+    decoder_x = 6
+    
+    # Output embeddings
+    draw_box(decoder_x, 1, box_width, box_height,
+             'Output\nEmbeddings', colors['embedding'])
+    
+    # Positional encoding
+    draw_box(decoder_x, 2, box_width, small_box_height,
+             'Positional Encoding', colors['embedding'], 8)
+    
+    # Add symbol
+    ax.text(decoder_x + box_width/2, 3, '⊕', ha='center', va='center', 
+           fontsize=20, weight='bold')
+    
+    # Decoder layers
+    for layer in range(2):
+        base_y = 4 + layer * 5
+        
+        # Masked Multi-head attention
+        draw_box(decoder_x, base_y, box_width, box_height,
+                'Masked Multi-Head\nSelf-Attention', colors['attention'])
+        
+        # Add & Norm
+        draw_box(decoder_x, base_y + 1, box_width, small_box_height,
+                'Add & Norm', colors['norm'], 8)
+        
+        # Cross attention
+        draw_box(decoder_x, base_y + 1.7, box_width, box_height,
+                'Multi-Head\nCross-Attention', colors['attention'])
+        
+        # Add & Norm
+        draw_box(decoder_x, base_y + 2.7, box_width, small_box_height,
+                'Add & Norm', colors['norm'], 8)
+        
+        # Feed Forward
+        draw_box(decoder_x, base_y + 3.4, box_width, box_height,
+                'Position-wise\nFeed Forward', colors['feedforward'])
+        
+        # Add & Norm
+        draw_box(decoder_x, base_y + 4.4, box_width, small_box_height,
+                'Add & Norm', colors['norm'], 8)
+        
+        # Residual connections
+        ax.annotate('', xy=(decoder_x - 0.3, base_y + 1.25), 
+                   xytext=(decoder_x - 0.3, base_y + 0.4),
+                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
+                                 lw=2, connectionstyle="arc3,rad=0.3"))
+        
+        ax.annotate('', xy=(decoder_x - 0.5, base_y + 2.95), 
+                   xytext=(decoder_x - 0.5, base_y + 1.45),
+                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
+                                 lw=2, connectionstyle="arc3,rad=0.3"))
+        
+        ax.annotate('', xy=(decoder_x - 0.7, base_y + 4.65), 
+                   xytext=(decoder_x - 0.7, base_y + 3.15),
+                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
+                                 lw=2, connectionstyle="arc3,rad=0.3"))
+    
+    # Output layer
+    draw_box(decoder_x, 14.5, box_width, box_height,
+             'Linear', colors['output'])
+    draw_box(decoder_x, 15.5, box_width, box_height,
+             'Softmax', colors['output'])
+    
+    # ENCODER-DECODER CONNECTIONS
+    # Draw connections from encoder output to decoder cross-attention layers
+    encoder_output_y = 11.2  # Top of encoder
+    for layer in range(2):
+        decoder_cross_att_y = 4 + layer * 5 + 2.1  # Cross attention layers
+        
+        # Draw curved connection
+        ax.annotate('', xy=(decoder_x - 0.1, decoder_cross_att_y), 
+                   xytext=(encoder_x + box_width + 0.1, encoder_output_y),
+                   arrowprops=dict(arrowstyle='->', color='red', lw=2.5,
+                                 connectionstyle="arc3,rad=0.2", alpha=0.7))
+    
+    # MAIN DATA FLOW ARROWS
+    # Encoder flow
+    for y in [2.5, 3.5, 5, 6, 7, 8, 9, 10, 11]:
+        draw_arrow(encoder_x + box_width/2, y, encoder_x + box_width/2, y + 0.4)
+    
+    # Decoder flow  
+    for y in [2.5, 3.5, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]:
+        draw_arrow(decoder_x + box_width/2, y, decoder_x + box_width/2, y + 0.4)
+    
+    # LABELS AND ANNOTATIONS
+    ax.text(encoder_x + box_width/2, 0.5, 'ENCODER', ha='center', va='center',
+           fontsize=14, weight='bold', color='blue')
+    
+    ax.text(decoder_x + box_width/2, 0.5, 'DECODER', ha='center', va='center',
+           fontsize=14, weight='bold', color='red')
+    
+    # Add "Nx" annotations
+    ax.text(encoder_x - 1, 7.5, 'N×', ha='center', va='center',
+           fontsize=16, weight='bold', rotation=90)
+    
+    ax.text(decoder_x - 1, 9, 'N×', ha='center', va='center',
+           fontsize=16, weight='bold', rotation=90)
+    
+    # Add attention flow annotations
+    ax.text(4.5, 10, 'Keys, Values', ha='center', va='center',
+           fontsize=10, weight='bold', color='red', rotation=15)
+    
+    # Input/Output labels
+    ax.text(encoder_x + box_width/2, 0.2, 'Inputs', ha='center', va='center',
+           fontsize=12, style='italic')
+    
+    ax.text(decoder_x + box_width/2, 16.8, 'Output\nProbabilities', ha='center', va='center',
+           fontsize=12, style='italic')
+    
+    # Title
+    ax.text(5, 17.5, 'Transformer Architecture: "Attention Is All You Need"', 
+           ha='center', va='center', fontsize=16, weight='bold')
+    
+    # Legend
+    legend_x = 10
+    legend_y = 14
+    legend_items = [
+        ('Embeddings', colors['embedding']),
+        ('Attention', colors['attention']),
+        ('Feed Forward', colors['feedforward']),
+        ('Normalization', colors['norm']),
+        ('Output', colors['output'])
+    ]
+    
+    for i, (label, color) in enumerate(legend_items):
+        draw_box(legend_x, legend_y - i*0.7, 1, 0.5, '', color)
+        ax.text(legend_x + 1.2, legend_y - i*0.7 + 0.25, label, 
+               va='center', fontsize=10)
+    
+    ax.text(legend_x + 0.5, legend_y + 0.7, 'Legend', ha='center', 
+           fontsize=12, weight='bold')
+    
+    # Set axis properties
+    ax.set_xlim(-1, 12)
+    ax.set_ylim(0, 18)
+    ax.set_aspect('equal')
+    ax.axis('off')
     
     plt.tight_layout()
     plt.show()
 
+# Also create a detailed attention mechanism visualization
+def plot_attention_mechanism():
+    """Visualize the attention mechanism in detail"""
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    
+    # 1. Query, Key, Value concept
+    ax1 = axes[0, 0]
+    
+    # Create sample matrices
+    seq_len = 4
+    d_model = 6
+    
+    # Input matrix
+    input_matrix = np.random.randn(seq_len, d_model)
+    
+    # Q, K, V matrices (simplified)
+    Q = input_matrix @ np.random.randn(d_model, d_model)
+    K = input_matrix @ np.random.randn(d_model, d_model) 
+    V = input_matrix @ np.random.randn(d_model, d_model)
+    
+    # Show the transformation
+    ax1.text(0.5, 0.9, 'Input → Query, Key, Value', ha='center', transform=ax1.transAxes,
+            fontsize=14, weight='bold')
+    
+    positions = [0.1, 0.35, 0.6, 0.85]
+    labels = ['Input\nX', 'Query\nQ=XWq', 'Key\nK=XWk', 'Value\nV=XWv']
+    matrices = [input_matrix, Q, K, V]
+    colors = ['lightblue', 'lightcoral', 'lightgreen', 'lightyellow']
+    
+    for i, (pos, label, matrix, color) in enumerate(zip(positions, labels, matrices, colors)):
+        im = ax1.imshow(matrix, cmap='RdBu_r', aspect='auto', 
+                       extent=[pos, pos+0.15, 0.1, 0.7])
+        ax1.text(pos+0.075, 0.05, label, ha='center', fontsize=10, weight='bold')
+        
+        if i < 3:  # Draw arrows
+            ax1.annotate('', xy=(positions[i+1]-0.02, 0.4), xytext=(pos+0.17, 0.4),
+                        arrowprops=dict(arrowstyle='->', lw=2))
+    
+    ax1.set_xlim(0, 1)
+    ax1.set_ylim(0, 1)
+    ax1.axis('off')
+    
+    # 2. Attention score calculation
+    ax2 = axes[0, 1]
+    
+    # Simulate attention scores
+    scores = np.random.rand(seq_len, seq_len)
+    scores = scores / scores.sum(axis=1, keepdims=True)  # Normalize
+    
+    im2 = ax2.imshow(scores, cmap='Blues', aspect='equal')
+    ax2.set_title('Attention Weights\nAttention(Q,K,V) = softmax(QK^T/√d_k)V', 
+                 fontsize=12, weight='bold')
+    
+    # Add labels
+    ax2.set_xticks(range(seq_len))
+    ax2.set_yticks(range(seq_len))
+    ax2.set_xticklabels([f'K{i}' for i in range(seq_len)])
+    ax2.set_yticklabels([f'Q{i}' for i in range(seq_len)])
+    
+    # Add values as text
+    for i in range(seq_len):
+        for j in range(seq_len):
+            ax2.text(j, i, f'{scores[i,j]:.2f}', ha='center', va='center',
+                    color='white' if scores[i,j] > 0.5 else 'black')
+    
+    plt.colorbar(im2, ax=ax2, shrink=0.8)
+    
+    # 3. Multi-head attention
+    ax3 = axes[1, 0]
+    
+    num_heads = 4
+    head_colors = ['Reds', 'Blues', 'Greens', 'Purples']
+    
+    for head in range(num_heads):
+        # Generate different attention patterns for each head
+        if head == 0:  # Diagonal pattern
+            pattern = np.eye(seq_len) + 0.1 * np.random.rand(seq_len, seq_len)
+        elif head == 1:  # Previous token pattern
+            pattern = np.tril(np.ones((seq_len, seq_len))) + 0.1 * np.random.rand(seq_len, seq_len)
+        elif head == 2:  # Uniform pattern
+            pattern = np.ones((seq_len, seq_len)) + 0.2 * np.random.rand(seq_len, seq_len)
+        else:  # Local pattern
+            pattern = np.zeros((seq_len, seq_len))
+            for i in range(seq_len):
+                for j in range(max(0, i-1), min(seq_len, i+2)):
+                    pattern[i, j] = 1
+            pattern += 0.1 * np.random.rand(seq_len, seq_len)
+        
+        pattern = pattern / pattern.sum(axis=1, keepdims=True)
+        
+        # Create subplot
+        start_x = 0.02 + head * 0.24
+        start_y = 0.1
+        width = height = 0.2
+        
+        # Create inset axes
+        inset = ax3.inset_axes([start_x, start_y, width, height])
+        im = inset.imshow(pattern, cmap=head_colors[head], aspect='equal')
+        inset.set_title(f'Head {head+1}', fontsize=10, weight='bold')
+        inset.set_xticks([])
+        inset.set_yticks([])
+    
+    ax3.text(0.5, 0.9, 'Multi-Head Attention: Different Heads Learn Different Patterns', 
+            ha='center', transform=ax3.transAxes, fontsize=14, weight='bold')
+    ax3.text(0.5, 0.05, 'Each head captures different types of relationships', 
+            ha='center', transform=ax3.transAxes, fontsize=12, style='italic')
+    ax3.axis('off')
+    
+    # 4. Self-attention vs Cross-attention
+    ax4 = axes[1, 1]
+    
+    # Self-attention
+    self_att = np.random.rand(seq_len, seq_len)
+    self_att = self_att / self_att.sum(axis=1, keepdims=True)
+    
+    # Cross-attention (different dimensions)
+    cross_att = np.random.rand(seq_len, seq_len + 2)  # Different sequence lengths
+    cross_att = cross_att / cross_att.sum(axis=1, keepdims=True)
+    
+    # Plot both
+    im_self = ax4.imshow(self_att, cmap='Blues', aspect='equal', 
+                        extent=[0, seq_len, seq_len, 0])
+    im_cross = ax4.imshow(cross_att, cmap='Reds', aspect='equal', alpha=0.7,
+                         extent=[seq_len+1, seq_len*2+3, seq_len, 0])
+    
+    ax4.set_title('Self-Attention vs Cross-Attention', fontsize=12, weight='bold')
+    ax4.text(seq_len/2, -0.5, 'Self-Attention\n(Decoder→Decoder)', 
+            ha='center', fontsize=10, weight='bold', color='blue')
+    ax4.text(seq_len*1.5+2, -0.5, 'Cross-Attention\n(Decoder→Encoder)', 
+            ha='center', fontsize=10, weight='bold', color='red')
+    
+    ax4.set_xlim(-0.5, seq_len*2+3.5)
+    ax4.set_ylim(-1, seq_len+0.5)
+    ax4.set_xticks([])
+    ax4.set_yticks([])
+    
+    plt.suptitle('Understanding Attention Mechanisms in Transformers', 
+                fontsize=16, weight='bold', y=0.95)
+    plt.tight_layout()
+    plt.show()
+
+# Create the new visualizations
+print("🎨 Creating Enhanced Transformer Architecture Visualization...")
 plot_transformer_architecture()
+
+print("\n🔍 Creating Detailed Attention Mechanism Visualization...")
+plot_attention_mechanism()
 
 # %% [markdown]
 # ### 🎯 Exercise 2.1: Understanding Key Concepts
