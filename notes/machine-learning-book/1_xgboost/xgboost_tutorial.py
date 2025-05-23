@@ -784,6 +784,711 @@ print(f"\n⚠️  Note: In production, use XGBoost's built-in early stopping fea
 print(f"   (implementation varies by XGBoost version - check your version's documentation)")
 
 # %% [markdown]
+# ## Advanced Techniques: Cross-Validation, Regularization & Subsampling 🎯
+# 
+# Let's explore three powerful techniques that make XGBoost robust:
+# 
+# ### 1. **Cross-Validation**: Reliable performance estimation
+# ### 2. **Regularization**: L1/L2 penalties to prevent overfitting  
+# ### 3. **Subsampling**: Random sampling for better generalization
+
+# %% [markdown]
+# ### Technique 1: Cross-Validation 📊
+# 
+# Cross-validation gives us a more reliable estimate of model performance by:
+# - Training on multiple data splits
+# - Reducing variance in performance estimates
+# - Helping with hyperparameter selection
+
+# %%
+# Cross-validation demonstration
+from sklearn.model_selection import cross_val_score, KFold, StratifiedKFold
+import time
+
+# Create a challenging dataset for cross-validation
+np.random.seed(42)
+X_cv, y_cv = make_classification(n_samples=3000, n_features=20, 
+                                 n_informative=10, n_redundant=5,
+                                 n_clusters_per_class=2, flip_y=0.1, 
+                                 random_state=42)
+
+print("🔄 Cross-Validation Comparison")
+print("="*50)
+
+# Single train-test split
+X_train_single, X_test_single, y_train_single, y_test_single = train_test_split(
+    X_cv, y_cv, test_size=0.3, random_state=42
+)
+
+model_single = xgb.XGBClassifier(n_estimators=100, random_state=42, eval_metric='logloss')
+start_time = time.time()
+model_single.fit(X_train_single, y_train_single)
+single_score = model_single.score(X_test_single, y_test_single)
+single_time = time.time() - start_time
+
+print(f"📈 Single Split Result:")
+print(f"   Accuracy: {single_score:.4f}")
+print(f"   Time: {single_time:.2f}s")
+
+# Cross-validation with different folds
+cv_results = {}
+fold_options = [3, 5, 10]
+
+for n_folds in fold_options:
+    start_time = time.time()
+    cv_scores = cross_val_score(
+        xgb.XGBClassifier(n_estimators=100, random_state=42, eval_metric='logloss'),
+        X_cv, y_cv, 
+        cv=StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42),
+        scoring='accuracy',
+        n_jobs=-1
+    )
+    cv_time = time.time() - start_time
+    
+    cv_results[n_folds] = {
+        'mean': cv_scores.mean(),
+        'std': cv_scores.std(),
+        'scores': cv_scores,
+        'time': cv_time
+    }
+    
+    print(f"\n📊 {n_folds}-Fold Cross-Validation:")
+    print(f"   Mean Accuracy: {cv_scores.mean():.4f} ± {cv_scores.std():.4f}")
+    print(f"   Individual Folds: {[f'{score:.3f}' for score in cv_scores]}")
+    print(f"   Time: {cv_time:.2f}s")
+
+# Visualize cross-validation results
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+
+# Box plot of CV scores
+cv_data = [cv_results[k]['scores'] for k in fold_options]
+bp = ax1.boxplot(cv_data, labels=[f'{k}-Fold' for k in fold_options], patch_artist=True)
+colors = ['lightblue', 'lightgreen', 'lightcoral']
+for patch, color in zip(bp['boxes'], colors):
+    patch.set_facecolor(color)
+
+ax1.axhline(y=single_score, color='red', linestyle='--', 
+           label=f'Single Split ({single_score:.3f})')
+ax1.set_ylabel('Accuracy')
+ax1.set_title('Cross-Validation Score Distribution')
+ax1.legend()
+ax1.grid(True, alpha=0.3)
+
+# Mean scores with error bars
+means = [cv_results[k]['mean'] for k in fold_options]
+stds = [cv_results[k]['std'] for k in fold_options]
+ax2.errorbar(fold_options, means, yerr=stds, marker='o', capsize=5, capthick=2)
+ax2.axhline(y=single_score, color='red', linestyle='--', 
+           label=f'Single Split ({single_score:.3f})')
+ax2.set_xlabel('Number of Folds')
+ax2.set_ylabel('Mean Accuracy')
+ax2.set_title('Cross-Validation: Mean ± Std')
+ax2.legend()
+ax2.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+print(f"\n💡 Key Insights:")
+print(f"   • Cross-validation provides confidence intervals")
+print(f"   • More folds = more reliable estimates (but slower)")
+print(f"   • Single split can be misleading due to lucky/unlucky splits")
+
+# %% [markdown]
+# ### Technique 2: Regularization Deep Dive 🛡️
+# 
+# Regularization adds penalties to prevent overfitting:
+# - **L1 (Lasso)**: Encourages sparsity, automatic feature selection
+# - **L2 (Ridge)**: Shrinks weights, handles multicollinearity
+# - **Elastic Net**: Combines L1 + L2
+
+# %%
+# Comprehensive regularization demonstration
+# Create a dataset prone to overfitting (many features, few samples)
+np.random.seed(42)
+X_reg, y_reg = make_classification(n_samples=500, n_features=100, 
+                                   n_informative=20, n_redundant=20,
+                                   random_state=42)
+
+X_train_reg, X_test_reg, y_train_reg, y_test_reg = train_test_split(
+    X_reg, y_reg, test_size=0.3, random_state=42
+)
+
+print("🛡️ Regularization Impact Analysis")
+print("="*50)
+
+# Test different regularization configurations
+reg_configs = [
+    {'name': 'No Regularization', 'reg_alpha': 0, 'reg_lambda': 0},
+    {'name': 'L1 Only (Lasso)', 'reg_alpha': 10, 'reg_lambda': 0},
+    {'name': 'L2 Only (Ridge)', 'reg_alpha': 0, 'reg_lambda': 10},
+    {'name': 'L1 + L2 (Elastic)', 'reg_alpha': 5, 'reg_lambda': 5},
+    {'name': 'Strong L1', 'reg_alpha': 50, 'reg_lambda': 0},
+    {'name': 'Strong L2', 'reg_alpha': 0, 'reg_lambda': 50}
+]
+
+reg_results = []
+
+for config in reg_configs:
+    # Train model with specific regularization
+    model = xgb.XGBClassifier(
+        n_estimators=200,
+        max_depth=8,  # Deep trees to encourage overfitting
+        learning_rate=0.1,
+        reg_alpha=config['reg_alpha'],
+        reg_lambda=config['reg_lambda'],
+        random_state=42,
+        eval_metric='logloss'
+    )
+    
+    model.fit(X_train_reg, y_train_reg)
+    
+    train_acc = model.score(X_train_reg, y_train_reg)
+    test_acc = model.score(X_test_reg, y_test_reg)
+    overfitting_gap = train_acc - test_acc
+    
+    # Count non-zero feature importances (sparsity measure)
+    non_zero_features = np.sum(model.feature_importances_ > 1e-6)
+    
+    reg_results.append({
+        'config': config['name'],
+        'train_acc': train_acc,
+        'test_acc': test_acc,
+        'gap': overfitting_gap,
+        'features_used': non_zero_features,
+        'reg_alpha': config['reg_alpha'],
+        'reg_lambda': config['reg_lambda']
+    })
+
+# Convert to DataFrame for easy analysis
+reg_df = pd.DataFrame(reg_results)
+print(reg_df[['config', 'train_acc', 'test_acc', 'gap', 'features_used']].round(4))
+
+# Visualize regularization effects
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+
+# 1. Training vs Test Accuracy
+x_pos = np.arange(len(reg_configs))
+width = 0.35
+
+bars1 = ax1.bar(x_pos - width/2, reg_df['train_acc'], width, 
+                label='Training Accuracy', alpha=0.8, color='skyblue')
+bars2 = ax1.bar(x_pos + width/2, reg_df['test_acc'], width, 
+                label='Test Accuracy', alpha=0.8, color='lightcoral')
+ax1.set_xlabel('Regularization Type')
+ax1.set_ylabel('Accuracy')
+ax1.set_title('Training vs Test Accuracy by Regularization')
+ax1.set_xticks(x_pos)
+ax1.set_xticklabels(reg_df['config'], rotation=45, ha='right')
+ax1.legend()
+ax1.grid(True, alpha=0.3)
+
+# Add value labels
+for i, (mean, std) in enumerate(zip(reg_df['train_acc'], reg_df['reg_lambda'])):
+    ax1.text(i, mean + std + 0.005, f'{mean:.3f}', ha='center', va='bottom', fontsize=8)
+
+# 2. Overfitting Gap
+colors = ['red' if gap > 0.05 else 'orange' if gap > 0.02 else 'green' 
+          for gap in reg_df['gap']]
+bars3 = ax2.bar(reg_df['config'], reg_df['gap'], color=colors, alpha=0.7)
+ax2.set_ylabel('Overfitting Gap')
+ax2.set_title('Overfitting Gap by Regularization')
+ax2.set_xticklabels(reg_df['config'], rotation=45, ha='right')
+ax2.axhline(y=0.05, color='red', linestyle='--', alpha=0.5, label='High Risk')
+ax2.axhline(y=0.02, color='orange', linestyle='--', alpha=0.5, label='Moderate Risk')
+ax2.legend()
+ax2.grid(True, alpha=0.3)
+
+# Add gap values
+for bar, gap in zip(bars3, reg_df['gap']):
+    ax2.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.002,
+             f'{gap:.3f}', ha='center', va='bottom', fontweight='bold')
+
+# 3. Feature Sparsity (L1 effect)
+ax3.bar(reg_df['config'], reg_df['features_used'], color='purple', alpha=0.6)
+ax3.set_ylabel('Number of Features Used')
+ax3.set_title('Feature Sparsity: L1 Regularization Effect')
+ax3.set_xticklabels(reg_df['config'], rotation=45, ha='right')
+ax3.axhline(y=100, color='gray', linestyle='--', alpha=0.5, label='Total Features')
+ax3.legend()
+ax3.grid(True, alpha=0.3)
+
+# 4. Regularization Strength vs Performance
+l1_strengths = reg_df['reg_alpha'].values
+l2_strengths = reg_df['reg_lambda'].values
+test_accs = reg_df['test_acc'].values
+
+# Create scatter plot
+scatter = ax4.scatter(l1_strengths, l2_strengths, c=test_accs, s=200, 
+                     cmap='viridis', alpha=0.8, edgecolors='black')
+ax4.set_xlabel('L1 Regularization (reg_alpha)')
+ax4.set_ylabel('L2 Regularization (reg_lambda)')
+ax4.set_title('Regularization Strength vs Test Performance')
+
+# Add colorbar
+cbar = plt.colorbar(scatter, ax=ax4)
+cbar.set_label('Test Accuracy')
+
+# Annotate points
+for i, config in enumerate(reg_df['config']):
+    ax4.annotate(f'{i+1}', (l1_strengths[i], l2_strengths[i]), 
+                xytext=(5, 5), textcoords='offset points', 
+                fontsize=10, fontweight='bold', color='white')
+
+ax4.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+# Print detailed analysis
+print(f"\n📊 Regularization Analysis:")
+print("="*50)
+best_config = reg_df.loc[reg_df['test_acc'].idxmax()]
+lowest_gap = reg_df.loc[reg_df['gap'].idxmin()]
+
+print(f"🏆 Best Test Performance: {best_config['config']}")
+print(f"   Test Accuracy: {best_config['test_acc']:.4f}")
+print(f"   Overfitting Gap: {best_config['gap']:.4f}")
+print(f"   Features Used: {best_config['features_used']}/100")
+
+print(f"\n🛡️ Lowest Overfitting: {lowest_gap['config']}")
+print(f"   Test Accuracy: {lowest_gap['test_acc']:.4f}")
+print(f"   Overfitting Gap: {lowest_gap['gap']:.4f}")
+print(f"   Features Used: {lowest_gap['features_used']}/100")
+
+print(f"\n💡 Key Observations:")
+print(f"   • L1 regularization reduces feature usage (sparsity)")
+print(f"   • L2 regularization smooths weights (generalization)")
+print(f"   • Strong regularization may hurt performance")
+print(f"   • Combination (Elastic Net) often works best")
+
+# %% [markdown]
+# ### Technique 3: Subsampling Strategies 🎲
+# 
+# Subsampling adds randomness to improve generalization:
+# - **Row Subsampling (subsample)**: Use random subset of training data
+# - **Column Subsampling (colsample_bytree)**: Use random subset of features
+# - **Column Subsampling by Level (colsample_bylevel)**: Different features per tree level
+
+# %%
+# Comprehensive subsampling demonstration
+print("🎲 Subsampling Techniques Analysis")
+print("="*50)
+
+# Create a moderately complex dataset
+np.random.seed(42)
+X_sub, y_sub = make_classification(n_samples=2000, n_features=50, 
+                                   n_informative=25, n_redundant=10,
+                                   random_state=42)
+
+X_train_sub, X_test_sub, y_train_sub, y_test_sub = train_test_split(
+    X_sub, y_sub, test_size=0.3, random_state=42
+)
+
+# Test different subsampling configurations
+subsample_configs = [
+    {'name': 'No Subsampling', 'subsample': 1.0, 'colsample_bytree': 1.0, 'colsample_bylevel': 1.0},
+    {'name': 'Row Subsampling', 'subsample': 0.8, 'colsample_bytree': 1.0, 'colsample_bylevel': 1.0},
+    {'name': 'Column Subsampling', 'subsample': 1.0, 'colsample_bytree': 0.8, 'colsample_bylevel': 1.0},
+    {'name': 'Level Subsampling', 'subsample': 1.0, 'colsample_bytree': 1.0, 'colsample_bylevel': 0.8},
+    {'name': 'Row + Column', 'subsample': 0.8, 'colsample_bytree': 0.8, 'colsample_bylevel': 1.0},
+    {'name': 'All Subsampling', 'subsample': 0.7, 'colsample_bytree': 0.7, 'colsample_bylevel': 0.8},
+    {'name': 'Aggressive Sub.', 'subsample': 0.6, 'colsample_bytree': 0.6, 'colsample_bylevel': 0.7}
+]
+
+# Train models and evaluate with cross-validation for more robust results
+subsample_results = []
+
+for config in subsample_configs:
+    print(f"⚙️ Testing {config['name']}...")
+    
+    model = xgb.XGBClassifier(
+        n_estimators=150,
+        max_depth=6,
+        learning_rate=0.1,
+        subsample=config['subsample'],
+        colsample_bytree=config['colsample_bytree'],
+        colsample_bylevel=config['colsample_bylevel'],
+        random_state=42,
+        eval_metric='logloss'
+    )
+    
+    # Use 3-fold CV for faster evaluation
+    cv_scores = cross_val_score(model, X_train_sub, y_train_sub, 
+                               cv=3, scoring='accuracy', n_jobs=-1)
+    
+    # Also train on full training set for train/test comparison
+    model.fit(X_train_sub, y_train_sub)
+    train_acc = model.score(X_train_sub, y_train_sub)
+    test_acc = model.score(X_test_sub, y_test_sub)
+    
+    subsample_results.append({
+        'config': config['name'],
+        'cv_mean': cv_scores.mean(),
+        'cv_std': cv_scores.std(),
+        'train_acc': train_acc,
+        'test_acc': test_acc,
+        'gap': train_acc - test_acc,
+        'subsample': config['subsample'],
+        'colsample_bytree': config['colsample_bytree'],
+        'colsample_bylevel': config['colsample_bylevel'],
+        'cv_scores': cv_scores
+    })
+
+# Convert to DataFrame
+sub_df = pd.DataFrame(subsample_results)
+print("\n📊 Subsampling Results:")
+display_cols = ['config', 'cv_mean', 'cv_std', 'train_acc', 'test_acc', 'gap']
+print(sub_df[display_cols].round(4))
+
+# Comprehensive visualization
+fig = plt.figure(figsize=(20, 12))
+
+# 1. CV Scores with error bars
+ax1 = plt.subplot(2, 3, 1)
+cv_means = sub_df['cv_mean']
+cv_stds = sub_df['cv_std']
+x_pos = np.arange(len(subsample_configs))
+
+bars = ax1.bar(x_pos, cv_means, yerr=cv_stds, capsize=5, 
+               alpha=0.8, color='lightblue', edgecolor='navy')
+ax1.set_xlabel('Subsampling Strategy')
+ax1.set_ylabel('Cross-Validation Accuracy')
+ax1.set_title('Cross-Validation Performance (Mean ± Std)')
+ax1.set_xticks(x_pos)
+ax1.set_xticklabels(sub_df['config'], rotation=45, ha='right')
+ax1.grid(True, alpha=0.3)
+
+# Add value labels
+for i, (mean, std) in enumerate(zip(cv_means, cv_stds)):
+    ax1.text(i, mean + std + 0.005, f'{mean:.3f}', ha='center', va='bottom', fontweight='bold')
+
+# 2. Train vs Test accuracy
+ax2 = plt.subplot(2, 3, 2)
+width = 0.35
+bars1 = ax2.bar(x_pos - width/2, sub_df['train_acc'], width, 
+                label='Training', alpha=0.8, color='skyblue')
+bars2 = ax2.bar(x_pos + width/2, sub_df['test_acc'], width, 
+                label='Test', alpha=0.8, color='lightcoral')
+ax2.set_xlabel('Subsampling Strategy')
+ax2.set_ylabel('Accuracy')
+ax2.set_title('Training vs Test Accuracy')
+ax2.set_xticks(x_pos)
+ax2.set_xticklabels(sub_df['config'], rotation=45, ha='right')
+ax2.legend()
+ax2.grid(True, alpha=0.3)
+
+# 3. Overfitting gap
+ax3 = plt.subplot(2, 3, 3)
+colors = ['red' if gap > 0.05 else 'orange' if gap > 0.02 else 'green' 
+          for gap in sub_df['gap']]
+bars3 = ax3.bar(sub_df['config'], sub_df['gap'], color=colors, alpha=0.7)
+ax3.set_ylabel('Overfitting Gap')
+ax3.set_title('Overfitting Gap by Strategy')
+ax3.set_xticklabels(sub_df['config'], rotation=45, ha='right')
+ax3.axhline(y=0.05, color='red', linestyle='--', alpha=0.5)
+ax3.axhline(y=0.02, color='orange', linestyle='--', alpha=0.5)
+ax3.legend()
+ax3.grid(True, alpha=0.3)
+
+# 4. Box plot of CV scores
+cv_data = [result['cv_scores'] for result in subsample_results]
+bp = ax4.boxplot(cv_data, labels=sub_df['config'], patch_artist=True)
+colors = ['lightgray', 'lightblue', 'lightgreen', 'gold']
+for patch, color in zip(bp['boxes'], colors):
+    patch.set_facecolor(color)
+
+ax4.set_ylabel('Cross-Validation Accuracy')
+ax4.set_title('CV Score Distribution')
+ax4.set_xticklabels(sub_df['config'], rotation=45, ha='right')
+ax4.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+# Detailed analysis
+print(f"\n📈 Subsampling Analysis:")
+print("="*50)
+
+best_cv = sub_df.loc[sub_df['cv_mean'].idxmax()]
+best_test = sub_df.loc[sub_df['test_acc'].idxmax()]
+lowest_gap = sub_df.loc[sub_df['gap'].idxmin()]
+
+print(f"🏆 Best CV Performance: {best_cv['config']}")
+print(f"   CV Score: {best_cv['cv_mean']:.4f} ± {best_cv['cv_std']:.4f}")
+print(f"   Test Accuracy: {best_cv['test_acc']:.4f}")
+print(f"   Overfitting Gap: {best_cv['gap']:.4f}")
+
+print(f"\n🎯 Best Test Performance: {best_test['config']}")
+print(f"   Test Accuracy: {best_test['test_acc']:.4f}")
+print(f"   CV Score: {best_test['cv_mean']:.4f} ± {best_test['cv_std']:.4f}")
+
+print(f"\n🛡️ Lowest Overfitting: {lowest_gap['config']}")
+print(f"   Overfitting Gap: {lowest_gap['gap']:.4f}")
+print(f"   Test Accuracy: {lowest_gap['test_acc']:.4f}")
+
+print(f"\n💡 Key Insights:")
+print(f"   • Row subsampling reduces overfitting but may hurt performance")
+print(f"   • Column subsampling adds randomness and feature selection")
+print(f"   • Level subsampling provides fine-grained randomness")
+print(f"   • Moderate subsampling (0.7-0.8) often optimal")
+print(f"   • Too aggressive subsampling hurts both bias and variance")
+
+# %% [markdown]
+# ## Combined Techniques: The Ultimate XGBoost Model 🚀
+# 
+# Let's combine all techniques for the most robust model possible!
+
+# %%
+# Ultimate XGBoost model combining all techniques
+print("🚀 Building the Ultimate XGBoost Model")
+print("="*50)
+
+# Use a challenging dataset
+np.random.seed(42)
+X_ultimate, y_ultimate = make_classification(
+    n_samples=3000, n_features=100, 
+    n_informative=30, n_redundant=20,
+    n_clusters_per_class=3, flip_y=0.05,
+    random_state=42
+)
+
+X_train_ult, X_test_ult, y_train_ult, y_test_ult = train_test_split(
+    X_ultimate, y_ultimate, test_size=0.2, random_state=42, stratify=y_ultimate
+)
+
+# Define models to compare
+models_to_compare = {
+    'Baseline': {
+        'n_estimators': 100,
+        'max_depth': 6,
+        'learning_rate': 0.3,
+        'subsample': 1.0,
+        'colsample_bytree': 1.0,
+        'reg_alpha': 0,
+        'reg_lambda': 1
+    },
+    
+    'With Regularization': {
+        'n_estimators': 100,
+        'max_depth': 6,
+        'learning_rate': 0.3,
+        'subsample': 1.0,
+        'colsample_bytree': 1.0,
+        'reg_alpha': 5,
+        'reg_lambda': 5
+    },
+    
+    'With Subsampling': {
+        'n_estimators': 100,
+        'max_depth': 6,
+        'learning_rate': 0.3,
+        'subsample': 0.8,
+        'colsample_bytree': 0.8,
+        'reg_alpha': 0,
+        'reg_lambda': 1
+    },
+    
+    'Ultimate Model': {
+        'n_estimators': 200,
+        'max_depth': 5,
+        'learning_rate': 0.1,
+        'subsample': 0.8,
+        'colsample_bytree': 0.8,
+        'colsample_bylevel': 0.9,
+        'reg_alpha': 3,
+        'reg_lambda': 3,
+        'gamma': 1,
+        'min_child_weight': 3
+    }
+}
+
+# Compare models using cross-validation
+comparison_results = []
+
+for model_name, params in models_to_compare.items():
+    print(f"🔄 Evaluating {model_name}...")
+    
+    model = xgb.XGBClassifier(
+        **params,
+        random_state=42,
+        eval_metric='logloss',
+        n_jobs=-1
+    )
+    
+    # 5-fold cross-validation
+    cv_scores = cross_val_score(
+        model, X_train_ult, y_train_ult,
+        cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
+        scoring='accuracy',
+        n_jobs=-1
+    )
+    
+    # Train on full training set for final evaluation
+    model.fit(X_train_ult, y_train_ult)
+    train_acc = model.score(X_train_ult, y_train_ult)
+    test_acc = model.score(X_test_ult, y_test_ult)
+    
+    # Store results
+    comparison_results.append({
+        'model': model_name,
+        'cv_mean': cv_scores.mean(),
+        'cv_std': cv_scores.std(),
+        'train_acc': train_acc,
+        'test_acc': test_acc,
+        'gap': train_acc - test_acc,
+        'cv_scores': cv_scores
+    })
+
+# Convert to DataFrame for analysis
+comp_df = pd.DataFrame(comparison_results)
+print("\n📊 Model Comparison Results:")
+print(comp_df[['model', 'cv_mean', 'cv_std', 'train_acc', 'test_acc', 'gap']].round(4))
+
+# Visualization
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+
+# 1. Cross-validation scores with error bars
+models = comp_df['model']
+cv_means = comp_df['cv_mean']
+cv_stds = comp_df['cv_std']
+
+bars = ax1.bar(models, cv_means, yerr=cv_stds, capsize=5, 
+               alpha=0.8, color=['gray', 'blue', 'green', 'gold'])
+ax1.set_ylabel('Cross-Validation Accuracy')
+ax1.set_title('Cross-Validation Performance Comparison')
+ax1.set_xticklabels(models, rotation=45, ha='right')
+ax1.grid(True, alpha=0.3)
+
+# Add value labels
+for i, (mean, std) in enumerate(zip(cv_means, cv_stds)):
+    ax1.text(i, mean + std + 0.005, f'{mean:.3f}', ha='center', va='bottom', fontweight='bold')
+
+# 2. Train vs Test accuracy
+x_pos = np.arange(len(models))
+width = 0.35
+
+bars1 = ax2.bar(x_pos - width/2, comp_df['train_acc'], width, 
+                label='Training', alpha=0.8, color='skyblue')
+bars2 = ax2.bar(x_pos + width/2, comp_df['test_acc'], width, 
+                label='Test', alpha=0.8, color='lightcoral')
+ax2.set_ylabel('Accuracy')
+ax2.set_title('Training vs Test Accuracy')
+ax2.set_xticks(x_pos)
+ax2.set_xticklabels(models, rotation=45, ha='right')
+ax2.legend()
+ax2.grid(True, alpha=0.3)
+
+# 3. Overfitting gap
+ax3.bar(models, comp_df['gap'], color='red', alpha=0.7)
+ax3.set_ylabel('Overfitting Gap (Train - Test)')
+ax3.set_title('Overfitting Comparison')
+ax3.set_xticklabels(models, rotation=45, ha='right')
+ax3.axhline(y=0.05, color='red', linestyle='--', alpha=0.5)
+ax3.axhline(y=0.02, color='red', linestyle='--', alpha=0.5)
+ax3.legend()
+ax3.grid(True, alpha=0.3)
+
+# 4. Box plot of CV scores
+cv_data = [result['cv_scores'] for result in comparison_results]
+bp = ax4.boxplot(cv_data, labels=models, patch_artist=True)
+colors = ['lightgray', 'lightblue', 'lightgreen', 'gold']
+for patch, color in zip(bp['boxes'], colors):
+    patch.set_facecolor(color)
+
+ax4.set_ylabel('Cross-Validation Accuracy')
+ax4.set_title('CV Score Distribution')
+ax4.set_xticklabels(models, rotation=45, ha='right')
+ax4.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+# Final analysis
+print(f"\n🏆 FINAL RESULTS:")
+print("="*50)
+
+best_model = comp_df.loc[comp_df['test_acc'].idxmax()]
+lowest_gap = comp_df.loc[comp_df['gap'].idxmin()]
+
+print(f"🥇 Best Overall Performance: {best_model['model']}")
+print(f"   Test Accuracy: {best_model['test_acc']:.4f}")
+print(f"   CV Score: {best_model['cv_mean']:.4f} ± {best_model['cv_std']:.4f}")
+print(f"   Overfitting Gap: {best_model['gap']:.4f}")
+
+print(f"\n🛡️ Best Generalization: {lowest_gap['model']}")
+print(f"   Overfitting Gap: {lowest_gap['gap']:.4f}")
+print(f"   Test Accuracy: {lowest_gap['test_acc']:.4f}")
+
+# Calculate improvements
+baseline_test = comp_df[comp_df['model'] == 'Baseline']['test_acc'].iloc[0]
+ultimate_test = comp_df[comp_df['model'] == 'Ultimate Model']['test_acc'].iloc[0]
+improvement = ((ultimate_test - baseline_test) / baseline_test) * 100
+
+baseline_gap = comp_df[comp_df['model'] == 'Baseline']['gap'].iloc[0]
+ultimate_gap = comp_df[comp_df['model'] == 'Ultimate Model']['gap'].iloc[0]
+gap_reduction = ((baseline_gap - ultimate_gap) / baseline_gap) * 100
+
+print(f"\n📈 Ultimate Model Improvements:")
+print(f"   Test Accuracy Improvement: {improvement:.1f}%")
+print(f"   Overfitting Reduction: {gap_reduction:.1f}%")
+print(f"   More Robust: Lower CV standard deviation")
+
+print(f"\n🎯 Key Takeaways:")
+print(f"   ✅ Regularization prevents overfitting")
+print(f"   ✅ Subsampling adds beneficial randomness")
+print(f"   ✅ Cross-validation provides reliable estimates")
+print(f"   ✅ Combined techniques work synergistically")
+print(f"   ✅ Slower learning (lr=0.1) with more trees often better")
+
+# %% [markdown]
+# ## 🎉 Congratulations!
+# 
+# You've successfully completed a comprehensive XGBoost learning journey! Here's what you've learned:
+# 
+# ### Theory & Fundamentals:
+# ✅ How gradient boosting works  
+# ✅ XGBoost's improvements over traditional boosting  
+# ✅ Key parameters and their effects  
+# ✅ Regularization and overfitting prevention  
+# 
+# ### Practical Skills:
+# ✅ Data preprocessing and feature engineering  
+# ✅ Model training and hyperparameter tuning  
+# ✅ Model evaluation with multiple metrics  
+# ✅ Business application and decision-making  
+# 
+# ### Next Steps:
+# 1. Try XGBoost on your own datasets
+# 2. Experiment with different objective functions
+# 3. Explore XGBoost's advanced features (custom objectives, callbacks)
+# 4. Learn about SHAP values for model interpretation
+# 5. Compare with LightGBM and CatBoost
+# 
+# Happy modeling! 🚀
+
+# %% [markdown]
+# ## 📚 Additional Exercises for Practice
+# 
+# 1. **Feature Selection**: Use XGBoost's feature importance to select top features and retrain
+# 2. **Class Imbalance**: Experiment with `scale_pos_weight` parameter
+# 3. **Custom Metrics**: Implement a custom evaluation metric for business cost
+# 4. **Ensemble Methods**: Combine XGBoost with other models
+# 5. **Time Series**: Apply XGBoost to time-series prediction
+
+# %%
+# Save the model for deployment
+import joblib
+
+# Save the model
+# joblib.dump(final_model, 'credit_risk_xgboost_model.pkl')
+# print("✅ Model saved successfully!")
+
+# Example: Loading and using the saved model
+# loaded_model = joblib.load('credit_risk_xgboost_model.pkl')
+# new_predictions = loaded_model.predict(new_data)
+
+# %% [markdown]
 # ---
 # # Part 2: Hands-On Project 🏗️
 # 
@@ -1265,32 +1970,6 @@ print(f"Default rate among approved: {business_df.loc[optimal_idx, 'default_rate
 print(f"Expected profit per 100 loans: ${business_df.loc[optimal_idx, 'profit_per_100_loans']:.2f}")
 
 # %% [markdown]
-# ## 🎉 Congratulations!
-# 
-# You've successfully completed a comprehensive XGBoost learning journey! Here's what you've learned:
-# 
-# ### Theory & Fundamentals:
-# ✅ How gradient boosting works  
-# ✅ XGBoost's improvements over traditional boosting  
-# ✅ Key parameters and their effects  
-# ✅ Regularization and overfitting prevention  
-# 
-# ### Practical Skills:
-# ✅ Data preprocessing and feature engineering  
-# ✅ Model training and hyperparameter tuning  
-# ✅ Model evaluation with multiple metrics  
-# ✅ Business application and decision-making  
-# 
-# ### Next Steps:
-# 1. Try XGBoost on your own datasets
-# 2. Experiment with different objective functions
-# 3. Explore XGBoost's advanced features (custom objectives, callbacks)
-# 4. Learn about SHAP values for model interpretation
-# 5. Compare with LightGBM and CatBoost
-# 
-# Happy modeling! 🚀
-
-# %% [markdown]
 # ## 📚 Additional Exercises for Practice
 # 
 # 1. **Feature Selection**: Use XGBoost's feature importance to select top features and retrain
@@ -1304,8 +1983,8 @@ print(f"Expected profit per 100 loans: ${business_df.loc[optimal_idx, 'profit_pe
 import joblib
 
 # Save the model
-joblib.dump(final_model, 'credit_risk_xgboost_model.pkl')
-print("✅ Model saved successfully!")
+# joblib.dump(final_model, 'credit_risk_xgboost_model.pkl')
+# print("✅ Model saved successfully!")
 
 # Example: Loading and using the saved model
 # loaded_model = joblib.load('credit_risk_xgboost_model.pkl')
