@@ -410,20 +410,20 @@ for idx, lr in enumerate(learning_rates):
     plt.subplot(2, 2, idx + 1)
     
     # TODO: Train a gradient boosting model with the specified learning rate
-    # model = SimpleGradientBoosting(n_estimators=20, learning_rate=lr, max_depth=3)
-    # model.fit(X_simple, y_simple)
-    # predictions = model.predict(X_simple)
+    model = SimpleGradientBoosting(n_estimators=20, learning_rate=lr, max_depth=3)
+    model.fit(X_simple, y_simple)
+    predictions = model.predict(X_simple)
     
     # TODO: Plot the results
-    # plt.scatter(X_simple, y_simple, alpha=0.5, s=20)
-    # sort_idx = np.argsort(X_simple.ravel())
-    # plt.plot(X_simple[sort_idx], predictions[sort_idx], 'r-', linewidth=2)
-    # plt.title(f'Learning Rate = {lr}')
-    # plt.grid(True, alpha=0.3)
+    plt.scatter(X_simple, y_simple, alpha=0.5, s=20)
+    sort_idx = np.argsort(X_simple.ravel())
+    plt.plot(X_simple[sort_idx], predictions[sort_idx], 'r-', linewidth=2)
+    plt.title(f'Learning Rate = {lr}')
+    plt.grid(True, alpha=0.3)
     
     # Placeholder
-    plt.text(0.5, 0.5, f'TODO: LR={lr}', ha='center', va='center', transform=plt.gca().transAxes)
-    plt.title(f'Learning Rate = {lr}')
+    # plt.text(0.5, 0.5, f'TODO: LR={lr}', ha='center', va='center', transform=plt.gca().transAxes)
+    # plt.title(f'Learning Rate = {lr}')
 
 plt.tight_layout()
 plt.show()
@@ -582,26 +582,136 @@ X_train_o, X_test_o, y_train_o, y_test_o = train_test_split(
 )
 
 # TODO: Train two models - one without regularization, one with
-# model_no_reg = xgb.XGBClassifier(
-#     n_estimators=100,
-#     max_depth=10,
-#     reg_alpha=0,
-#     reg_lambda=0,
-#     random_state=42
-# )
+model_no_reg = xgb.XGBClassifier(
+    n_estimators=100,
+    max_depth=10,
+    reg_alpha=0,
+    reg_lambda=0,
+    random_state=42,
+    eval_metric='logloss'
+)
 
-# model_with_reg = xgb.XGBClassifier(
-#     n_estimators=100,
-#     max_depth=10,
-#     reg_alpha=1,
-#     reg_lambda=1,
-#     random_state=42
-# )
+model_with_reg = xgb.XGBClassifier(
+    n_estimators=300,         # More trees, but each learns less (due to low learning rate)
+    max_depth=6,              # Shallower trees to reduce complexity
+    learning_rate=0.05,       # Slower learning, helps regularization
+    reg_alpha=10,             # Strong L1 regularization (feature selection)
+    reg_lambda=10,            # Strong L2 regularization (weight shrinkage)
+    subsample=0.7,            # Use 70% of data per tree (adds randomness)
+    colsample_bytree=0.7,     # Use 70% of features per tree (adds randomness)
+    min_child_weight=5,       # Require more samples per leaf (prevents small, specific splits)
+    gamma=1,                  # Minimum loss reduction for split (prevents unnecessary splits)
+    random_state=42,
+    eval_metric='logloss'
+)
 
-# TODO: Fit both models and compare train vs test accuracy
-# Plot the results showing overfitting vs regularized model
+# Fit both models
+print("🚀 Training models...")
+model_no_reg.fit(X_train_o, y_train_o)
 
-print("TODO: Complete this exercise to see how regularization prevents overfitting!")
+# Train regularized model
+print("🛡️ Training strongly regularized model...")
+model_with_reg.fit(X_train_o, y_train_o)
+
+# Calculate accuracies
+train_acc_no_reg = model_no_reg.score(X_train_o, y_train_o)
+test_acc_no_reg = model_no_reg.score(X_test_o, y_test_o)
+
+train_acc_with_reg = model_with_reg.score(X_train_o, y_train_o)
+test_acc_with_reg = model_with_reg.score(X_test_o, y_test_o)
+
+# Create comparison visualization
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+
+# Bar plot comparing accuracies
+models = ['No Regularization', 'With Regularization']
+train_scores = [train_acc_no_reg, train_acc_with_reg]
+test_scores = [test_acc_no_reg, test_acc_with_reg]
+
+x = np.arange(len(models))
+width = 0.35
+
+bars1 = ax1.bar(x - width/2, train_scores, width, label='Training Accuracy', color='skyblue', alpha=0.8)
+bars2 = ax1.bar(x + width/2, test_scores, width, label='Test Accuracy', color='lightcoral', alpha=0.8)
+
+ax1.set_xlabel('Model Type')
+ax1.set_ylabel('Accuracy')
+ax1.set_title('Training vs Test Accuracy: Overfitting Demo')
+ax1.set_xticks(x)
+ax1.set_xticklabels(models)
+ax1.legend()
+ax1.grid(True, alpha=0.3)
+
+# Add value labels on bars
+for bar in bars1:
+    height = bar.get_height()
+    ax1.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+             f'{height:.3f}', ha='center', va='bottom')
+
+for bar in bars2:
+    height = bar.get_height()
+    ax1.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+             f'{height:.3f}', ha='center', va='bottom')
+
+# Overfitting gap visualization
+overfitting_gap_no_reg = train_acc_no_reg - test_acc_no_reg
+overfitting_gap_with_reg = train_acc_with_reg - test_acc_with_reg
+
+gaps = [overfitting_gap_no_reg, overfitting_gap_with_reg]
+colors = ['red' if gap > 0.05 else 'green' for gap in gaps]
+
+bars3 = ax2.bar(models, gaps, color=colors, alpha=0.7)
+ax2.set_ylabel('Overfitting Gap (Train - Test)')
+ax2.set_title('Overfitting Gap Comparison')
+ax2.axhline(y=0.05, color='orange', linestyle='--', label='Concerning Threshold (5%)')
+ax2.legend()
+ax2.grid(True, alpha=0.3)
+
+# Add value labels
+for i, (bar, gap) in enumerate(zip(bars3, gaps)):
+    height = bar.get_height()
+    ax2.text(bar.get_x() + bar.get_width()/2., height + 0.002,
+             f'{gap:.3f}', ha='center', va='bottom', fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+
+# Print detailed results
+print("📊 Regularization Impact Results:")
+print("="*50)
+print("WITHOUT REGULARIZATION:")
+print(f"  Max Depth: 10 (very deep)")
+print(f"  Regularization: None (reg_alpha=0, reg_lambda=0)")
+print(f"  Trees Used: 100")
+print(f"  Training Accuracy: {train_acc_no_reg:.3f}")
+print(f"  Test Accuracy:     {test_acc_no_reg:.3f}")
+print(f"  Overfitting Gap:   {overfitting_gap_no_reg:.3f}")
+print(f"  Status: {'🔴 OVERFITTING' if overfitting_gap_no_reg > 0.05 else '🟢 OK'}")
+
+print("\nWITH STRONG REGULARIZATION:")
+print(f"  Max Depth: 6 (moderate)")
+print(f"  L1/L2 Regularization: 10/10 (strong)")
+print(f"  Subsampling: 70% data, 70% features")
+print(f"  Trees Used: 50 (reduced to prevent overfitting)")
+print(f"  Training Accuracy: {train_acc_with_reg:.3f}")
+print(f"  Test Accuracy:     {test_acc_with_reg:.3f}")
+print(f"  Overfitting Gap:   {overfitting_gap_with_reg:.3f}")
+print(f"  Status: {'🔴 OVERFITTING' if overfitting_gap_with_reg > 0.05 else '🟢 OK'}")
+
+gap_reduction = overfitting_gap_no_reg - overfitting_gap_with_reg
+print(f"\n💡 IMPROVEMENTS:")
+print(f"  Overfitting reduction: {gap_reduction:.3f}")
+print(f"  Test accuracy improvement: {test_acc_with_reg - test_acc_no_reg:.3f}")
+print(f"  Percentage overfitting reduction: {(gap_reduction/overfitting_gap_no_reg)*100:.1f}%")
+
+if overfitting_gap_with_reg <= 0.05:
+    print("✅ SUCCESS: Strong regularization prevented overfitting!")
+else:
+    print("⚠️  Still some overfitting, but significantly reduced!")
+    print("💡 For even better results, try:")
+    print("   - Even shallower trees (max_depth=2)")
+    print("   - More aggressive early stopping")
+    print("   - Higher regularization values")
 
 # %% [markdown]
 # ## Lesson 7: Preventing Overfitting in XGBoost 🛡️
@@ -654,7 +764,7 @@ plt.grid(True, alpha=0.3)
 plt.show()
 
 print(f"🛑 Training stopped at iteration {model_early.best_iteration} (out of 500 planned)")
-print(f"📊 Best test score: {model_early.best_score:.4f}")
+print(f"📊 Best test score: {model_early.best_score_:.4f}")
 
 # %% [markdown]
 # ---
