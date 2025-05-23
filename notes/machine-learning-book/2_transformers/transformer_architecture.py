@@ -137,228 +137,43 @@ result = simulate_rnn_processing()
 # 4. **Output Layer**
 
 # %%
-# Let's visualize the transformer architecture
-def plot_transformer_architecture():
-    """Create a detailed visual representation of the Transformer architecture"""
-    fig, ax = plt.subplots(1, 1, figsize=(16, 12))
-    
-    # Define colors
-    colors = {
-        'embedding': '#E8F4FD',
-        'attention': '#FFE4E1', 
-        'feedforward': '#E8F5E8',
-        'norm': '#FFF8DC',
-        'output': '#F0E68C',
-        'connection': '#B0B0B0'
-    }
-    
-    # Helper function to draw a component box
-    def draw_box(x, y, width, height, text, color, text_size=10):
-        rect = plt.Rectangle((x, y), width, height, 
-                           facecolor=color, edgecolor='black', linewidth=1.5)
-        ax.add_patch(rect)
-        ax.text(x + width/2, y + height/2, text, 
-               ha='center', va='center', fontsize=text_size, 
-               weight='bold', wrap=True)
-    
-    # Helper function to draw arrows
-    def draw_arrow(start_x, start_y, end_x, end_y, color='black', style='-'):
-        ax.annotate('', xy=(end_x, end_y), xytext=(start_x, start_y),
-                   arrowprops=dict(arrowstyle='->', color=color, lw=2, linestyle=style))
-    
-    # Component dimensions
-    box_width = 2.5
-    box_height = 0.8
-    small_box_height = 0.5
-    
-    # ENCODER SIDE (Left)
-    encoder_x = 1
-    
-    # Input embeddings
-    draw_box(encoder_x, 1, box_width, box_height, 
-             'Input\nEmbeddings', colors['embedding'])
-    
-    # Positional encoding
-    draw_box(encoder_x, 2, box_width, small_box_height, 
-             'Positional Encoding', colors['embedding'], 8)
-    
-    # Add symbol
-    ax.text(encoder_x + box_width/2, 3, '⊕', ha='center', va='center', 
-           fontsize=20, weight='bold')
-    
-    # Encoder layers (we'll show 2 layers for clarity)
-    for layer in range(2):
-        base_y = 4 + layer * 4
+# Let's use the Excalidraw visualization instead of creating our own
+def show_transformer_architecture():
+    """Display the transformer architecture using the Excalidraw diagram"""
+    try:
+        from IPython.display import Image, display
+        print("🎨 Transformer Architecture Visualization")
+        print("=" * 50)
+        display(Image("transformer_architecture_excalidraw.excalidraw.png"))
+    except ImportError:
+        # Fallback for non-Jupyter environments
+        import matplotlib.pyplot as plt
+        import matplotlib.image as mpimg
         
-        # Multi-head attention
-        draw_box(encoder_x, base_y, box_width, box_height,
-                'Multi-Head\nSelf-Attention', colors['attention'])
-        
-        # Add & Norm
-        draw_box(encoder_x, base_y + 1, box_width, small_box_height,
-                'Add & Norm', colors['norm'], 8)
-        
-        # Feed Forward
-        draw_box(encoder_x, base_y + 1.7, box_width, box_height,
-                'Position-wise\nFeed Forward', colors['feedforward'])
-        
-        # Add & Norm
-        draw_box(encoder_x, base_y + 2.7, box_width, small_box_height,
-                'Add & Norm', colors['norm'], 8)
-        
-        # Residual connections (curved arrows)
-        ax.annotate('', xy=(encoder_x - 0.3, base_y + 1.25), 
-                   xytext=(encoder_x - 0.3, base_y + 0.4),
-                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
-                                 lw=2, connectionstyle="arc3,rad=0.3"))
-        
-        ax.annotate('', xy=(encoder_x - 0.5, base_y + 2.95), 
-                   xytext=(encoder_x - 0.5, base_y + 1.45),
-                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
-                                 lw=2, connectionstyle="arc3,rad=0.3"))
-    
-    # DECODER SIDE (Right)
-    decoder_x = 6
-    
-    # Output embeddings
-    draw_box(decoder_x, 1, box_width, box_height,
-             'Output\nEmbeddings', colors['embedding'])
-    
-    # Positional encoding
-    draw_box(decoder_x, 2, box_width, small_box_height,
-             'Positional Encoding', colors['embedding'], 8)
-    
-    # Add symbol
-    ax.text(decoder_x + box_width/2, 3, '⊕', ha='center', va='center', 
-           fontsize=20, weight='bold')
-    
-    # Decoder layers
-    for layer in range(2):
-        base_y = 4 + layer * 5
-        
-        # Masked Multi-head attention
-        draw_box(decoder_x, base_y, box_width, box_height,
-                'Masked Multi-Head\nSelf-Attention', colors['attention'])
-        
-        # Add & Norm
-        draw_box(decoder_x, base_y + 1, box_width, small_box_height,
-                'Add & Norm', colors['norm'], 8)
-        
-        # Cross attention
-        draw_box(decoder_x, base_y + 1.7, box_width, box_height,
-                'Multi-Head\nCross-Attention', colors['attention'])
-        
-        # Add & Norm
-        draw_box(decoder_x, base_y + 2.7, box_width, small_box_height,
-                'Add & Norm', colors['norm'], 8)
-        
-        # Feed Forward
-        draw_box(decoder_x, base_y + 3.4, box_width, box_height,
-                'Position-wise\nFeed Forward', colors['feedforward'])
-        
-        # Add & Norm
-        draw_box(decoder_x, base_y + 4.4, box_width, small_box_height,
-                'Add & Norm', colors['norm'], 8)
-        
-        # Residual connections
-        ax.annotate('', xy=(decoder_x - 0.3, base_y + 1.25), 
-                   xytext=(decoder_x - 0.3, base_y + 0.4),
-                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
-                                 lw=2, connectionstyle="arc3,rad=0.3"))
-        
-        ax.annotate('', xy=(decoder_x - 0.5, base_y + 2.95), 
-                   xytext=(decoder_x - 0.5, base_y + 1.45),
-                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
-                                 lw=2, connectionstyle="arc3,rad=0.3"))
-        
-        ax.annotate('', xy=(decoder_x - 0.7, base_y + 4.65), 
-                   xytext=(decoder_x - 0.7, base_y + 3.15),
-                   arrowprops=dict(arrowstyle='->', color=colors['connection'], 
-                                 lw=2, connectionstyle="arc3,rad=0.3"))
-    
-    # Output layer
-    draw_box(decoder_x, 14.5, box_width, box_height,
-             'Linear', colors['output'])
-    draw_box(decoder_x, 15.5, box_width, box_height,
-             'Softmax', colors['output'])
-    
-    # ENCODER-DECODER CONNECTIONS
-    # Draw connections from encoder output to decoder cross-attention layers
-    encoder_output_y = 11.2  # Top of encoder
-    for layer in range(2):
-        decoder_cross_att_y = 4 + layer * 5 + 2.1  # Cross attention layers
-        
-        # Draw curved connection
-        ax.annotate('', xy=(decoder_x - 0.1, decoder_cross_att_y), 
-                   xytext=(encoder_x + box_width + 0.1, encoder_output_y),
-                   arrowprops=dict(arrowstyle='->', color='red', lw=2.5,
-                                 connectionstyle="arc3,rad=0.2", alpha=0.7))
-    
-    # MAIN DATA FLOW ARROWS
-    # Encoder flow
-    for y in [2.5, 3.5, 5, 6, 7, 8, 9, 10, 11]:
-        draw_arrow(encoder_x + box_width/2, y, encoder_x + box_width/2, y + 0.4)
-    
-    # Decoder flow  
-    for y in [2.5, 3.5, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]:
-        draw_arrow(decoder_x + box_width/2, y, decoder_x + box_width/2, y + 0.4)
-    
-    # LABELS AND ANNOTATIONS
-    ax.text(encoder_x + box_width/2, 0.5, 'ENCODER', ha='center', va='center',
-           fontsize=14, weight='bold', color='blue')
-    
-    ax.text(decoder_x + box_width/2, 0.5, 'DECODER', ha='center', va='center',
-           fontsize=14, weight='bold', color='red')
-    
-    # Add "Nx" annotations
-    ax.text(encoder_x - 1, 7.5, 'N×', ha='center', va='center',
-           fontsize=16, weight='bold', rotation=90)
-    
-    ax.text(decoder_x - 1, 9, 'N×', ha='center', va='center',
-           fontsize=16, weight='bold', rotation=90)
-    
-    # Add attention flow annotations
-    ax.text(4.5, 10, 'Keys, Values', ha='center', va='center',
-           fontsize=10, weight='bold', color='red', rotation=15)
-    
-    # Input/Output labels
-    ax.text(encoder_x + box_width/2, 0.2, 'Inputs', ha='center', va='center',
-           fontsize=12, style='italic')
-    
-    ax.text(decoder_x + box_width/2, 16.8, 'Output\nProbabilities', ha='center', va='center',
-           fontsize=12, style='italic')
-    
-    # Title
-    ax.text(5, 17.5, 'Transformer Architecture: "Attention Is All You Need"', 
-           ha='center', va='center', fontsize=16, weight='bold')
-    
-    # Legend
-    legend_x = 10
-    legend_y = 14
-    legend_items = [
-        ('Embeddings', colors['embedding']),
-        ('Attention', colors['attention']),
-        ('Feed Forward', colors['feedforward']),
-        ('Normalization', colors['norm']),
-        ('Output', colors['output'])
-    ]
-    
-    for i, (label, color) in enumerate(legend_items):
-        draw_box(legend_x, legend_y - i*0.7, 1, 0.5, '', color)
-        ax.text(legend_x + 1.2, legend_y - i*0.7 + 0.25, label, 
-               va='center', fontsize=10)
-    
-    ax.text(legend_x + 0.5, legend_y + 0.7, 'Legend', ha='center', 
-           fontsize=12, weight='bold')
-    
-    # Set axis properties
-    ax.set_xlim(-1, 12)
-    ax.set_ylim(0, 18)
-    ax.set_aspect('equal')
-    ax.axis('off')
-    
-    plt.tight_layout()
-    plt.show()
+        try:
+            img = mpimg.imread("transformer_architecture_excalidraw.excalidraw.png")
+            plt.figure(figsize=(16, 12))
+            plt.imshow(img)
+            plt.axis('off')
+            plt.title('Transformer Architecture: "Attention Is All You Need"', 
+                     fontsize=16, weight='bold', pad=20)
+            plt.tight_layout()
+            plt.show()
+        except FileNotFoundError:
+            print("⚠️ Could not find transformer_architecture_excalidraw.excalidraw.png")
+            print("Please ensure the image file is in the same directory as this script.")
+            print("\nThe Transformer consists of:")
+            print("1. Input Embeddings + Positional Encoding")
+            print("2. Encoder Stack (6 layers)")
+            print("   - Multi-Head Self-Attention")
+            print("   - Feed-Forward Network")
+            print("   - Residual connections + Layer Normalization")
+            print("3. Decoder Stack (6 layers)")
+            print("   - Masked Multi-Head Self-Attention")
+            print("   - Encoder-Decoder Attention")
+            print("   - Feed-Forward Network")
+            print("   - Residual connections + Layer Normalization")
+            print("4. Output Layer (Linear + Softmax)")
 
 # Also create a detailed attention mechanism visualization
 def plot_attention_mechanism():
@@ -503,7 +318,7 @@ def plot_attention_mechanism():
 
 # Create the new visualizations
 print("🎨 Creating Enhanced Transformer Architecture Visualization...")
-plot_transformer_architecture()
+show_transformer_architecture()
 
 print("\n🔍 Creating Detailed Attention Mechanism Visualization...")
 plot_attention_mechanism()
