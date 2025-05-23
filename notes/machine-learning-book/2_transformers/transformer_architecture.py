@@ -35,34 +35,6 @@ import os
 torch.manual_seed(42)
 np.random.seed(42)
 
-def excalidraw_to_png(excalidraw_filename: str) -> str:
-    """
-    Helper function to convert any .excalidraw file to .png format by copying and adding .png extension
-    
-    Args:
-        excalidraw_filename: Name of the .excalidraw file (with or without extension)
-    
-    Returns:
-        str: The filename of the created .png file
-    """
-    # Ensure the filename has .excalidraw extension
-    if not excalidraw_filename.endswith('.excalidraw'):
-        source_file = f"{excalidraw_filename}.excalidraw"
-    else:
-        source_file = excalidraw_filename
-    
-    # Create target filename with .png extension
-    target_file = f"{source_file}.png"
-    
-    try:
-        # Copy the file and overwrite if it exists
-        shutil.copy2(source_file, target_file)
-        print(f"✅ Created {target_file} from {source_file}")
-        return target_file
-    except FileNotFoundError:
-        print(f"⚠️ Could not find {source_file}")
-        return None
-
 # Device detection with MPS support for Mac
 def get_device():
     """Get the best available device (CUDA > MPS > CPU)"""
@@ -170,12 +142,7 @@ result = simulate_rnn_processing()
 # Let's use the Excalidraw visualization instead of creating our own
 def show_transformer_architecture():
     """Display the transformer architecture using the Excalidraw diagram"""
-    # Convert Excalidraw file to PNG
-    target_file = excalidraw_to_png("transformer_architecture_excalidraw")
-    
-    if target_file is None:
-        print("Could not create PNG file from Excalidraw")
-        return
+    target_file = "transformer_architecture_excalidraw.excalidraw.png"
     
     try:
         from IPython.display import Image, display
