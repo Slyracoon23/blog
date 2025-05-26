@@ -153,6 +153,9 @@ main {
     .content .quarto-banner-title-block {
         margin-top: 20px !important;
     }
+    .quarto-title-banner {
+        margin-bottom: 16px !important;
+    }
     #title-block-header.quarto-title-block.default .quarto-title .title {
         font-size: 200%;
     }

@@ -50,7 +50,7 @@ np.random.seed(42)
 print("✅ Environment ready! Let's learn XGBoost!")
 
 # %% [markdown]
-# ---
+# 
 # # Part 1: Foundations
 # 
 # ## Lesson 1: What is Machine Learning Boosting? 🤔

@@ -555,19 +555,21 @@ class MultiHeadAttention(nn.Module):
         return output, attention_weights
         
     def forward(self, query, key, value, mask=None):
-        batch_size, seq_len, d_model = query.shape
+        batch_size, query_seq_len, d_model = query.shape
+        _, key_seq_len, _ = key.shape
+        _, value_seq_len, _ = value.shape
         
         # Step 1: Linear transformations and split into heads
-        Q = self.W_q(query).view(batch_size, seq_len, self.num_heads, self.d_k).transpose(1, 2)
-        K = self.W_k(key).view(batch_size, seq_len, self.num_heads, self.d_k).transpose(1, 2)
-        V = self.W_v(value).view(batch_size, seq_len, self.num_heads, self.d_k).transpose(1, 2)
+        Q = self.W_q(query).view(batch_size, query_seq_len, self.num_heads, self.d_k).transpose(1, 2)
+        K = self.W_k(key).view(batch_size, key_seq_len, self.num_heads, self.d_k).transpose(1, 2)
+        V = self.W_v(value).view(batch_size, value_seq_len, self.num_heads, self.d_k).transpose(1, 2)
         
         # Step 2: Apply attention to each head
         attention_output, attention_weights = self.scaled_dot_product_attention(Q, K, V, mask)
         
         # Step 3: Concatenate heads
         attention_output = attention_output.transpose(1, 2).contiguous().view(
-            batch_size, seq_len, d_model)
+            batch_size, query_seq_len, d_model)
         
         # Step 4: Final linear projection
         output = self.W_o(attention_output)
