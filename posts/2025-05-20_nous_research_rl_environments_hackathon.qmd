@@ -13,11 +13,17 @@ format: html
 
 ![](/images/nous_research_rl_environments_hackathon/thumbnail.png){width="1000"}
 
-*I recently participated in the Nous Research RL Environments Hackathon. It was a great experience and I learned a lot. I thought I'd share my experience here.*
+<!-- I. Introduction -->
 
-## *The Hackathon*
+I recently participated in the Nous Research RL Environments Hackathon. It was a great experience and I learned a lot. I thought I'd share my experience here.
 
-*I am a long time lurker on various Discord channels related to AI such as vLLM, Axolotl and Nous Research. When Nous Research announced that they were planning on organizing a hackathon, I immediately jumped in. I was particularly excited that this was an RL hackathon. I think it's one of the first of its kind.*
+<!-- II. The Hackathon -->
+
+## The Hackathon
+
+### Discovery and Registration
+
+I am a long time lurker on various Discord channels related to AI such as vLLM, Axolotl and Nous Research. When Nous Research announced that they were planning on organizing a hackathon, I immediately jumped in. I was particularly excited that this was an RL hackathon. I think it's one of the first of its kind.
 
 :::: {style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 2rem 0;"}
 ::: {style="max-width: 550px; width: 100%;"}
@@ -25,11 +31,11 @@ format: html
 
 <p lang="en" dir="ltr">
 
-*Announcing the Nous RL Environments Hackathon in SF!*<br><br>*Create with Atropos, Nous' RL environments framework, and claim your stake of a \$50,000 prize pool.*<br><br>*Partners -* <a href="https://twitter.com/xai?ref_src=twsrc%5Etfw">@xai</a><a href="https://twitter.com/nvidia?ref_src=twsrc%5Etfw">@nvidia</a><a href="https://twitter.com/nebiusai?ref_src=twsrc%5Etfw">@nebiusai</a><a href="https://twitter.com/SHACK15sf?ref_src=twsrc%5Etfw">@SHACK15sf</a><a href="https://twitter.com/akashnet_?ref_src=twsrc%5Etfw">@akashnet_</a><a href="https://twitter.com/LambdaAPI?ref_src=twsrc%5Etfw">@LambdaAPI</a><a href="https://twitter.com/tensorstax?ref_src=twsrc%5Etfw">@tensorstax</a> *and* <a href="https://twitter.com/runpod_io?ref_src=twsrc%5Etfw">@runpod_io</a><br><br>*May 18th. Sign up below 👇👇* <a href="https://t.co/E8STibytLt">*pic.twitter.com/E8STibytLt*</a>
+Announcing the Nous RL Environments Hackathon in SF!<br><br>Create with Atropos, Nous' RL environments framework, and claim your stake of a \$50,000 prize pool.<br><br>Partners - <a href="https://twitter.com/xai?ref_src=twsrc%5Etfw">@xai</a> <a href="https://twitter.com/nvidia?ref_src=twsrc%5Etfw">@nvidia</a> <a href="https://twitter.com/nebiusai?ref_src=twsrc%5Etfw">@nebiusai</a> <a href="https://twitter.com/SHACK15sf?ref_src=twsrc%5Etfw">@SHACK15sf</a> <a href="https://twitter.com/akashnet_?ref_src=twsrc%5Etfw">@akashnet_</a> <a href="https://twitter.com/LambdaAPI?ref_src=twsrc%5Etfw">@LambdaAPI</a> <a href="https://twitter.com/tensorstax?ref_src=twsrc%5Etfw">@tensorstax</a> and <a href="https://twitter.com/runpod_io?ref_src=twsrc%5Etfw">@runpod_io</a> <br><br>May 18th. Sign up below 👇👇 <a href="https://t.co/E8STibytLt">pic.twitter.com/E8STibytLt</a>
 
 </p>
 
-*— Nous Research (@NousResearch)* <a href="https://twitter.com/NousResearch/status/1919460212613808222?ref_src=twsrc%5Etfw">*May 5, 2025*</a>
+— Nous Research (@NousResearch) <a href="https://twitter.com/NousResearch/status/1919460212613808222?ref_src=twsrc%5Etfw">May 5, 2025</a>
 
 </blockquote>
 
@@ -39,20 +45,34 @@ format: html
 :::
 ::::
 
-*I immediately went to research and prepare myself for the hackathon so I could have the best chance!*
+I immediately went to research and prepare myself for the hackathon so I could have the best chance!
 
-*So I took a look at the repo.*
+So I took a look at the repo.
 
-## *What is Atropos?*
+<!-- III. What is Atropos? -->
 
-*Atropos is a Nous research repo that allows users to extract "rollouts" and calculate their reward. It allows to split the enviroment and the trainer to be running semi-"**Asynchronously**" which allows to have more complicated setups.\
+## What is Atropos?
+
+### Technical Overview and Initial Challenges
+
+Atropos is a Nous research repo that allows users to extract "rollouts" and calculate their reward. It allows to split the enviroment and the trainer to be running semi-"**Asynchronously**" which allows to have more complicated setups.\
 \
-In theory this is amazing but when I tried running it I had so many issues. There were a few causes from this being a fresh repo to it's complicated setup. I guess having it split up was to make larger training easier but for new people like me it just made it harder.*
+In theory this is amazing but when I tried running it I had so many issues. There were a few causes from this being a fresh repo to it's complicated setup. I guess having it split up was to make larger training easier but for new people like me it just made it harder.
 
-*But enough of that it looks like this...*
+But enough of that it looks like this...
 
 ![](images/paste-1.png)
 
-*For GRPO or any RL reinforcement for that manner it requires do to sampling or inference on the model you are training. This makes RL less efficient than for instance pre-training or SFT(self supervised training)*
+### RL Context and Benefits
 
-*The reason why RL is great though is there is not requirment to label your data or bring your data, you let the LLM produce the output and have some way to grade those outputs to be good or bad.*
+For GRPO or any RL reinforcement for that manner it requires do to sampling or inference on the model you are training. This makes RL less efficient than for instance pre-training or SFT(self supervised training)
+
+The reason why RL is great though is there is not requirment to label your data or bring your data, you let the LLM produce the output and have some way to grade those outputs to be good or bad.
+
+## The start of the hackathon
+
+The hackathon started at 10am at the Shack15 Co-working place in the ferry building.
+
+![](images/paste-3.png)
+
+It's a beautiful venue with a total of maybe 50-100 hackers who were ready to built RL agents! Before we could start hacking though we had a few amazing talks.
