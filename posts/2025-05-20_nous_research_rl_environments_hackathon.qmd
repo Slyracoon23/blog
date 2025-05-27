@@ -19,8 +19,38 @@ I recently participated in the Nous Research RL Environments Hackathon. It was a
 
 I am a long time lurker on various Discord channels related to AI such as vLLM, Axolotl and Nous Research. When Nous Research announced that they were planning on organizing a hackathon, I immediately jumped in. I was particularly excited that this was an RL hackathon. I think it's one of the first of its kind.
 
-<div style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 2rem 0;">
- <div style="max-width: 550px; width: 100%;">
-  <blockquote class="twitter-tweet" data-align="center"><p lang="en" dir="ltr">Announcing the Nous RL Environments Hackathon in SF!<br><br>Create with Atropos, Nous&#39; RL environments framework, and claim your stake of a $50,000 prize pool.<br><br>Partners - <a href="https://twitter.com/xai?ref_src=twsrc%5Etfw">@xai</a> <a href="https://twitter.com/nvidia?ref_src=twsrc%5Etfw">@nvidia</a> <a href="https://twitter.com/nebiusai?ref_src=twsrc%5Etfw">@nebiusai</a> <a href="https://twitter.com/SHACK15sf?ref_src=twsrc%5Etfw">@SHACK15sf</a> <a href="https://twitter.com/akashnet_?ref_src=twsrc%5Etfw">@akashnet_</a> <a href="https://twitter.com/LambdaAPI?ref_src=twsrc%5Etfw">@LambdaAPI</a> <a href="https://twitter.com/tensorstax?ref_src=twsrc%5Etfw">@tensorstax</a> and <a href="https://twitter.com/runpod_io?ref_src=twsrc%5Etfw">@runpod_io</a> <br><br>May 18th. Sign up below 👇👇 <a href="https://t.co/E8STibytLt">pic.twitter.com/E8STibytLt</a></p>&mdash; Nous Research (@NousResearch) <a href="https://twitter.com/NousResearch/status/1919460212613808222?ref_src=twsrc%5Etfw">May 5, 2025</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
- </div>
-</div>
+:::: {style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 2rem 0;"}
+::: {style="max-width: 550px; width: 100%;"}
+<blockquote class="twitter-tweet" data-align="center">
+
+<p lang="en" dir="ltr">
+
+Announcing the Nous RL Environments Hackathon in SF!<br><br>Create with Atropos, Nous' RL environments framework, and claim your stake of a \$50,000 prize pool.<br><br>Partners - <a href="https://twitter.com/xai?ref_src=twsrc%5Etfw">@xai</a> <a href="https://twitter.com/nvidia?ref_src=twsrc%5Etfw">@nvidia</a> <a href="https://twitter.com/nebiusai?ref_src=twsrc%5Etfw">@nebiusai</a> <a href="https://twitter.com/SHACK15sf?ref_src=twsrc%5Etfw">@SHACK15sf</a> <a href="https://twitter.com/akashnet_?ref_src=twsrc%5Etfw">@akashnet_</a> <a href="https://twitter.com/LambdaAPI?ref_src=twsrc%5Etfw">@LambdaAPI</a> <a href="https://twitter.com/tensorstax?ref_src=twsrc%5Etfw">@tensorstax</a> and <a href="https://twitter.com/runpod_io?ref_src=twsrc%5Etfw">@runpod_io</a> <br><br>May 18th. Sign up below 👇👇 <a href="https://t.co/E8STibytLt">pic.twitter.com/E8STibytLt</a>
+
+</p>
+
+— Nous Research (@NousResearch) <a href="https://twitter.com/NousResearch/status/1919460212613808222?ref_src=twsrc%5Etfw">May 5, 2025</a>
+
+</blockquote>
+
+```{=html}
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+```
+:::
+::::
+
+I immediately went to research and prepare myself for the hackathon so I could have the best chance!
+
+So I took a look at the repo.
+
+## What is Atropos?
+
+Atropos is a Nous research repo that allows users to extract "rollouts" and calculate their reward. It allows to split the enviroment and the trainer to be running semi-"**Asynchronously**" which allows to have more complicated setups.\
+\
+In theory this is amazing but when I tried running it I had so many issues. There were a few causes from this being a fresh repo to it's complicated setup. I guess having it split up was to make larger training easier but for new people like me it just made it harder.
+
+But enough of that it looks like this...
+
+![](images/paste-1.png)
+
+For GRPO or any RL reinforcement for that manner it requires do to sampling or inference on the model you are training. This makes RL less efficient than for instance pre-training or SFT(self supervised training)
