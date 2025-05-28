@@ -76,3 +76,81 @@ The hackathon started at 10am at the Shack15 Co-working place in the ferry build
 ![](images/paste-3.png)
 
 It's a beautiful venue with a total of maybe 50-100 hackers who were ready to built RL agents! Before we could start hacking though we had a few amazing talks.
+
+## The Talks
+
+The hackathon kicked off with a series of presentations from our amazing sponsors and partners. Each company shared insights into their work and how it relates to the RL ecosystem.
+
+### Nous Research: The Vision Behind Atropos
+
+![](images/paste-6.png)
+
+The team from Nous Research opened with an overview of their mission to build open-source language models that remain "human-compatible." They walked us through their flagship Hermes series and explained how Atropos fits into their broader vision of data-efficient training and reasoning.
+
+Key highlights: - Deep dive into the Hermes-2/Yi-Hermes LoRA checkpoints - Live demo of their public API portal for inference & fine-tuning - Philosophy behind keeping AI development open and accessible
+
+The talk really set the stage for understanding why asynchronous RL environments matter for the future of AI training.
+
+### Axolotl: Democratizing LLM Fine-tuning
+
+![](images/paste-7.png)
+
+The Axolotl team presented their fully open-source framework that's become a go-to tool for LLM fine-tuning. Their "no-hardware-needed" approach really resonated with the diverse crowd of hackers.
+
+What stood out: - Live demonstration of YAML-based configuration for qLoRA and FSDP - Success stories from Modal, RunPod, and other companies using Axolotl - The active Discord community that's grown around the project - GPU-agnostic orchestration that works from laptops to multi-node clusters
+
+It was clear why so many teams would end up using Axolotl for their hackathon projects.
+
+### Sophont: Medical AI with Transparency
+
+![](images/paste-8.png)
+
+Sophont's presentation focused on their multimodal medical foundation models, combining text, imaging, labs, and wearables data. What made their talk particularly compelling was their commitment to releasing all weights and training logs openly.
+
+Key takeaways: - Vision for doctor co-pilots and biomarker discovery - Patient-facing EHR explainers that could revolutionize healthcare - The importance of transparency in medical AI for clinical audit - Founded by researchers with deep neuro-AI and biomedical imaging backgrounds
+
+Their approach to medical AI felt like a natural extension of the open-source philosophy driving the hackathon.
+
+### Nebius: Enterprise-Grade AI Infrastructure
+
+![](images/paste-9.png)
+
+The Nebius team showcased their GPU-dense AI cloud platform, positioning themselves as a serious competitor to CoreWeave and Lambda. Their "AI Studio" platform demonstration was particularly impressive.
+
+Highlights included: - Tour of their H100/H200/Hopper clusters with Infiniband fabric - Performance benchmarks showing their infrastructure capabilities - Roadmap targeting \$750M-\$1B ARR with IPO plans post-Q1 2025 - Nvidia partnership and backing details
+
+For many hackers thinking about scaling their projects, Nebius presented a compelling infrastructure option.
+
+### Haize Labs: Making AI Safer
+
+![](images/paste-10.png)
+
+Haize Labs brought a crucial perspective on AI safety and production readiness. Their end-to-end evaluation and red-teaming suite addresses real concerns about deploying RL systems.
+
+Key points: - Judge module for automated evaluators - Monitor and Robustify loops for continuous system hardening - Customer success stories from AI21 Labs, Anthropic, and HackerOne - Research insights on multi-turn red-teaming and mechanistic interpretability
+
+Their talk reminded everyone that building cool RL agents is just the first step - making them safe and reliable is equally important.
+
+### AI EdgeLabs: Securing the Edge
+
+![](images/paste-11.png)
+
+AI EdgeLabs presented their autonomous AI approach to protecting edge and IoT infrastructure. Their focus on cyber-security through AI agents felt particularly relevant to RL applications.
+
+Notable aspects: - Sensor agents that watch network telemetry and detect zero-days - Automated remediation with claimed 99% accuracy - Vertical focus on retail, telecom, and smart-city applications - Partnerships with major players like Lenovo, AWS, and Red Hat
+
+The intersection of RL and cybersecurity opened up interesting possibilities for hackathon projects.
+
+### Mistral AI: Europe's Open-Source Champion
+
+![](images/paste-12.png)
+
+Mistral AI closed out the talks with an inspiring presentation about their mission to bring "frontier AI for all." As Europe's answer to OpenAI, their story of rapid growth and technical achievement was motivating.
+
+Standout moments: - Technical deep-dive into Mistral-7B and Mixtral-8x7B architectures - Live demo of "Le Chat" assistant and Codestral family - €1.1B funding journey and lean research team philosophy - Apache-licensed approach and commitment to open weights
+
+Their presentation perfectly captured the spirit of the hackathon - building powerful AI that remains accessible to everyone.
+
+## Getting Down to Business
+
+With the talks concluded and our minds buzzing with possibilities, it was time to start hacking. The combination of Atropos, the sponsor tools, and the collective knowledge in the room set the stage for what would be an incredible day of building.
