@@ -1,0 +1,12 @@
+---
+aliases:
+- /matrix-mult-is-batch-dot-products/
+categories:
+- PyTorch
+- Machine Learning
+date: '2025-05-28'
+image: /images/matrix_mult_is_batch_dot_products/thumbnail.png
+title: "Matrix Multiplication is Batch Dot Products"
+subtitle: "A simple proof that matrix multiplication is just a batch of dot products"
+format: html
+---
