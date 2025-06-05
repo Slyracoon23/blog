@@ -15,6 +15,10 @@
 
 .content {
     padding-top: 0rem !important;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 1rem 0;
 }
 
 .katex-display{
@@ -79,13 +83,13 @@ code {
 }
 
 #title-block-header .display-7 {
-    color: #1e2124;
+    color: white !important;
     font-size: 220%;
 }
 
 .quarto-title-banner, .navbar-light, .navbar-dark, .navbar, #quarto-header, .fixed-top, .quarto-bannar, .headroom--top {
-    background: linear-gradient(90deg, rgba(254,200,16,1) 0%, rgba(255,128,237,1) 100%);
-    /* background: linear-gradient(90deg, rgba(59,112,254,1) 0%, rgba(49,195,135,1) 100%); */
+    background: rgba(0, 0, 0, 0) !important;
+    /* backdrop-filter: blur(8px); */
 }
 
 .breadcrumb {
@@ -115,6 +119,15 @@ div.quarto-post {
     margin: 0px;
 }
 
+/* Set banner.gif as the entire blog background */
+body {
+    background-image: url('assets/banner.gif');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
 div.quarto-post .body {
     flex-basis: 50%;
     font-size: 120%;
@@ -138,15 +151,23 @@ div.quarto-post .metadata {
 }
 
 .navbar-expand-lg .navbar-nav .nav-link {
-    color: white;
+    color: white !important;
 }
 
 #title-block-header {
     margin-block-end: 0px !important;
+    /* background: rgba(0, 0, 0, 0.01) !important; */
+    /* backdrop-filter: blur(8px); */
 }
 
 main {
     margin-top: 0px !important;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    margin: 20px;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 991.98px) {
