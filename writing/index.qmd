@@ -1,0 +1,17 @@
+---
+title: "Welcome to Writing"
+description: "This section will contain creative writing, essays, and personal reflections."
+date: "2025-01-01"
+categories: [meta, writing]
+---
+
+## Coming Soon
+
+This writing section will feature:
+
+- Creative writing pieces
+- Personal essays
+- Reflections on life and experiences
+- Literary experiments
+
+Check back soon for content! 
