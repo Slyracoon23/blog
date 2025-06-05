@@ -411,3 +411,99 @@ div.quarto-post .metadata .view-counter-container {
         align-items: flex-start;
     }
 }
+
+/* Right Sidebar (Table of Contents) Styling - matching blog post background */
+.sidebar, 
+.sidebar-navigation, 
+.toc-sidebar,
+.quarto-toc,
+#quarto-toc,
+.sidebar-content,
+.sidebar.sidebar-right,
+.quarto-sidebar,
+.quarto-sidebar.sidebar-navigation,
+nav[role="doc-toc"],
+.sidebar.toc-left {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(5px) !important;
+    border-radius: 15px !important;
+    padding: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    margin: 8px !important;
+    border: none !important;
+}
+
+/* TOC specific styling */
+.quarto-toc nav {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.quarto-toc .toc-title {
+    color: #1e2124 !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+}
+
+.quarto-toc ul {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.quarto-toc li {
+    background: transparent !important;
+    border: none !important;
+}
+
+.quarto-toc li a {
+    color: #1e2124 !important;
+    text-decoration: none !important;
+    padding: 0.3rem 0.5rem !important;
+    border-radius: 5px !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.quarto-toc li a:hover {
+    background-color: rgba(59, 112, 254, 0.1) !important;
+    color: #3B70FE !important;
+}
+
+.quarto-toc li a.active {
+    background-color: rgba(59, 112, 254, 0.15) !important;
+    color: #3B70FE !important;
+    font-weight: 600 !important;
+}
+
+/* Additional sidebar content styling */
+.sidebar-content .sidebar-item {
+    background: transparent !important;
+    border: none !important;
+    margin-bottom: 1rem !important;
+}
+
+.sidebar-content .sidebar-item .sidebar-item-container {
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+/* Responsive adjustments for sidebar */
+@media (max-width: 1200px) {
+    .sidebar, 
+    .quarto-toc,
+    #quarto-toc {
+        margin: 10px !important;
+        padding: 15px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar, 
+    .quarto-toc,
+    #quarto-toc {
+        margin: 5px !important;
+        padding: 10px !important;
+        border-radius: 10px !important;
+    }
+}
