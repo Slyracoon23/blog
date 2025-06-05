@@ -10,6 +10,8 @@ website:
     left:
       - text: "{{< fa address-card >}} About"
         file: about.qmd
+      - text: "{{< fa book >}} Posts"
+        href: posts.qmd
     right:
       - icon: twitter-x
         href: https://x.com/SRacoon23
