@@ -19,6 +19,12 @@ about:
       href: https://huggingface.co/Slyracoon23
 ---
 
+<style>
+#title-block-header {
+    display: none !important;
+}
+</style>
+
 Earl Potters is an AI Engineer specializing in intelligent agents and large language models, based in San Francisco. Co-founded and built production-ready AI solutions at [Missio AI](https://missio.ai) and won numerous hackathons, including a $100K grand prize in Blockchain Journalism at Metabuild 2022 hackthon -- [Refound Journalism](https://devpost.com/software/refound-journalism?_gl=1*wxfx66*_gcl_au*Nzk4NzIyNTUyLjE3NDAxNjYyNTY.*_ga*ODc4NzM1MTEyLjE3NDAxNjYyNTY.*_ga_0YHJK3Y10M*MTc0MTIxMzYzNi4yLjEuMTc0MTIxMzY3OS4wLjAuMA..).
 
 An active blogger, Earl writes about AI, large language models, and autonomous agents. He has created numerous open-source projects including an evaluation automation tool, [prompt-spec.com](https://prompt-spec.com), and other contributions to the AI community. His GitHub showcases repositories spanning robotics, AI, and blockchain development.
