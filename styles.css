@@ -85,7 +85,13 @@ code {
 #title-block-header .display-7 {
     color: white !important;
     font-size: 220%;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7), 0 0 8px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4), 0 0 4px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+#title-block-header h1,
+#title-block-header .title {
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4), 0 0 4px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .quarto-title-banner, .navbar-light, .navbar-dark, .navbar, #quarto-header, .fixed-top, .quarto-bannar, .headroom--top {
@@ -129,6 +135,7 @@ body {
     background-position: center center;
     background-repeat: no-repeat;
     background-attachment: fixed;
+    position: relative;
 }
 
 div.quarto-post .body {
@@ -159,12 +166,11 @@ div.quarto-post .metadata {
 
 #title-block-header {
     margin-block-end: 0px !important;
-    background: rgba(0, 0, 0, 0.15) !important;
-    backdrop-filter: blur(5px);
+    background: transparent !important;
     border-radius: 0px 0px 15px 15px;
     padding: 2rem;
     margin: 0px !important;
-    margin-bottom: 20px !important;
+    margin-bottom: 0px !important;
     padding-top: 5rem !important;
     margin-top: -80px !important;
     position: relative !important;
@@ -174,7 +180,6 @@ div.quarto-post .metadata {
 main {
     margin-top: 0px !important;
     background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(5px);
     margin: 0px 20px 20px 20px;
     border-radius: 15px;
     padding: 20px;
@@ -394,13 +399,17 @@ div.quarto-post .metadata .view-counter-container {
 /* Comments section styling enhancements */
 .giscus {
     margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(0,0,0,.1);
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .giscus-frame {
     border-radius: 8px;
-    border: 1px solid rgba(254, 200, 16, 0.2);
+    border: none;
+    background: transparent;
 }
 
 /* Responsive view counter */
@@ -431,9 +440,9 @@ div.quarto-post .metadata .view-counter-container {
 .sidebar-content,
 .sidebar:not(.sidebar-right):not(#quarto-margin-sidebar) {
     background: rgba(255, 255, 255, 0.9) !important;
-    backdrop-filter: blur(5px) !important;
     border-radius: 15px !important;
-    padding: 20px !important;
+    padding: 10px !important;
+    padding-top: 0px !important;
     margin: 8px !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
     border: none !important;
@@ -470,7 +479,6 @@ nav[role="doc-toc"],
 .toc-active,
 #quarto-margin-sidebar nav[role="doc-toc"] {
     background: rgba(255, 255, 255, 0.9) !important;
-    backdrop-filter: blur(5px) !important;
     border-radius: 15px !important;
     padding: 20px !important;
     margin: 8px !important;
@@ -558,5 +566,62 @@ nav[role="doc-toc"],
         margin: 5px !important;
         padding: 10px !important;
         border-radius: 10px !important;
+    }
+}
+
+/* About links styling for social media */
+.about-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.about-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: #1e2124 !important;
+    text-decoration: none !important;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.about-link:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: #3B70FE !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.about-link-text {
+    color: inherit;
+    font-weight: 500;
+}
+
+.about-link i {
+    font-size: 1.2em;
+    color: inherit;
+}
+
+.about-link iconify-icon {
+    font-size: 1.2em;
+    color: inherit;
+}
+
+/* Responsive about links */
+@media (max-width: 768px) {
+    .about-links {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .about-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9em;
     }
 }
