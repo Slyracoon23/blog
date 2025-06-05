@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="Technical posts about programming, large language models, and AI agents.">
 
-<title>Earl Potters</title>
+<title> Posts – Earl Potters</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -31,10 +32,13 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href=".//images/favicon.ico" rel="icon">
+<script src="site_libs/quarto-listing/list.min.js"></script>
+<script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-46f4cc9626f044588a66931b604fc9c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
@@ -42,7 +46,6 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/bootstrap/bootstrap-86ca98530662af5ddd08d363d7d219b9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
-<script src="site_libs/quarto-contrib/iconify-2.1.0/iconify-icon.min.js"></script>
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,6 +73,35 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-image','listing-title','listing-subtitle','listing-colab','listing-date','listing-reading-time','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-date","listing-title","listing-author","listing-subtitle","listing-image","listing-description"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-4DWYJM47PC"></script>
 
 <script type="text/javascript">
@@ -88,27 +120,70 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
     })
 </script>
 
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="./styles.css">
 <link rel="stylesheet" href="./assets/citations.css">
-<meta property="og:title" content="Earl Potters">
-<meta property="og:description" content="AI engineer focused on building intelligent agents, LLM applications, and autonomous systems.">
-<meta property="og:image" content="https://slyracoon23.github.io/blog/images/profilepicture.png">
+<link rel="alternate" type="application/rss+xml" title="Earl Potters" href="posts.xml" data-external="1"><meta property="og:title" content=" Posts – Earl Potters">
+<meta property="og:description" content="Technical posts about programming, large language models, and AI agents.">
+<meta property="og:image" content="https://slyracoon23.github.io/blog/images/game_of_ethics/thumbnail.png">
 <meta property="og:site_name" content="Earl Potters">
-<meta property="og:image:height" content="913">
-<meta property="og:image:width" content="789">
-<meta name="twitter:title" content="Earl Potters">
-<meta name="twitter:description" content="AI engineer focused on building intelligent agents, LLM applications, and autonomous systems.">
-<meta name="twitter:image" content="https://slyracoon23.github.io/blog/images/profilepicture.png">
-<meta name="twitter:image-height" content="913">
-<meta name="twitter:image-width" content="789">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:width" content="1024">
+<meta name="twitter:title" content=" Posts – Earl Potters">
+<meta name="twitter:description" content="Technical posts about programming, large language models, and AI agents.">
+<meta name="twitter:image" content="https://slyracoon23.github.io/blog/images/game_of_ethics/thumbnail.png">
+<meta name="twitter:image-height" content="1024">
+<meta name="twitter:image-width" content="1024">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
@@ -130,7 +205,7 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
 <span class="menu-text"><i class="fa-solid fa-address-card" aria-label="address-card"></i> About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./posts.html"> 
+    <a class="nav-link active" href="./posts.html" aria-current="page"> 
 <span class="menu-text"><i class="fa-solid fa-book" aria-label="book"></i> Posts</span></a>
   </li>  
 </ul>
@@ -162,57 +237,374 @@ gtag('config', 'G-4DWYJM47PC', { 'anonymize_ip': true});
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-page">
+      <h1 class="title"><i class="fa-solid fa-newspaper" aria-label="newspaper"></i> Posts</h1>
+                  <div>
+        <div class="description">
+          Technical posts about programming, large language models, and AI agents.
+        </div>
+      </div>
+                </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta column-page">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
 <!-- main -->
-<div class="quarto-about-trestles">
-  <div class="about-entity">
-    <img src="images/profilepicture.png" class="about-image
-  rounded " style="width: 20em;">
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Earl Potters</h1>
-</div>
-<div class="quarto-title-meta">
-  </div>
-</header>
-    <div class="about-links">
-  <a href="https://x.com/SRacoon23" class="about-link" rel="" target="">
-    <i class="bi bi-twitter-x"></i>
-     <span class="about-link-text">Twitter</span>
-  </a>
-  <a href="https://www.linkedin.com/in/earl-potters-b2b306187/" class="about-link" rel="" target="">
-    <i class="bi bi-linkedin"></i>
-     <span class="about-link-text">LinkedIn</span>
-  </a>
-  <a href="https://github.com/Slyracoon23" class="about-link" rel="" target="">
-    <i class="bi bi-github"></i>
-     <span class="about-link-text">Github</span>
-  </a>
-  <a href="https://huggingface.co/Slyracoon23" class="about-link" rel="" target="">
-     <span class="about-link-text"><iconify-icon inline="" icon="logos:hugging-face-icon" aria-label="Icon hugging-face-icon from logos Iconify.design set." title="Icon hugging-face-icon from logos Iconify.design set."></iconify-icon> Hugging Face</span>
-  </a>
-</div>
-  </div>
-  <div class="about-contents"><main class="content" id="quarto-document-content">
-<p>Earl Potters is an AI Engineer specializing in intelligent agents and large language models, based in San Francisco. Co-founded and built production-ready AI solutions at <a href="https://missio.ai">Missio AI</a> and won numerous hackathons, including a $100K grand prize in Blockchain Journalism at Metabuild 2022 hackthon – <a href="https://devpost.com/software/refound-journalism?_gl=1*wxfx66*_gcl_au*Nzk4NzIyNTUyLjE3NDAxNjYyNTY.*_ga*ODc4NzM1MTEyLjE3NDAxNjYyNTY.*_ga_0YHJK3Y10M*MTc0MTIxMzYzNi4yLjEuMTc0MTIxMzY3OS4wLjAuMA..">Refound Journalism</a>.</p>
-<p>An active blogger, Earl writes about AI, large language models, and autonomous agents. He has created numerous open-source projects including an evaluation automation tool, <a href="https://prompt-spec.com">prompt-spec.com</a>, and other contributions to the AI community. His GitHub showcases repositories spanning robotics, AI, and blockchain development.</p>
-<p>Connect with him on <a href="https://x.com/SRacoon23">X</a> and <a href="https://www.linkedin.com/in/earl-potters-b2b306187/">LinkedIn</a>.</p>
-<hr>
-<p><em>Credits:</em></p>
-<ul>
-<li><em>Emojis used in figures are designed by <a href="https://openmoji.org/">OpenMoji</a>, the open-source emoji and icon project. License: <a href="https://creativecommons.org/licenses/by-sa/4.0/#">CC BY-SA 4.0</a>.</em></li>
-<li><em>Vector icons are provided by Streamline (<a href="https://streamlinehq.com">https://streamlinehq.com</a>). License: <a href="https://creativecommons.org/licenses/by-sa/4.0/#">CC BY-SA 4.0</a>.</em></li>
-</ul>
+<main class="content quarto-banner-title-block column-page" id="quarto-document-content">
 
 
-</main></div>
+
+
+
+
+
+
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+<div class="quarto-post image-left" data-index="0" data-categories="TExNcyUyQ0V0aGljcyUyQ0FsaWdubWVudCUyQ1Jlc2VhcmNoJTJDSGFja2F0aG9u" data-listing-date-sort="1746316800000" data-listing-file-modified-sort="1749102384140" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2041">
+<div class="thumbnail"><a href="./posts/2025-05-04_game_of_ethics.html" class="no-external">
+
+<img loading="lazy" src="./images/game_of_ethics/thumbnail.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-05-04_game_of_ethics.html" class="no-external">A Game of Ethics: Quantifying AI Moral Reasoning</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-05-04_game_of_ethics.html" class="no-external">Personal reflections on developing a framework to quantify AI moral reasoning</a>
 </div>
- <!-- /main -->
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TExNcw=='); return false;">LLMs</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RXRoaWNz'); return false;">Ethics</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('QWxpZ25tZW50'); return false;">Alignment</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UmVzZWFyY2g='); return false;">Research</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('SGFja2F0aG9u'); return false;">Hackathon</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-05-04_game_of_ethics.html" class="no-external">
+<div class="listing-date">
+May 4, 2025
+</div>
+<div class="listing-reading-time">11 min</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-left" data-index="1" data-categories="Q29tcHV0ZXIlMjBWaXNpb24lMkNNYWNoaW5lJTIwTGVhcm5pbmclMkNHZW1pbmklMjBBUEk=" data-listing-date-sort="1745712000000" data-listing-file-modified-sort="1749102384139" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="23" data-listing-word-count-sort="4406">
+<div class="thumbnail"><a href="./posts/2025-04-27_gemini-image-segmentation.html" class="no-external">
+
+<img loading="lazy" src="./images/gemini_image_segmentation/thumbnail.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-04-27_gemini-image-segmentation.html" class="no-external">2D Spatial Understanding with Gemini 2.5</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-04-27_gemini-image-segmentation.html" class="no-external">Object detection, bounding boxes, and segmentation with Gemini 2.5 API</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('Q29tcHV0ZXIlMjBWaXNpb24='); return false;">Computer Vision</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TWFjaGluZSUyMExlYXJuaW5n'); return false;">Machine Learning</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('R2VtaW5pJTIwQVBJ'); return false;">Gemini API</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-04-27_gemini-image-segmentation.html" class="no-external">
+<div class="listing-date">
+Apr 27, 2025
+</div>
+<div class="listing-reading-time">23 min</div>
+</a><div class="metadata-value listing-colab"><a href="./posts/2025-04-27_gemini-image-segmentation.html" class="no-external">
+</a><a href="https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb"><img src="images/colab.svg" alt="Open In Colab"></a>
+</div>
+
+</div>
+</div>
+<div class="quarto-post image-left" data-index="2" data-categories="RGF0YWJhc2VzJTJDUG9zdGdyZVNRTCUyQ1BlcmZvcm1hbmNl" data-listing-date-sort="1745020800000" data-listing-file-modified-sort="1749102384139" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="33" data-listing-word-count-sort="6539">
+<div class="thumbnail"><a href="./posts/2025-04-19_sql_query_performance_postgres.html" class="no-external">
+
+<img loading="lazy" src="./images/sql_query_performance_postgres/thumbnail.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-04-19_sql_query_performance_postgres.html" class="no-external">How to Measure SQL Query Performance on Postgres</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-04-19_sql_query_performance_postgres.html" class="no-external">A practical guide to benchmarking and optimizing your PostgreSQL queries</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGF0YWJhc2Vz'); return false;">Databases</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UG9zdGdyZVNRTA=='); return false;">PostgreSQL</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('UGVyZm9ybWFuY2U='); return false;">Performance</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-04-19_sql_query_performance_postgres.html" class="no-external">
+<div class="listing-date">
+Apr 19, 2025
+</div>
+<div class="listing-reading-time">33 min</div>
+</a><div class="metadata-value listing-colab"><a href="./posts/2025-04-19_sql_query_performance_postgres.html" class="no-external">
+</a><a href="https://colab.research.google.com/drive/1PcAznojqPLM_EV46tP8GWac25-n1ai-4?usp=sharing"><img src="images/colab.svg" alt="Open In Colab"></a>
+</div>
+
+</div>
+</div>
+<div class="quarto-post image-left" data-index="3" data-categories="TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscyUyQ1NlY3VyaXR5" data-listing-date-sort="1743811200000" data-listing-file-modified-sort="1749102384139" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="24" data-listing-word-count-sort="4721">
+<div class="thumbnail"><a href="./posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html" class="no-external">
+
+<img loading="lazy" src="./images/model_context_protocol_tool_poisoning_attacks/thumbnail.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html" class="no-external">Model Context Protocol Tool Poisoning Attacks</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html" class="no-external">Understanding and mitigating security vulnerabilities in LLM tool use</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw=='); return false;">Large Language Models</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('U2VjdXJpdHk='); return false;">Security</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html" class="no-external">
+<div class="listing-date">
+Apr 5, 2025
+</div>
+<div class="listing-reading-time">24 min</div>
+</a><div class="metadata-value listing-colab"><a href="./posts/2025-04-05_model_context_protocol_tool_poisoning_attacks.html" class="no-external">
+</a><a href="https://colab.research.google.com/drive/1PcAznojqPLM_EV46tP8GWac25-n1ai-4?usp=sharing"><img src="images/colab.svg" alt="Open In Colab"></a>
+</div>
+
+</div>
+</div>
+<div class="quarto-post image-left" data-index="4" data-categories="TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscyUyQ1dyaXRpbmc=" data-listing-date-sort="1742774400000" data-listing-file-modified-sort="1749102384139" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1604">
+<div class="thumbnail"><a href="./posts/2025-03-24_how_to_stop_being_accused_of_ai_slop.html" class="no-external">
+
+<img loading="lazy" src="./images/how_to_stop_being_accused_of_ai_slop/thumbnail.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-03-24_how_to_stop_being_accused_of_ai_slop.html" class="no-external">How to Stop Being Accused of AI-Generated Content</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-03-24_how_to_stop_being_accused_of_ai_slop.html" class="no-external">Practical strategies for writing that stands out from AI-generated text</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw=='); return false;">Large Language Models</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('V3JpdGluZw=='); return false;">Writing</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-03-24_how_to_stop_being_accused_of_ai_slop.html" class="no-external">
+<div class="listing-date">
+Mar 24, 2025
+</div>
+<div class="listing-reading-time">9 min</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-left" data-index="5" data-categories="TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw==" data-listing-date-sort="1742515200000" data-listing-file-modified-sort="1749102384139" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2492">
+<div class="thumbnail"><a href="./posts/2025-03-21_eleutherai-evaluation-methods.html" class="no-external">
+
+<img loading="lazy" src="https://i.imgur.com/OhBrtWj.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-03-21_eleutherai-evaluation-methods.html" class="no-external">EleutherAI’s lm-evaluation-harness: Architecture and Configuration</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-03-21_eleutherai-evaluation-methods.html" class="no-external">A comprehensive guide to configuration, task architecture, and model integration</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw=='); return false;">Large Language Models</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-03-21_eleutherai-evaluation-methods.html" class="no-external">
+<div class="listing-date">
+Mar 21, 2025
+</div>
+<div class="listing-reading-time">13 min</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-left" data-index="6" data-categories="TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw==" data-listing-date-sort="1742256000000" data-listing-file-modified-sort="1749102384139" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="19" data-listing-word-count-sort="3665">
+<div class="thumbnail"><a href="./posts/2025-03-18_exploring_gemma_3_model.html" class="no-external">
+
+<img loading="lazy" src="https://storage.googleapis.com/gweb-uniblog-publish-prod/images/Gemma3_KeywordBlog_RD3_V01b.width-1200.format-webp.webp" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-03-18_exploring_gemma_3_model.html" class="no-external">Exploring Gemma 3 Model</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-03-18_exploring_gemma_3_model.html" class="no-external">A deep dive into Google’s latest open source language model</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw=='); return false;">Large Language Models</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-03-18_exploring_gemma_3_model.html" class="no-external">
+<div class="listing-date">
+Mar 18, 2025
+</div>
+<div class="listing-reading-time">19 min</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-left" data-index="7" data-categories="Q29tcHV0ZXIlMjBWaXNpb24lMkNNYWNoaW5lJTIwTGVhcm5pbmc=" data-listing-date-sort="1742083200000" data-listing-file-modified-sort="1749102384139" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="42" data-listing-word-count-sort="8398">
+<div class="thumbnail"><a href="./posts/2025-03-16_what_are_image_embeddings.html" class="no-external">
+
+<img loading="lazy" src="./images/what_are_image_embeddings/thumbnail.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-03-16_what_are_image_embeddings.html" class="no-external">What are Image Embeddings?</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-03-16_what_are_image_embeddings.html" class="no-external">Understanding how images are represented as numerical vectors for AI applications</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('Q29tcHV0ZXIlMjBWaXNpb24='); return false;">Computer Vision</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('TWFjaGluZSUyMExlYXJuaW5n'); return false;">Machine Learning</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-03-16_what_are_image_embeddings.html" class="no-external">
+<div class="listing-date">
+Mar 16, 2025
+</div>
+<div class="listing-reading-time">42 min</div>
+</a><div class="metadata-value listing-colab"><a href="./posts/2025-03-16_what_are_image_embeddings.html" class="no-external">
+</a><a href="https://colab.research.google.com/drive/1T66Ae_EcUo7KqcQcuAftcJ1oJiVZv5YO?usp=sharing"><img src="images/colab.svg" alt="Open In Colab"></a>
+</div>
+
+</div>
+</div>
+<div class="quarto-post image-left" data-index="8" data-categories="TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw==" data-listing-date-sort="1741996800000" data-listing-file-modified-sort="1749102384138" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1675">
+<div class="thumbnail"><a href="./posts/2025-03-15_what_is_prompt_engineering.html" class="no-external">
+
+<img loading="lazy" src="./images/what_is_prompt_engineering/thumbnail.jpg" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-03-15_what_is_prompt_engineering.html" class="no-external">What is Prompt Engineering?</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-03-15_what_is_prompt_engineering.html" class="no-external">Understanding the art and science of crafting effective prompts for large language models</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('TGFyZ2UlMjBMYW5ndWFnZSUyME1vZGVscw=='); return false;">Large Language Models</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-03-15_what_is_prompt_engineering.html" class="no-external">
+<div class="listing-date">
+Mar 15, 2025
+</div>
+<div class="listing-reading-time">9 min</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-left" data-index="9" data-categories="V2ViJTIwUmVjb3JkaW5nJTJDRGF0YSUyMENvbnZlcnNpb24=" data-listing-date-sort="1741910400000" data-listing-file-modified-sort="1749102384138" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="19" data-listing-word-count-sort="3686">
+<div class="thumbnail"><a href="./posts/2025-03-14_what_is_rrweb.html" class="no-external">
+
+<img loading="lazy" src="./images/what_is_rrweb/thumbnail.png" class="thumbnail-image">
+
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2025-03-14_what_is_rrweb.html" class="no-external">What is rrweb?</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2025-03-14_what_is_rrweb.html" class="no-external">A practical guide to understanding rrweb, a JavaScript library for recording and replaying web sessions</a>
+</div>
+<div class="listing-categories">
+
+<div class="listing-category" onclick="window.quartoListingCategory('V2ViJTIwUmVjb3JkaW5n'); return false;">Web Recording</div>
+
+<div class="listing-category" onclick="window.quartoListingCategory('RGF0YSUyMENvbnZlcnNpb24='); return false;">Data Conversion</div>
+
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2025-03-14_what_is_rrweb.html" class="no-external">
+<div class="listing-date">
+Mar 14, 2025
+</div>
+<div class="listing-reading-time">19 min</div>
+</a>
+</div>
+</div>
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
     const isCodeAnnotation = (el) => {
       for (const clz of el.classList) {
         if (clz.startsWith('code-annotation-')) {                     

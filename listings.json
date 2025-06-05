@@ -1,6 +1,6 @@
 [
   {
-    "listing": "/index.html",
+    "listing": "/posts.html",
     "items": [
       "/posts/2025-05-04_game_of_ethics.html",
       "/posts/2025-04-27_gemini-image-segmentation.html",
@@ -19,8 +19,8 @@
     "items": [
       "/notes/Agents/data_influence.html",
       "/notes/Dataset Prep/how_to_prepare_a_vision_dataset.html",
-      "/notes/Large Language Models/what_is_prompt_engineering.html",
       "/notes/obserable JS/interactive-data-visualization-with-obserable-js.html",
+      "/notes/Large Language Models/what_is_prompt_engineering.html",
       "/notes/Large Language Models/extending_context.html"
     ]
   }

@@ -36,27 +36,6 @@
   <pubDate>Tue, 03 Jun 2025 00:00:00 GMT</pubDate>
 </item>
 <item>
-  <title>NOTES: What is Prompt Engineering?</title>
-  <dc:creator>Earl Potters</dc:creator>
-  <link>https://slyracoon23.github.io/blog/notes/Large Language Models/what_is_prompt_engineering.html</link>
-  <description><![CDATA[ 
-
-
-
-
-
-<section id="notes" class="level2">
-
-
-
-</section>
-
- ]]></description>
-  <category>Large Language Models</category>
-  <guid>https://slyracoon23.github.io/blog/notes/Large Language Models/what_is_prompt_engineering.html</guid>
-  <pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate>
-</item>
-<item>
   <title>NOTES: Testing Observable JS</title>
   <dc:creator>Earl Potters</dc:creator>
   <link>https://slyracoon23.github.io/blog/notes/obserable JS/interactive-data-visualization-with-obserable-js.html</link>
@@ -595,6 +574,27 @@ font-style: inherit;">table</span>(scaled_data)</span></code></pre></div>
   <pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate>
 </item>
 <item>
+  <title>NOTES: What is Prompt Engineering?</title>
+  <dc:creator>Earl Potters</dc:creator>
+  <link>https://slyracoon23.github.io/blog/notes/Large Language Models/what_is_prompt_engineering.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="notes" class="level2">
+
+
+
+</section>
+
+ ]]></description>
+  <category>Large Language Models</category>
+  <guid>https://slyracoon23.github.io/blog/notes/Large Language Models/what_is_prompt_engineering.html</guid>
+  <pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate>
+</item>
+<item>
   <title>Extending the Context Window of LLMs</title>
   <dc:creator>Earl Potters</dc:creator>
   <link>https://slyracoon23.github.io/blog/notes/Large Language Models/extending_context.html</link>
@@ -751,7 +751,7 @@ font-style: inherit;">table</span>(scaled_data)</span></code></pre></div>
  ]]></description>
   <category>Machine Learning</category>
   <guid>https://slyracoon23.github.io/blog/notes/Agents/data_influence.html</guid>
-  <pubDate>Tue, 20 May 2025 00:57:45 GMT</pubDate>
+  <pubDate>Thu, 05 Jun 2025 05:46:52 GMT</pubDate>
 </item>
 </channel>
 </rss>
