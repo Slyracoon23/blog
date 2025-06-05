@@ -1,0 +1,18 @@
+---
+title: "{{< fa newspaper >}} Posts"
+description: "Technical posts about programming, large language models, and AI agents."
+listing:
+  contents: posts
+  sort: "date desc"
+  type: default
+  image-align: left
+  feed: true
+  sort-ui: false
+  filter-ui: false
+  fields: [image, title, subtitle, colab, date, reading-time, categories]
+page-layout: full
+sidebar: false
+title-block-banner: true
+---
+
+
