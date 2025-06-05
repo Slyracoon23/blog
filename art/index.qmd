@@ -1,0 +1,17 @@
+---
+title: "Welcome to Art"
+description: "This section will showcase visual art, digital creations, and creative projects."
+date: "2025-01-01"
+categories: [meta, art]
+---
+
+## Coming Soon
+
+This art section will feature:
+
+- Digital art and illustrations
+- Photography projects
+- Creative coding visualizations
+- Mixed media experiments
+
+Check back soon for visual content! 

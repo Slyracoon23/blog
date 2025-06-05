@@ -1,0 +1,18 @@
+---
+title: "{{< fa palette >}} Art"
+description: "Visual art, digital creations, and creative projects."
+listing:
+  contents: art
+  sort: "date desc"
+  type: default
+  image-align: left
+  image-placeholder: images/thumbnail_template.jpg
+  feed: true
+  sort-ui: false
+  filter-ui: false
+  max-description-length: 110
+  fields: [image, title, description, categories, date]
+page-layout: full
+sidebar: false
+title-block-banner: true
+--- 
