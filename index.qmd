@@ -1,18 +1,35 @@
 ---
-title: "{{< fa newspaper >}} Articles"
-description: "Technical articles about programming, large language models, and AI agents."
-listing:
-  contents: posts
-  sort: "date desc"
-  type: default
-  image-align: left
-  feed: true
-  sort-ui: false
-  filter-ui: false
-  fields: [image, title, subtitle, colab, date, reading-time, categories]
-page-layout: full
+title: "Earl Potters"
+image: images/profilepicture.png
 sidebar: false
-title-block-banner: true
+about:
+  template: trestles
+  links:
+    - icon: twitter-x
+      text: Twitter
+      href: https://x.com/SRacoon23
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/earl-potters-b2b306187/
+    - icon: github
+      text: Github
+      href: https://github.com/Slyracoon23
+    - text: "{{< iconify logos:hugging-face-icon >}} Hugging Face"
+      href: https://huggingface.co/Slyracoon23
 ---
+
+
+Earl Potters is an AI Engineer specializing in intelligent agents and large language models, based in San Francisco. Co-founded and built production-ready AI solutions at [Missio AI](https://missio.ai) and won numerous hackathons, including a $100K grand prize in Blockchain Journalism at Metabuild 2022 hackthon -- [Refound Journalism](https://devpost.com/software/refound-journalism?_gl=1*wxfx66*_gcl_au*Nzk4NzIyNTUyLjE3NDAxNjYyNTY.*_ga*ODc4NzM1MTEyLjE3NDAxNjYyNTY.*_ga_0YHJK3Y10M*MTc0MTIxMzYzNi4yLjEuMTc0MTIxMzY3OS4wLjAuMA..).
+
+An active blogger, Earl writes about AI, large language models, and autonomous agents. He has created numerous open-source projects including an evaluation automation tool, [prompt-spec.com](https://prompt-spec.com), and other contributions to the AI community. His GitHub showcases repositories spanning robotics, AI, and blockchain development.
+
+Connect with him on [X](https://x.com/SRacoon23) and [LinkedIn](https://www.linkedin.com/in/earl-potters-b2b306187/).
+
+<hr>
+
+*Credits:*
+
+* *Emojis used in figures are designed by [OpenMoji](https://openmoji.org/), the open-source emoji and icon project. License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#).*
+* *Vector icons are provided by Streamline ([https://streamlinehq.com](https://streamlinehq.com)). License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#).*
 
 
