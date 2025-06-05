@@ -412,52 +412,24 @@ div.quarto-post .metadata .view-counter-container {
     }
 }
 
-/* Right Sidebar (Table of Contents) Styling - matching blog post background */
-.sidebar, 
-.sidebar-navigation, 
-.toc-sidebar,
-.quarto-toc,
-#quarto-toc,
-.sidebar-content,
-.sidebar.sidebar-right,
+/* Left Sidebar Navigation Styling - white container to match TOC */
+.sidebar-navigation,
 .quarto-sidebar,
 .quarto-sidebar.sidebar-navigation,
-nav[role="doc-toc"],
-.sidebar.toc-left {
+.sidebar.sidebar-left,
+.sidebar-content,
+.sidebar:not(.sidebar-right):not(#quarto-margin-sidebar) {
     background: rgba(255, 255, 255, 0.9) !important;
     backdrop-filter: blur(5px) !important;
     border-radius: 15px !important;
     padding: 20px !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
     margin: 8px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
     border: none !important;
 }
 
-/* TOC specific styling */
-.quarto-toc nav {
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.quarto-toc .toc-title {
-    color: #1e2124 !important;
-    font-weight: 600 !important;
-    margin-bottom: 1rem !important;
-}
-
-.quarto-toc ul {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-}
-
-.quarto-toc li {
-    background: transparent !important;
-    border: none !important;
-}
-
-.quarto-toc li a {
+/* Left sidebar content styling */
+.sidebar-navigation a {
     color: #1e2124 !important;
     text-decoration: none !important;
     padding: 0.3rem 0.5rem !important;
@@ -465,12 +437,82 @@ nav[role="doc-toc"],
     transition: background-color 0.2s ease !important;
 }
 
-.quarto-toc li a:hover {
+.sidebar-navigation a:hover {
     background-color: rgba(59, 112, 254, 0.1) !important;
     color: #3B70FE !important;
 }
 
-.quarto-toc li a.active {
+.sidebar-navigation .sidebar-item {
+    background: transparent !important;
+    border: none !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.sidebar-navigation .sidebar-item-container {
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+/* Right Sidebar (Table of Contents) Styling - white container around TOC */
+#TOC,
+nav[role="doc-toc"],
+.toc-active,
+#quarto-margin-sidebar nav[role="doc-toc"] {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(5px) !important;
+    border-radius: 15px !important;
+    padding: 20px !important;
+    margin: 8px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+}
+
+/* TOC specific styling */
+#TOC nav,
+.toc-active nav {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#TOC .toc-title,
+.toc-active .toc-title,
+#toc-title {
+    color: #1e2124 !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+}
+
+#TOC ul,
+.toc-active ul {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+#TOC li,
+.toc-active li {
+    background: transparent !important;
+    border: none !important;
+}
+
+#TOC li a,
+.toc-active li a {
+    color: #1e2124 !important;
+    text-decoration: none !important;
+    padding: 0.3rem 0.5rem !important;
+    border-radius: 5px !important;
+    transition: background-color 0.2s ease !important;
+}
+
+#TOC li a:hover,
+.toc-active li a:hover {
+    background-color: rgba(59, 112, 254, 0.1) !important;
+    color: #3B70FE !important;
+}
+
+#TOC li a.active,
+.toc-active li a.active {
     background-color: rgba(59, 112, 254, 0.15) !important;
     color: #3B70FE !important;
     font-weight: 600 !important;
