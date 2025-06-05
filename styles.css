@@ -399,6 +399,7 @@ div.quarto-post .metadata .view-counter-container {
 /* Comments section styling enhancements */
 .giscus {
     margin-top: 3rem;
+    margin-bottom: 0.5rem;
     padding: 2rem;
     background: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
