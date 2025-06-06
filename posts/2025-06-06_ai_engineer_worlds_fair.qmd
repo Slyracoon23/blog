@@ -1,0 +1,61 @@
+---
+aliases:
+- /ai-engineer-worlds-fair/
+categories:
+- AI
+date: '2025-06-06'
+image: /images/ai_engineer_worlds_fair/thumbnail.png
+title: "AI Engineer's World's Fair 2025: Personal Experience"
+subtitle: "A look at the AI Engineer's World's Fair 2025"
+format: html
+---
+
+![AI Engineer's World's Fair 2025](images/paste-13.png)
+
+
+This blog post will go over my recent experience of the AI Engineer Worlds Fair 2025. I wanted to recount the events and experience when it's still fresh in my mind.
+
+## Brief Introduction
+
+The AI Engineer Worlds Fair is a conference in San Franscio that brings AI practicioners and researchers alike. The conference is meant to showcase the latest advancements and inovation in the space. 
+
+The conference is amazing way to collaberatore, network, learn and connect with the lead industry leaders and researchs. This gives you a glimpse on what is on the horizon and what opperutnity lies ahead. It's mainly the reason way I gone to it a second time in a row so far. 
+
+Before attenign the event, I had hoped to recieve sevearl things from this event.
+
+1. Connect with Entrepeurs, Founders, Research and amazing people
+
+2. Learn about latest advancements in agents and models
+
+3. Find next oppertunties for work in the space
+
+Needless to say I had gotten all of them plus much more.
+
+## Event Overview
+
+The Event is a 3 day long event that were divied into talks, workshops and expo rooms. Day 1 of the event was only workshops with more hands on tutorials from various people. It spaned from prompt engineering to agentic workflow orchistration to fine-tuning and RL
+
+Day 2 of the conffernce was the official opening of the keynotes and talks and expo hall. Industry leaders like microsoft, aws and google were on stage including openai and gemini teams. 
+
+Day 3 was the last day with final session of keynotes, firechats and such with then a few after-parties.
+
+Some notable speakers in their track were
+
+[Work in progress]
+
+## Key High lights and Sessions
+
+### Day 1
+
+
+### Day 2
+
+
+### Day 3
+
+
+## Personal takeaway
+
+
+
+## Conclusion
