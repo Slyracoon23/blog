@@ -10,7 +10,7 @@ website:
     left:
       - text: "{{< fa address-card >}} About"
         file: about.qmd
-      - text: "{{< fa book >}} Posts"
+      - text: "{{< fa newspaper >}} Posts"
         href: posts.qmd
     right:
       - icon: twitter-x
