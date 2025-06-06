@@ -58,25 +58,16 @@ Day 1 was all about getting your hands dirty. I chose two workshops that really 
 
 My key takeaways: You need to have SFT (Supervised Fine-Tuning) first to get the right format and basic reasoning capabilities in place, then using RL can get you significant improvements from there. The discussion about quantization was insightful - seeing how models like DeepSeek-R1 can be quantized down to 1.58-bits while maintaining performance was incredible. The conversations throughout were really engaging, with lots of back-and-forth between Daniel and the audience.
 
-::: {.callout-note}
+::: callout-note
 ## Dynamic 4-bit Quantization - A Follow-up Learning Goal
 
 Daniel's workshop sparked my interest in **Dynamic 4-bit Quantization**, which I definitely want to dive deeper into. Here's what I learned from researching this technique:
 
-**What is Dynamic 4-bit Quantization?**
-- Reduces neural network memory requirements by **4x** (from 32-bit floats to 4-bit integers)
-- Computes activation ranges **on-the-fly at runtime** rather than using pre-computed static ranges
-- Enables substantial memory and power savings for model deployment
+**What is Dynamic 4-bit Quantization?** - Reduces neural network memory requirements by **4x** (from 32-bit floats to 4-bit integers) - Computes activation ranges **on-the-fly at runtime** rather than using pre-computed static ranges - Enables substantial memory and power savings for model deployment
 
-**Key Benefits:**
-- **Memory Efficiency**: 4x reduction in storage requirements for weights and activations
-- **Power Savings**: Energy consumption dominated by memory access gets significantly reduced
-- **Flexible Precision**: Can adapt quantization ranges dynamically based on input data
+**Key Benefits:** - **Memory Efficiency**: 4x reduction in storage requirements for weights and activations - **Power Savings**: Energy consumption dominated by memory access gets significantly reduced - **Flexible Precision**: Can adapt quantization ranges dynamically based on input data
 
-**Recent Advances:**
-- **Post-Training Approaches**: No need for fine-tuning or full dataset access
-- **GPTQ Method**: Specifically designed for large language models like GPT
-- **4.6-bit Schemes**: Novel approaches that balance accuracy and efficiency
+**Recent Advances:** - **Post-Training Approaches**: No need for fine-tuning or full dataset access - **GPTQ Method**: Specifically designed for large language models like GPT - **4.6-bit Schemes**: Novel approaches that balance accuracy and efficiency
 
 **The Trade-off**: While 4-bit quantization can introduce some quality loss compared to 8-bit or full precision, recent research shows it's possible to maintain near-original accuracy with proper techniques.
 
@@ -95,7 +86,33 @@ Personal take: Seriously though, I honestly don't like that prompt engineering i
 
 ### Day 2: Industry Heavyweights and Technical Deep Dives
 
-Day 2 was when things got serious. The expo hall opened, and suddenly you had access to every major player in AI infrastructure. But what impressed me most was the technical depth of the industry presentations.
+I arrived around 8:30 AM to grab breakfast - they were serving small croissants, pastries, and fruit. After that, we were corralled into the massive keynote hall that housed over 1,000 people, with a large stage and impressive side projectors.
+
+Swyx kicked us off around 9:00 AM, mentioning how the event had doubled in size from last year. One insight that really stuck with me was his mental model shift: instead of getting caught up in definitions of what constitutes an "agent," think about the ratio of AI to human work - 1:1, 1:10, 1:100? I really like this classification as a useful framework.
+
+**Microsoft's Asha Sharma keynote** was impressive in terms of presentation quality - they really had the animations and flow down perfectly. The demo went off the rails though when they demonstrated an agent that was slow with internet connectivity and would just speak over you. The woman on stage kept saying "AWESOME" trying to get the LLM to stop talking, which only prompted it to talk more! This caused delays for all subsequent speakers, and the internet was down throughout.
+
+**Sarah Guo's VC talk on "State of Startups and AI 2025"** was actually excellent. She managed to keep the crowd engaged despite the technical difficulties. Her thesis was that AI applications will broaden, and the moat is execution - speed and execution are the name of the game. I pretty much agree, though when she talks about execution, I think the human/customer side is more important than just code nowadays.
+
+**Simon Willison's "2025 in LLMs so far"** was characteristically funny. He gave a humorous benchmark about pelicans on a bike, and it's actually incredible how models are getting better at these bizarre tasks - quite remarkable progress.
+
+After the morning keynotes, I went straight to the expo hall. I was on a mission to really check out the companies and get to know them personally.
+
+![](images/paste-3.jpeg)
+
+I stayed in the expo hall until midday when lunch was being served. The food was really good - rice, beef, and avocado. I even met a guy who was head of Linear, which was super cool! After lunch, I caught some of the afternoon sessions.
+
+I was planning to meet up with a friend, Ronan from Trelis Research - I'm a long-term subscriber to his YouTube channel and really wanted to meet him in person. Luckily, I was able to attend some excellent infrastructure talks beforehand.
+
+**Infrastructure Track Sessions** were incredibly insightful:
+
+**Dylan Patel's "Geopolitics of AI Infrastructure"** was packed - I could only catch bits from standing in the doorway since the room was completely full. His insights about nations racing to secure critical AI hardware and control compute capacity were eye-opening.
+
+**Kyle Kranen's "Hacking the Inference Pareto Frontier"** showed how prefill and disaggregation techniques achieve speedups. It was fascinating to see the many techniques available to adjust the curve between cost, quality, and latency.
+
+**Robert Wachen's "Flipping the Inference Stack"** drew analogies to how the iPhone enabled Uber and similar platforms. His key point: we're moving into an inference-dominated world where most compute will be generated, and inference will become the bottleneck for many applications.
+
+I briefly talked with Ronan - if you don't know his content, you should definitely check it out. Really excellent stuff!
 
 **AWS kicked things off** with their Bedrock platform and the newly announced Nova model family. But this wasn't your typical cloud vendor pitch. They dove deep into enterprise deployment patterns, specifically for regulated industries. Seeing how they handle multi-billion parameter model inference at scale was eye-opening. The engineering challenges of maintaining sub-second response times across global infrastructure are no joke.
 
@@ -105,19 +122,73 @@ The **Google DeepMind sessions** were incredibly technical. They went deep on Ge
 
 With specialized tracks like **MCP**, **LLM RecSys**, **Agent Reliability**, and **Voice AI** running concurrently, I had to make some tough choices. I spent most of my time bouncing between the **Agent Reliability** track (focusing on making agents that actually work in production) and **AI Infrastructure** (because the tooling ecosystem is finally catching up to our ambitions).
 
+I headed downstairs where they were serving snacks just before the final keynotes of Day 2.
+
+**Final Day 2 Keynotes:**
+
+**AWS's agentic services presentation** was first, though I don't remember most of the details.
+
+**Windsurf** was particularly interesting as they're expanding beyond just the developer stack. This made me a bit concerned - what was I going to do? Was I going to just click "accept"? Was my task reduced to prompting and clicking either accept or reject? It's incredible technology but also a little concerning, especially since I'm on the forefront of using this kind of tech.
+
+**Greg Brockman's keynote** was the main highlight. He has an impressive track record - really insane actually. A few key points caught my attention:
+
+1. **AI is a full infrastructure problem** - it's not one thing, it's everything: money, hardware, software, people, etc.
+
+2. **We're back to "basic research"** - the transformer architecture is strong, but new advancements need to be made to push the frontier.
+
+3. **Personal takeaway**: I need to use this new technology to upskill and expand myself, especially as things are growing even more rapidly.
+
 The expo format was perfect - technical demonstrations over marketing fluff. Every exhibitor had to provide hands-on experiences or detailed technical content. I spent hours at the Temporal booth learning about workflow orchestration patterns for agent systems.
 
 ### Day 3: Advanced Architectures and Real Talk
 
+Same as Day 2, I arrived around 8:30 AM to grab breakfast - they were serving the same croissants, fruits, and small pastries. We kicked off strong right away.
+
+**Logan Kilpatrick's Gemini presentation** started us off. I remember he was part of OpenAI last year before switching to Gemini, but Gemini has been incredibly strong. They've shipped so many excellent features - it's become a really solid product. I use it for YouTube and vision tasks regularly. Gemini is genuinely my go-to model for vision work.
+
+**Jack Rae's "Thinking Deeper in Gemini"** talk about thinking was fascinating. Thinking is really a new paradigm that adds a dimension that's super interesting. It actually increases latency and cost but dramatically improves quality. Figuring out how to control thinking is going to be incredibly effective, especially when paired with tool calling.
+
+**Manu Goyal's "Why should anyone care about Evals?"** was just funny. I'm sure Braintrust has good evals, but it's still about iterating on prompts, which remains very challenging.
+
+**Solomon Hykes' "Containing Agent Chaos"** was particularly interesting, and I really need to try their tools. They're from Dagger and are open source. He literally open-sourced on stage and got 13k stars within 20 minutes - that's insane for an audience of only 3k people. Their idea is simple but brilliant: Docker + Git + LLMs. Super simple, but I think I want to start using that pattern on my machine when it's more stable. I can see it being a powerful primitive.
+
+**Jesse Han's "The infrastructure for the singularity"** from Morph was weird. I love their artwork - it's actually amazing and I want to understand how they created the art more than the tech. The tech I can figure out. The presentation felt like a "sermon" or had religious undertones about LLMs, which was slightly uncomfortable, then they revealed they're just a browser/desktop sandbox.
+
 Day 3 was where the conference really showed its depth. The most technically advanced sessions, intimate fireside chats, and the kind of honest conversations about AI engineering that you rarely hear in public.
 
 The **production-ready agent architecture sessions** were exactly what I came for. Multiple speakers tackled the elephant in the room: building agents that don't break in production. We're talking about systems that can reliably interact with external APIs, handle edge cases gracefully, and maintain consistent performance when users throw unexpected inputs at them.
+
+After the morning talks, I walked around the expo again until I met up with another friend, David, who showed up randomly. He's starting his startup and I introduced him to some companies that might help.
+
+**Reasoning + RL Track Sessions:**
+
+I attended several excellent RL sessions:
+
+**Will Brown's "Training Agentic Reasoners"** - I only briefly caught this, but the essence was doing RL with tool calling and integrating this with training. I think this approach will provide some of the most significant rewards.
+
+**Greg Kamradt's "Measuring AGI: Interactive Reasoning Benchmarks"** was super cool. They mentioned releasing a preview of interactive game-like tasks, reminiscent of Halite. The main takeaway: giving agents an environment with no predefined goal - they need to figure out objectives on their own.
+
+**Kyle Corbitt's "How to Train Your Agent: Building Reliable Agents with RL"** and **Nathan Lambert's "A taxonomy for next-generation reasoning models"** were higher-level overviews, but really covered similar ground.
+
+I also attended **Philip Kiely's "Optimizing inference for voice models in production"** which was very informative.
 
 The **advanced technical tracks** included **SWE-Agents** (autonomous software engineering), **Reasoning + RL** (the new frontier of inference-time scaling), **Evals** (finally getting serious about measuring AI system performance), **Retrieval + Search** (going beyond basic RAG), and **Security** (critical as agents get more access). One session on production monitoring for AI applications was particularly eye-opening - traditional APM tools just don't cut it when you're dealing with probabilistic systems.
 
 But honestly, the **fireside chats** were where I got the most value. Technical leaders sharing the stuff they don't usually talk about in public: technical debt in AI systems, hiring challenges (spoiler: everyone's struggling to find good AI engineers), and the painful lessons learned from production AI failures.
 
 The **Model Context Protocol (MCP) integration sessions** deserve special mention. This is becoming critical infrastructure for agent systems, and seeing practical implementation patterns was invaluable. The authentication and service discovery challenges are real, and the solutions being shared were battle-tested.
+
+I got to chat with a friend from the AI Engineering hackathon after lunch, then headed into the final keynotes.
+
+**Final Day 3 Keynotes:**
+
+**Micah Hill-Smith and George Cameron's "Trends Across the AI Frontier"** highlighted how we're living in an increasingly multimodal world.
+
+**Sean Grove's "Prompt Engineering is Dead - Everything is a Spec"** from OpenRouter was particularly interesting. His thesis: prompts should be your "spec" - the most important document, with "code" or any "artifacts" just being results from the spec. It's an interesting idea that I'm definitely going to try out.
+
+After walking out, I got to see friends from the AI Engineering hackathon and say goodbye to people I'd met. We decided to go to the RunPod after-party, which was actually awesome - a wonderful closing party with amazing people, conversations, and drinks.
+
+I got back at 10:30 PM, and that was that. Overall, I was extremely happy with the experience. I achieved everything I set out to do and will be following up on people, concepts, and getting back on track with full vigor.
 
 The after-parties were worth staying for. There's something about informal conversations over drinks that brings out the real challenges people are facing. I had more meaningful technical discussions in those few hours than in most conference hallway tracks.
 
