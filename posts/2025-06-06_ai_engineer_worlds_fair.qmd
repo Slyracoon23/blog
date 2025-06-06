@@ -32,19 +32,19 @@ Needless to say I had gotten all of them plus much more.
 
 ## Event Overview
 
-The AI Engineer's World's Fair 2025 was absolutely massive - **3,000 attendees** packed into San Francisco's Marriott Marquis from June 3-5. This was double the size of last year's event, which really showed how fast the AI engineering community is growing. The organizers positioned it as "NeurIPS for Engineers," and honestly, that description felt spot on.
+The AI Engineer's World's Fair 2025 was absolutely massive - **3,000 attendees** packed into San Francisco's Marriott Marquis from June 3-5. Having attended last year, seeing it double in size really drove home how fast this community is growing. The organizers positioned it as "NeurIPS for Engineers," which felt accurate - all the cutting-edge technical content, but focused on people actually shipping code.
 
-What struck me most was how practical everything was. This wasn't another conference full of theoretical research papers. Instead, it was focused entirely on people who are **actually shipping AI systems to production**. Every session, every workshop, every conversation was about real-world implementation challenges and battle-tested solutions.
+What immediately struck me was the practical focus. No theoretical research papers or academic hand-waving. Instead, it was entirely focused on people who are **actually building production AI systems**. Every conversation I had was about real implementation challenges, not hypothetical possibilities.
 
-The three-day structure worked really well:
+The three-day structure worked perfectly for my goals:
 
-**Day 1** was pure workshop immersion - over 20 hands-on sessions covering everything from prompt engineering to voice AI to agent orchestration. These weren't your typical "follow along" tutorials either. The "bring your prompts" format was genius - you could actually work on your real production prompts with experts.
+**Day 1** was workshop immersion - I chose sessions on reinforcement learning and prompt engineering that directly aligned with my technical interests. The workshop format was brilliant; working on actual production problems with experts beats abstract tutorials every time.
 
-**Day 2** kicked off the main conference with industry keynotes and the expo hall opening. AWS, Microsoft, and Google all had major presence, but what was refreshing was seeing the OpenAI and Anthropic teams sharing actual implementation details rather than just product demos.
+**Day 2** opened with industry keynotes and the expo hall. While the big tech companies had presence, I was more interested in the infrastructure providers and tooling companies. This was where I could really dig into the technical challenges of model serving and deployment.
 
-**Day 3** featured the most advanced technical sessions and intimate fireside chats with industry leaders. The after-parties were where some of the best conversations happened - there's something about grabbing a drink that makes people share the real challenges they're facing.
+**Day 3** featured the most advanced sessions and those fireside chats where industry leaders actually shared the messy reality of building AI products. Plus the after-parties - where the real insights happened once people relaxed and talked about what's actually not working.
 
-With 18 tracks and 150+ sessions running concurrently, the hardest part was choosing what to attend. The track variety was incredible - from MCP (Model Context Protocol) to GraphRAG, from Tiny Teams to AI Architects. Having everything recorded with 18-minute time limits kept things focused and information-dense.
+With 18 tracks running concurrently, choosing sessions was tough. But having everything recorded with tight 20-minute time limits meant even if I missed something, I could catch up later. The focus and information density was impressive.
 
 ## Key Highlights and Sessions
 
@@ -52,11 +52,11 @@ With 18 tracks and 150+ sessions running concurrently, the hardest part was choo
 
 Day 1 was all about getting your hands dirty. I chose two workshops that really aligned with where I wanted to deepen my technical knowledge, and both delivered exactly what I was hoping for.
 
-**Advanced: Reinforcement Learning, Kernels, Reasoning, Quantization & Agents** by Daniel Han (9:00 AM, Foothill C) was fantastic. Daniel was such a funny guy and really kept the crowd engaged throughout the entire 2-hour session. He went deep into the fundamentals of RL in a way that was both accessible and technically rigorous.
+**Advanced: Reinforcement Learning, Kernels, Reasoning, Quantization & Agents** by Daniel Han (9:00 AM) was fantastic. Daniel was such a funny guy and really kept the crowd engaged throughout the entire 2-hour session. He went deep into the fundamentals of RL in a way that was both accessible and technically rigorous.
 
 ![](images/paste-1.jpeg)
 
-My key takeaways: You need to have SFT (Supervised Fine-Tuning) first to get the right format and basic reasoning capabilities in place, then using RL can get you significant improvements from there. The discussion about quantization was insightful - seeing how models like DeepSeek-R1 can be quantized down to 1.58-bits while maintaining performance was incredible. The conversations throughout were really engaging, with lots of back-and-forth between Daniel and the audience.
+My key takeaways: You need to have SFT (Supervised Fine-Tuning) first to get the right format and basic reasoning capabilities in place, then using RL can get you significant improvements from there. The discussion about quantization was insightful - seeing how models like Qwen2.5B can be quantized down to 4bit while maintaining performance was incredible. The conversations throughout were really engaging, with lots of back-and-forth between Daniel and the audience.
 
 ::: callout-note
 ## Dynamic 4-bit Quantization - A Follow-up Learning Goal
@@ -76,7 +76,7 @@ This connects perfectly to Daniel's discussion about DeepSeek-R1's extreme quant
 
 Personal note: I'm a big fan of Unsloth for fine-tuning work, so hearing Daniel's thoughts on efficient training techniques really resonated with me.
 
-The afternoon **Prompt Engineering & AI Red Teaming** session with Sander Schulhoff (3:30 PM, SOMA) was equally valuable. While waiting in line, I got to chat with an ML researcher from Instacart about the current state of prompt engineering, which was a nice warm-up to the session.
+The afternoon **Prompt Engineering & AI Red Teaming** session with Sander Schulhoff (3:30 PM) was equally valuable. While waiting in line, I got to chat with an ML researcher from Instacart about the current state of prompt engineering, which was a nice warm-up to the session.
 
 Sander covered what prompt engineering really is and emphasized that prompts are still a core technique used across many applications. He spent significant time on "prompt injection" and jailbreaks, which are apparently still major issues even today. The interactive red teaming competition at the end was both educational and fun.
 
@@ -112,15 +112,9 @@ I was planning to meet up with a friend, Ronan from Trelis Research - I'm a long
 
 **Robert Wachen's "Flipping the Inference Stack"** drew analogies to how the iPhone enabled Uber and similar platforms. His key point: we're moving into an inference-dominated world where most compute will be generated, and inference will become the bottleneck for many applications.
 
-I briefly talked with Ronan - if you don't know his content, you should definitely check it out. Really excellent stuff!
-
-**AWS kicked things off** with their Bedrock platform and the newly announced Nova model family. But this wasn't your typical cloud vendor pitch. They dove deep into enterprise deployment patterns, specifically for regulated industries. Seeing how they handle multi-billion parameter model inference at scale was eye-opening. The engineering challenges of maintaining sub-second response times across global infrastructure are no joke.
-
-**Microsoft's Azure AI Studio team** shared some fascinating insights about hybrid AI architectures. They talked about the real engineering challenges of deploying AI features across their massive user base - think Office and Windows AI features serving hundreds of millions of users simultaneously. The reliability requirements are insane when you're at that scale.
-
-The **Google DeepMind sessions** were incredibly technical. They went deep on Gemini API integration patterns and multimodal capabilities. What stood out was their focus on real-time integration - building conversational AI that can handle voice, video, and text simultaneously with consistent performance.
-
-With specialized tracks like **MCP**, **LLM RecSys**, **Agent Reliability**, and **Voice AI** running concurrently, I had to make some tough choices. I spent most of my time bouncing between the **Agent Reliability** track (focusing on making agents that actually work in production) and **AI Infrastructure** (because the tooling ecosystem is finally catching up to our ambitions).
+::: callout-note
+I had a brief chat with Ronan about this—if you haven't seen his content, I highly recommend checking it out. It's really excellent!
+:::
 
 I headed downstairs where they were serving snacks just before the final keynotes of Day 2.
 
@@ -132,11 +126,11 @@ I headed downstairs where they were serving snacks just before the final keynote
 
 **Greg Brockman's keynote** was the main highlight. He has an impressive track record - really insane actually. A few key points caught my attention:
 
-1. **AI is a full infrastructure problem** - it's not one thing, it's everything: money, hardware, software, people, etc.
+1.  **AI is a full infrastructure problem** - it's not one thing, it's everything: money, hardware, software, people, etc.
 
-2. **We're back to "basic research"** - the transformer architecture is strong, but new advancements need to be made to push the frontier.
+2.  **We're back to "basic research"** - the transformer architecture is strong, but new advancements need to be made to push the frontier.
 
-3. **Personal takeaway**: I need to use this new technology to upskill and expand myself, especially as things are growing even more rapidly.
+3.  **Personal takeaway**: I need to use this new technology to upskill and expand myself, especially as things are growing even more rapidly.
 
 The expo format was perfect - technical demonstrations over marketing fluff. Every exhibitor had to provide hands-on experiences or detailed technical content. I spent hours at the Temporal booth learning about workflow orchestration patterns for agent systems.
 
@@ -154,11 +148,7 @@ Same as Day 2, I arrived around 8:30 AM to grab breakfast - they were serving th
 
 **Jesse Han's "The infrastructure for the singularity"** from Morph was weird. I love their artwork - it's actually amazing and I want to understand how they created the art more than the tech. The tech I can figure out. The presentation felt like a "sermon" or had religious undertones about LLMs, which was slightly uncomfortable, then they revealed they're just a browser/desktop sandbox.
 
-Day 3 was where the conference really showed its depth. The most technically advanced sessions, intimate fireside chats, and the kind of honest conversations about AI engineering that you rarely hear in public.
-
-The **production-ready agent architecture sessions** were exactly what I came for. Multiple speakers tackled the elephant in the room: building agents that don't break in production. We're talking about systems that can reliably interact with external APIs, handle edge cases gracefully, and maintain consistent performance when users throw unexpected inputs at them.
-
-After the morning talks, I walked around the expo again until I met up with another friend, David, who showed up randomly. He's starting his startup and I introduced him to some companies that might help.
+After the strong opening keynotes, I spent the rest of Day 3 diving deep into the more technical sessions. This is where the conference really delivered on its promise of practical, production-focused content.
 
 **Reasoning + RL Track Sessions:**
 
@@ -174,17 +164,15 @@ I also attended **Philip Kiely's "Optimizing inference for voice models in produ
 
 The **advanced technical tracks** included **SWE-Agents** (autonomous software engineering), **Reasoning + RL** (the new frontier of inference-time scaling), **Evals** (finally getting serious about measuring AI system performance), **Retrieval + Search** (going beyond basic RAG), and **Security** (critical as agents get more access). One session on production monitoring for AI applications was particularly eye-opening - traditional APM tools just don't cut it when you're dealing with probabilistic systems.
 
-But honestly, the **fireside chats** were where I got the most value. Technical leaders sharing the stuff they don't usually talk about in public: technical debt in AI systems, hiring challenges (spoiler: everyone's struggling to find good AI engineers), and the painful lessons learned from production AI failures.
-
-The **Model Context Protocol (MCP) integration sessions** deserve special mention. This is becoming critical infrastructure for agent systems, and seeing practical implementation patterns was invaluable. The authentication and service discovery challenges are real, and the solutions being shared were battle-tested.
+The **fireside chats** were where I got the most value. Technical leaders sharing the stuff they don't usually talk about in public: technical debt in AI systems, hiring challenges (spoiler: everyone's struggling to find good AI engineers), and the painful lessons learned from production AI failures. These unguarded moments of honesty were worth the conference admission alone.
 
 I got to chat with a friend from the AI Engineering hackathon after lunch, then headed into the final keynotes.
 
 **Final Day 3 Keynotes:**
 
-**Micah Hill-Smith and George Cameron's "Trends Across the AI Frontier"** highlighted how we're living in an increasingly multimodal world.
+**Micah Hill-Smith and George Cameron's "Trends Across the AI Frontier"** from OpenRouter highlighted how we're living in an increasingly multimodal and multimodel world.
 
-**Sean Grove's "Prompt Engineering is Dead - Everything is a Spec"** from OpenRouter was particularly interesting. His thesis: prompts should be your "spec" - the most important document, with "code" or any "artifacts" just being results from the spec. It's an interesting idea that I'm definitely going to try out.
+**Sean Grove's "Prompt Engineering is Dead - Everything is a Spec"** from OpenAI was particularly interesting. His thesis: prompts should be your "spec" - the most important document, with "code" or any "artifacts" just being results from the spec. It's an interesting idea that I'm definitely going to try out.
 
 After walking out, I got to see friends from the AI Engineering hackathon and say goodbye to people I'd met. We decided to go to the RunPod after-party, which was actually awesome - a wonderful closing party with amazing people, conversations, and drinks.
 
@@ -192,42 +180,50 @@ I got back at 10:30 PM, and that was that. Overall, I was extremely happy with t
 
 The after-parties were worth staying for. There's something about informal conversations over drinks that brings out the real challenges people are facing. I had more meaningful technical discussions in those few hours than in most conference hallway tracks.
 
-## Notable Speakers and Key Insights
+## Key Insights and Themes
 
-The speaker lineup was incredible - a \~6% acceptance rate from over 500 applications meant every session was high-quality. Here are the standouts that really stuck with me:
+With a \~6% acceptance rate from over 500 applications, every session delivered real value. What made this conference special was that every speaker was a practitioner first - people actually shipping AI systems to production, not just talking about possibilities.
 
-**Shrestha Basu Mallick** (Google DeepMind) didn't just demo the Gemini API - she showed us how to build production multimodal systems that actually scale. Her insights about handling millions of concurrent users while maintaining consistent response times were invaluable.
+Several key themes emerged across the three days:
 
-**Kwindla Kramer** (Daily CEO) shared the real engineering challenges behind sub-100ms voice AI systems. The WebRTC complexities, edge case handling, and infrastructure decisions required for enterprise voice agents - this was the kind of technical depth you rarely see.
+**The Infrastructure Challenge is Real**: From Dylan Patel's geopolitics insights to the technical infrastructure sessions, it's clear that building reliable AI systems requires thinking about the entire stack - from hardware and inference optimization up to client code and application.
 
-**Sean DuBois** (OpenAI/Pion) gave one of the most technically intensive presentations on realtime systems design. His coverage of WebRTC protocols and real-time media processing was mind-bending. If you're building anything with real-time AI interactions, his session was essential.
+**Agents Everywhere**: Almost every conversation touched on agent architectures. But the focus has shifted from "cool demos" to "production reliability." People are building systems that need to work consistently for real users.
 
-What made this conference special was that every speaker was a practitioner first. These weren't theoretical presentations - they were battle-tested insights from people shipping AI systems to millions of users. The 18-minute format kept everything focused and eliminated fluff.
+**Speed of Execution**: Sarah Guo's thesis resonated throughout the event - in AI applications, the moat is execution speed. The companies winning are those shipping fast and iterating based on real user feedback.
 
-The themes that emerged were clear: **agents are becoming the dominant paradigm**, production reliability is the new frontier, and AI engineering is legitimately becoming its own discipline separate from traditional ML engineering.
+**New Paradigms Emerging**: From Jack Rae's insights on "thinking" models to Sean Grove's "prompt-as-spec" approach, we're seeing new patterns that could fundamentally change how we build AI systems.
+
+**The Human Element**: Despite all the technical advancement, the most successful implementations still prioritize the human/customer experience over pure technical capability.
 
 ## Personal Takeaways
 
-Walking away from the World's Fair, I'm convinced we're at a genuine inflection point in AI engineering. This isn't just hype - the practical focus and production-ready solutions being shared show that the industry is maturing rapidly.
+This was my second year attending, and the growth is remarkable - both in scale and maturity. Achieving my three main goals (connecting with amazing people, learning about latest advancements, finding next opportunities) plus much more made this trip incredibly worthwhile.
 
-**Agents are everywhere.** Every conversation, every session, every demo somehow touched on agent architectures. But what's different now is the focus on reliability and production deployment. People aren't just building cool demos anymore; they're building systems that need to work consistently for real users.
+**Technical Learning**: The workshops were fantastic, especially Daniel Han's RL session and the prompt engineering deep-dive. I have concrete things to follow up on - Dynamic 4-bit Quantization, exploring HackAPrompt.com, and definitely trying out that Docker + Git + LLMs pattern that got 13k stars in 20 minutes.
 
-**Infrastructure is catching up.** The tooling ecosystem is finally robust enough to support production AI systems. From Temporal for workflow orchestration to specialized monitoring tools for probabilistic systems, the infrastructure pieces are coming together.
+**Infrastructure Focus**: The infrastructure sessions confirmed my interest in the lower-level AI stack. Meeting people working on model serving, inference optimization, and the actual engineering challenges of production AI systems showed me there's meaningful work to be done beyond just building full-stack applications.
 
-**The community is incredible.** The quality of conversations and the willingness to share real challenges (not just successes) made this event special. I came away with a notebook full of implementation ideas and a contact list of people facing similar challenges.
+**Networking Success**: From meeting the Linear head over lunch to connecting with Ronan from Trelis Research, to the RunPod after-party conversations - the human connections were incredible. Having a notebook full of contacts and follow-up opportunities is exactly what I hoped for.
 
-**AI engineering is its own discipline.** This conference proved that AI engineering isn't just software engineering with some ML sprinkled in. It requires different patterns, different tools, and different ways of thinking about reliability and user experience.
+**Career Direction**: Greg Brockman's insight about using new technology to upskill and expand resonated deeply. As AI capabilities grow, I need to stay on the frontier and find increasingly impactful work rather than just riding the wave.
 
-My biggest takeaway? The future is being built right now by practitioners who are solving real problems with production AI systems. The theoretical research is important, but the action is happening in the trenches with engineers who are actually shipping code.
+**Prompt-as-Spec**: Sean Grove's "Everything is a Spec" concept is something I'm definitely going to experiment with. The idea that prompts should be the primary document with code as output is fascinating and worth testing in my own projects.
+
+The most valuable insight? This community is solving real problems right now. The conversations at after-parties revealed the genuine challenges people face shipping AI to production, and that's where the most interesting work is happening.
 
 ## Conclusion
 
-The AI Engineer's World's Fair 2025 lived up to its reputation as the premier gathering for production AI practitioners. Doubling in size while maintaining its focus on practical, battle-tested solutions, it proved that AI engineering has truly emerged as its own professional discipline.
+Walking out of the Marriott Marquis after three intense days, I'm energized and optimistic about where AI engineering is heading. This conference delivered exactly what I hoped for - technical depth, genuine community, and concrete next steps for my own learning and career.
 
-What sets this conference apart is its relentless focus on implementation over speculation. Every session, every workshop, every conversation was grounded in real-world deployment challenges. This isn't a conference for theoretical discussions about what AI might do someday - it's for engineers who are building AI systems that work today.
+The sheer scale (3,000 attendees, double from last year) shows how fast this field is growing, but what impressed me most was the maturity. These weren't pie-in-the-sky demos or research papers - these were real engineers sharing real solutions to real problems. From dealing with inference bottlenecks to building reliable agent architectures, every conversation was grounded in production reality.
 
-The themes that emerged - agent-first architectures, production reliability, infrastructure maturation - are shaping the industry's direction for 2025 and beyond. More importantly, the community that's forming around these challenges is exceptional. The willingness to share failures alongside successes creates an environment where real learning happens.
+The infrastructure focus throughout the event reinforced my belief that there's meaningful work to be done beyond just building applications. The challenges Robert Wachen described about inference being the new bottleneck, Dylan Patel's insights on AI geopolitics, and the Docker + Git + LLMs pattern that got 13k stars in 20 minutes - these are the kinds of lower-level problems I want to work on.
 
-If you're building production AI systems, the World's Fair should be on your calendar. The combination of cutting-edge technical content, hands-on workshops, and genuine community makes it worth the investment. Plus, the after-parties are where the real insights happen.
+But beyond the technical content, it's the community that makes this event special. Whether it was lunch conversations with the Linear head, catching up with Ronan from Trelis Research, or the late-night discussions at the RunPod after-party, the willingness to share both successes and failures creates an environment where real learning happens.
 
-See you at next year's event - I have a feeling it's going to be even bigger.
+![](images/paste-4.jpeg)
+
+I'll definitely be back next year - probably with some concrete projects influenced by what I learned here. If you're building production AI systems and missed this one, put it on your calendar. The combination of cutting-edge technical content and authentic community makes it worth it.
+
+Now, time to implement some of these ideas.
