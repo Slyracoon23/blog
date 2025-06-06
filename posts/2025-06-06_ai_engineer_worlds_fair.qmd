@@ -12,22 +12,21 @@ format: html
 
 ![AI Engineer's World's Fair 2025](images/paste-13.png)
 
-
 This blog post will go over my recent experience of the AI Engineer Worlds Fair 2025. I wanted to recount the events and experience when it's still fresh in my mind.
 
 ## Brief Introduction
 
-The AI Engineer's World's Fair is a conference in San Francisco that brings AI practitioners and researchers alike. The conference is meant to showcase the latest advancements and innovation in the space. 
+The AI Engineer's World's Fair is a conference in San Francisco that brings AI practitioners and researchers alike. The conference is meant to showcase the latest advancements and innovation in the space.
 
-The conference is an amazing way to collaborate, network, learn and connect with the leading industry leaders and researchers. This gives you a glimpse of what is on the horizon and what opportunities lie ahead. It's mainly the reason why I've gone to it a second time in a row so far. 
+The conference is an amazing way to collaborate, network, learn and connect with the leading industry leaders and researchers. This gives you a glimpse of what is on the horizon and what opportunities lie ahead. It's mainly the reason why I've gone to it a second time in a row so far.
 
 Before attending the event, I had hoped to receive several things from this event.
 
-1. Connect with entrepreneurs, founders, researchers and amazing people
+1.  Connect with entrepreneurs, founders, researchers and amazing people
 
-2. Learn about latest advancements in agents and models
+2.  Learn about latest advancements in agents and models
 
-3. Find next opportunities for work in the space
+3.  Find next opportunities to work on in the space
 
 Needless to say I had gotten all of them plus much more.
 
@@ -45,22 +44,54 @@ The three-day structure worked really well:
 
 **Day 3** featured the most advanced technical sessions and intimate fireside chats with industry leaders. The after-parties were where some of the best conversations happened - there's something about grabbing a drink that makes people share the real challenges they're facing.
 
-With 18 tracks and 150+ sessions running concurrently, the hardest part was choosing what to attend. But having everything recorded with 18-minute time limits kept things focused and information-dense.
+With 18 tracks and 150+ sessions running concurrently, the hardest part was choosing what to attend. The track variety was incredible - from MCP (Model Context Protocol) to GraphRAG, from Tiny Teams to AI Architects. Having everything recorded with 18-minute time limits kept things focused and information-dense.
 
 ## Key Highlights and Sessions
 
 ### Day 1: Workshop Deep Dive
 
-Day 1 was all about getting your hands dirty. The workshop day featured over 20 sessions, and the variety was incredible. What I loved most was the \"hands-on keyboard\" philosophy - no death by PowerPoint here.
+Day 1 was all about getting your hands dirty. I chose two workshops that really aligned with where I wanted to deepen my technical knowledge, and both delivered exactly what I was hoping for.
 
-The **Voice AI workshops** were probably the most impressive. Shrestha Basu Mallick from Google DeepMind and Kwindla Kramer from Daily/Pipecat walked us through building actual real-time conversational experiences. We're talking sub-100ms latency, browser-based voice apps that you could deploy immediately. They had pre-configured accounts ready, so within minutes you were building production-quality voice agents.
+**Advanced: Reinforcement Learning, Kernels, Reasoning, Quantization & Agents** by Daniel Han (9:00 AM, Foothill C) was fantastic. Daniel was such a funny guy and really kept the crowd engaged throughout the entire 2-hour session. He went deep into the fundamentals of RL in a way that was both accessible and technically rigorous.
 
-The **\"Bring Your Prompts\"** sessions were genius. Instead of generic prompt engineering theory, you could bring your actual production prompts and workshop them with experts who optimize prompts for a living. I brought a few complex reasoning prompts I'd been struggling with, and the feedback was invaluable.
+![](images/paste-1.jpeg)
 
-What really stood out was the **AI productivity track** with Kevin Ball and Manuel Odendahl. These weren't basic \"how to use ChatGPT\" sessions. We dove deep into .cursorrules optimization, advanced Cursor workflows, and productivity patterns that can genuinely transform how you work. I picked up techniques that I immediately started using the next day.
+My key takeaways: You need to have SFT (Supervised Fine-Tuning) first to get the right format and basic reasoning capabilities in place, then using RL can get you significant improvements from there. The discussion about quantization was insightful - seeing how models like DeepSeek-R1 can be quantized down to 1.58-bits while maintaining performance was incredible. The conversations throughout were really engaging, with lots of back-and-forth between Daniel and the audience.
 
-The **agent orchestration workshops** tackled the real challenges - reliability, error handling, and deployment patterns. It's one thing to build a demo agent; it's another to build one that works consistently in production. The focus on practical reliability patterns was exactly what I needed.
+::: {.callout-note}
+## Dynamic 4-bit Quantization - A Follow-up Learning Goal
 
+Daniel's workshop sparked my interest in **Dynamic 4-bit Quantization**, which I definitely want to dive deeper into. Here's what I learned from researching this technique:
+
+**What is Dynamic 4-bit Quantization?**
+- Reduces neural network memory requirements by **4x** (from 32-bit floats to 4-bit integers)
+- Computes activation ranges **on-the-fly at runtime** rather than using pre-computed static ranges
+- Enables substantial memory and power savings for model deployment
+
+**Key Benefits:**
+- **Memory Efficiency**: 4x reduction in storage requirements for weights and activations
+- **Power Savings**: Energy consumption dominated by memory access gets significantly reduced
+- **Flexible Precision**: Can adapt quantization ranges dynamically based on input data
+
+**Recent Advances:**
+- **Post-Training Approaches**: No need for fine-tuning or full dataset access
+- **GPTQ Method**: Specifically designed for large language models like GPT
+- **4.6-bit Schemes**: Novel approaches that balance accuracy and efficiency
+
+**The Trade-off**: While 4-bit quantization can introduce some quality loss compared to 8-bit or full precision, recent research shows it's possible to maintain near-original accuracy with proper techniques.
+
+This connects perfectly to Daniel's discussion about DeepSeek-R1's extreme quantization - understanding dynamic 4-bit quantization could be key to building efficient production AI systems.
+:::
+
+Personal note: I'm a big fan of Unsloth for fine-tuning work, so hearing Daniel's thoughts on efficient training techniques really resonated with me.
+
+The afternoon **Prompt Engineering & AI Red Teaming** session with Sander Schulhoff (3:30 PM, SOMA) was equally valuable. While waiting in line, I got to chat with an ML researcher from Instacart about the current state of prompt engineering, which was a nice warm-up to the session.
+
+Sander covered what prompt engineering really is and emphasized that prompts are still a core technique used across many applications. He spent significant time on "prompt injection" and jailbreaks, which are apparently still major issues even today. The interactive red teaming competition at the end was both educational and fun.
+
+He runs [HackAPrompt.com](https://www.hackaprompt.com), the world's first AI red teaming competition platform - maybe I should test my prompt skills there and see if I can flex a bit 😄
+
+Personal take: Seriously though, I honestly don't like that prompt engineering is a thing we have to deal with, but it's clearly not going away anytime soon as far as I can see. The fact that we still need these techniques shows we're not quite at the point where models just "understand" what we want naturally.
 
 ### Day 2: Industry Heavyweights and Technical Deep Dives
 
@@ -72,10 +103,9 @@ Day 2 was when things got serious. The expo hall opened, and suddenly you had ac
 
 The **Google DeepMind sessions** were incredibly technical. They went deep on Gemini API integration patterns and multimodal capabilities. What stood out was their focus on real-time integration - building conversational AI that can handle voice, video, and text simultaneously with consistent performance.
 
-With 9 specialized tracks running concurrently, I had to make some tough choices. I spent most of my time bouncing between the **Computer Use Agents** track (autonomous systems that can actually interact with software interfaces) and **Production Evaluation Systems** (because measuring AI system performance in production is still an unsolved problem).
+With specialized tracks like **MCP**, **LLM RecSys**, **Agent Reliability**, and **Voice AI** running concurrently, I had to make some tough choices. I spent most of my time bouncing between the **Agent Reliability** track (focusing on making agents that actually work in production) and **AI Infrastructure** (because the tooling ecosystem is finally catching up to our ambitions).
 
 The expo format was perfect - technical demonstrations over marketing fluff. Every exhibitor had to provide hands-on experiences or detailed technical content. I spent hours at the Temporal booth learning about workflow orchestration patterns for agent systems.
-
 
 ### Day 3: Advanced Architectures and Real Talk
 
@@ -83,7 +113,7 @@ Day 3 was where the conference really showed its depth. The most technically adv
 
 The **production-ready agent architecture sessions** were exactly what I came for. Multiple speakers tackled the elephant in the room: building agents that don't break in production. We're talking about systems that can reliably interact with external APIs, handle edge cases gracefully, and maintain consistent performance when users throw unexpected inputs at them.
 
-The **advanced technical tracks** covered next-generation tooling, enterprise platform architecture, and real-time AI system design. One session on production monitoring for AI applications was particularly eye-opening - traditional APM tools just don't cut it when you're dealing with probabilistic systems.
+The **advanced technical tracks** included **SWE-Agents** (autonomous software engineering), **Reasoning + RL** (the new frontier of inference-time scaling), **Evals** (finally getting serious about measuring AI system performance), **Retrieval + Search** (going beyond basic RAG), and **Security** (critical as agents get more access). One session on production monitoring for AI applications was particularly eye-opening - traditional APM tools just don't cut it when you're dealing with probabilistic systems.
 
 But honestly, the **fireside chats** were where I got the most value. Technical leaders sharing the stuff they don't usually talk about in public: technical debt in AI systems, hiring challenges (spoiler: everyone's struggling to find good AI engineers), and the painful lessons learned from production AI failures.
 
@@ -91,14 +121,13 @@ The **Model Context Protocol (MCP) integration sessions** deserve special mentio
 
 The after-parties were worth staying for. There's something about informal conversations over drinks that brings out the real challenges people are facing. I had more meaningful technical discussions in those few hours than in most conference hallway tracks.
 
-
 ## Notable Speakers and Key Insights
 
-The speaker lineup was incredible - a ~6% acceptance rate from over 500 applications meant every session was high-quality. Here are the standouts that really stuck with me:
+The speaker lineup was incredible - a \~6% acceptance rate from over 500 applications meant every session was high-quality. Here are the standouts that really stuck with me:
 
 **Shrestha Basu Mallick** (Google DeepMind) didn't just demo the Gemini API - she showed us how to build production multimodal systems that actually scale. Her insights about handling millions of concurrent users while maintaining consistent response times were invaluable.
 
-**Kwindla Kramer** (Daily/Pipecat CEO) shared the real engineering challenges behind sub-100ms voice AI systems. The WebRTC complexities, edge case handling, and infrastructure decisions required for enterprise voice agents - this was the kind of technical depth you rarely see.
+**Kwindla Kramer** (Daily CEO) shared the real engineering challenges behind sub-100ms voice AI systems. The WebRTC complexities, edge case handling, and infrastructure decisions required for enterprise voice agents - this was the kind of technical depth you rarely see.
 
 **Sean DuBois** (OpenAI/Pion) gave one of the most technically intensive presentations on realtime systems design. His coverage of WebRTC protocols and real-time media processing was mind-bending. If you're building anything with real-time AI interactions, his session was essential.
 
@@ -119,7 +148,6 @@ Walking away from the World's Fair, I'm convinced we're at a genuine inflection 
 **AI engineering is its own discipline.** This conference proved that AI engineering isn't just software engineering with some ML sprinkled in. It requires different patterns, different tools, and different ways of thinking about reliability and user experience.
 
 My biggest takeaway? The future is being built right now by practitioners who are solving real problems with production AI systems. The theoretical research is important, but the action is happening in the trenches with engineers who are actually shipping code.
-
 
 ## Conclusion
 
