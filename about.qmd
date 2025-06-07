@@ -21,7 +21,7 @@ about:
 
 An AI Engineer specializing in intelligent agents and large language models, based in San Francisco. Co-founded and built production-ready PM AI Agent at [Missio AI](https://missio.ai), with a mission to advance the development of autonomous AI systems that can meaningfully assist and augment human capabilities.
 
-Earl has built sophisticated AI agents and demonstrated expertise across the AI landscape, winning the [Nous Research hackathon on Reinforcement Learning](https://x.com/cerebral_valley/status/1927429095534506092) and placing top 6 in the AI Engineer hackathon at World's Fair. His work focuses on creating intelligent systems that can understand context, make decisions, and take actions autonomously.
+Earl has built sophisticated AI agents and demonstrated expertise across the AI landscape, winning the [Nous Research hackathon on Reinforcement Learning](https://x.com/cerebral_valley/status/1927429095534506092) and placing top 6 in the AI Engineer World's Fair hackathon. His work focuses on creating intelligent systems that can understand context, make decisions, and take actions autonomously.
 
 An active blogger, Earl writes about AI, large language models, and autonomous agents. He has created numerous open-source projects and other contributions to the AI community. His GitHub showcases repositories spanning robotics, AI, and blockchain development.
 
