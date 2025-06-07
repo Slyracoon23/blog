@@ -22,7 +22,7 @@ website:
       - text: "![](https://mlabonne.github.io/blog/images/hf-icon.svg)"
         href: https://huggingface.co/Slyracoon23
     pinned: false
-  google-analytics: "G-4DWYJM47PC"j
+  google-analytics: "G-4DWYJM47PC"
   favicon: /images/favicon.ico
   twitter-card: true
   open-graph: true
@@ -38,7 +38,7 @@ website:
         - section: "🤖 **AI Agents**"
           contents:
             - text: "AI Engineer World's Fair"
-              href: posts/ai_engineer_worlds_fair.html
+              href: posts/2025-06-06_ai_engineer_worlds_fair.html
         - text: "---"
         - section: "🗣️ **Large Language Models**"
           contents:
