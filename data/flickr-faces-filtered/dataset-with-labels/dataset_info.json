@@ -1,0 +1,113 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "flickr-faces-attributes-2048",
+  "dataset_size": 825134603,
+  "description": "",
+  "download_checksums": {
+    "hf://datasets/ljnlonoljpiljm/flickr-faces-attributes-2048@a47bc6ce6136e0a631addbfc1f18badef9b9c440/data/train-00000-of-00002.parquet": {
+      "num_bytes": 412174950,
+      "checksum": null
+    },
+    "hf://datasets/ljnlonoljpiljm/flickr-faces-attributes-2048@a47bc6ce6136e0a631addbfc1f18badef9b9c440/data/train-00001-of-00002.parquet": {
+      "num_bytes": 411529842,
+      "checksum": null
+    }
+  },
+  "download_size": 823704792,
+  "features": {
+    "image": {
+      "_type": "Image"
+    },
+    "text": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "id": {
+      "dtype": "int64",
+      "_type": "Value"
+    },
+    "recaptioned": {
+      "dtype": "bool",
+      "_type": "Value"
+    },
+    "ethnicity": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "skintone": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "gender": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "age_range": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "hair_color": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "hair_length": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "hair_texture": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "eye_color": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "expression": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "gaze": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "lighting": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "clothing": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "angle": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "hot_or_not": {
+      "dtype": "string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 1648839395,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 825134603,
+      "num_examples": 2048,
+      "shard_lengths": [
+        1324,
+        724
+      ],
+      "dataset_name": "flickr-faces-attributes-2048"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}
