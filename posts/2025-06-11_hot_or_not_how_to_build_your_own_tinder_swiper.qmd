@@ -1,0 +1,25 @@
+---
+aliases:
+- /how-to-build-your-own-tinder-swiper/
+categories:
+- PyTorch
+- Machine Learning
+date: '2025-06-11'
+image: /images/how-to-build-your-own-tinder-swiper/thumbnail.png
+title: "How to Build Your Own Tinder Swiper"
+subtitle: "A practical introduction to preference-based finetuning with PyTorch and Hugging Face"
+format: html
+---
+
+![Hot or Not](/images/how-to-build-your-own-tinder-swiper/thumbnail.png)
+
+tl;dr
+
+[the results of the finetuning]
+
+
+## Introduction
+
+
+
+
