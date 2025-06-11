@@ -11,14 +11,77 @@ subtitle: "A practical introduction to preference-based finetuning with PyTorch 
 format: html
 ---
 
-![Hot or Not](/images/how-to-build-your-own-tinder-swiper/thumbnail.png)
+![thumbnail](/images/how-to-build-your-own-tinder-swiper/thumbnail.png)
 
 tl;dr
 
-[the results of the finetuning]
-
+\[the results of the finetuning\]
 
 ## Introduction
+
+![Hot or Not logo](images/paste-15.png)
+
+Before my time there was a lot a viral app that was the precursor to Tinder. It was called Hot or Not.
+
+It was a website where you could upload a photo and then rate other photos through saying whether they were hot or not.
+
+In this post I'm not going to build a website like Hot or Not and frankly I don't like spending hours of my time rating photos. No, intead we are going to build a model that can rate the photos based on only a handful of examples. That way we can sit back and let the model do the work.
+
+But before we get to that, let's start with the theory.
+
+## The Hot or Not Theory
+
+![](images/paste-17.png)
+
+The theory is quite simple. We have a bunch of photos that we put into the model and the model will "classify" them with a binary label of hor or not.
+
+In machine learning we call this a binary classification problem.
+
+There are a few ways to solve this problem. We can use a simple logistic regression model, support vector machine, or more popular nowaadays a neural network.
+
+We will actually be trying out the new vLLMs which are a new class of models that are vision Transformer models that have been finetuned on a lot of data.
+
+But wait! You might be thinking, "How does it know if a photo is hot or not?" and isn't beauty in the eye of the beholder?
+
+Yes, that's true. Hence we will be training within your eyes but for that to work we will need to use a technique called preference-based finetuning.
+
+![](images/paste-18.png)
+
+## Preference-Based Finetuning
+
+![](images/paste-19.png)
+
+Preference-based finetuning is a technique that allows us to "train" the model based on the preferences of the user.
+
+Think about the last time you were given a choice between two options. You might have been given a choice between two movies, two restaurants, or two books.
+
+In this case you are given the choice between two options and you are asked to choose the one you prefer.
+
+So in our case we are going to be given a bunch of photos and we will be asked which one is hotter. This is allow us to not only train the model on knowing the difference between hot or not but will also allow us to have the model be able to rank the photos.
+
+But for this we need to have data.
+
+## The Data
+
+The data is quite simple. We will be creating our hot or not dataset by scraping the internet for tinder photos. Once we have the photos we will need to label them as hor or not.
+
+This will be a lot of work but I have concatenated a bunch of photos into a single file.
+
+
+
+.....
+
+## Follow Along
+
+For this we will be using a dataset from Hugging Face. ljnlonoljpiljm/flickr-faces-attributes-2048 which is a dataset of 2048x2048 photos of face from flickr.
+
+We will mainly need to update and clean this dataset. I have gone ahead of you have only taken females above the age of 18 for this dataset to train on.
+
+
+
+
+
+
 
 
 
