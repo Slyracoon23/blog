@@ -78,7 +78,14 @@ For this we will be using a dataset from Hugging Face. ljnlonoljpiljm/flickr-fac
 We will mainly need to update and clean this dataset. I have gone ahead of you have only taken females above the age of 18 for this dataset to train on.
 
 
+## Clean the data
 
+Before you can start labelling the data we need to clean it. We need to know what will be in the set what won't be in the set.
+
+
+## Labelling the data
+
+Now that we have cleaned the data we can start labelling the data. This was extremely painful becuase man there are a lot of gly poeple in the world.  More so than I thought. I will have to say, that beauty is a spectrum but what they forget to mention is that this spectrum is folling a power law distribution and I am afraid most of us are on the left side of the spectrum.
 
 
 
