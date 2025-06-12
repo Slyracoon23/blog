@@ -16,3 +16,22 @@ page-layout: full
 sidebar: false
 title-block-banner: true
 ---
+
+## Repositories of Interest
+
+### {{< fa rocket >}} vLLM - High-Throughput LLM Inference
+[vllm-project/vllm](https://github.com/vllm-project/vllm) - Fast LLM inference library with PagedAttention for efficient memory management and high-throughput serving.
+
+**Beginner Tasks:** [Good First Issues](https://github.com/vllm-project/vllm/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) - Great starting point for new contributors.
+
+### {{< fa zap >}} Unsloth - Ultra-Fast LLM Fine-Tuning  
+[unslothai/unsloth](https://github.com/unslothai/unsloth) - Makes LLM fine-tuning 2-5x faster with 70% less memory through custom GPU kernels.
+
+**Help Wanted:** [Open Issues](https://github.com/unslothai/unsloth/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22) - Community contributions welcome.
+
+### {{< fa cloud >}} SkyPilot - Multi-Cloud Infrastructure for AI
+[skypilot-org/skypilot](https://github.com/skypilot-org/skypilot) - Run AI workloads on any cloud with unified interface and automatic cost optimization.
+
+**Good Starter Issues:** [Open Issues](https://github.com/skypilot-org/skypilot/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20starter%20issues%22) - Perfect for getting started with contributions.
+
+## My Contributions 
