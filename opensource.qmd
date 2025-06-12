@@ -1,0 +1,18 @@
+---
+title: "{{< fa code-branch >}} Open Source"
+description: "My contributions to open source projects - bug fixes, feature implementations, and issue resolutions across various repositories."
+listing:
+  contents: opensource
+  sort: "date desc"
+  type: default
+  image-align: left
+  image-placeholder: images/thumbnail_template.jpg
+  feed: true
+  sort-ui: false
+  filter-ui: false
+  max-description-length: 110
+  fields: [image, title, description, categories, reading-time, date]
+page-layout: full
+sidebar: false
+title-block-banner: true
+--- 

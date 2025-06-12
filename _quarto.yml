@@ -12,6 +12,8 @@ website:
         file: about.qmd
       - text: "{{< fa newspaper >}} Posts"
         href: posts.qmd
+      - text: "{{< fa code-branch >}} Open Source"
+        href: opensource.qmd
       - text: "{{< fa pen >}} Notes"
         href: notes.qmd
       - text: "{{< fa feather >}} Writing"
@@ -95,6 +97,15 @@ website:
       contents:
         - section: "🎯 **Goals**"
           contents: "goals/*"
+
+    - id: opensource
+      title: "Open Source"
+      style: "floating"
+      collapse-level: 2
+      align: left
+      contents:
+        - section: "🛠️ **Open Source Contributions**"
+          contents: "opensource/*"
 
 format:
   html:
