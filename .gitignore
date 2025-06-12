@@ -11,3 +11,10 @@ __pycache__/
 
 .cursor/
 /.luarc.json
+
+# Large dataset files
+data/flickr-faces-filtered/dataset*/
+*.arrow
+
+# Large image files
+posts/images/paste-*.png
