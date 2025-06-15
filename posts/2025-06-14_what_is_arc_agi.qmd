@@ -41,7 +41,7 @@ The key reasoning systems required include:
 The dataset structure includes:
 - **1000 tasks** for the training set
 - **400 public tasks** available for research
-- **200 semi-private tasks** for evaluation
+- **120 semi-private tasks** for evaluation
 - **120 tasks** reserved for the main prize competition
 
 ## Why Does It Matter?
