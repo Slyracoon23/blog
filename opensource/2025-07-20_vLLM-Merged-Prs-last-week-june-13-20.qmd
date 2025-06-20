@@ -16,10 +16,172 @@ format: html
 
 **Total PRs: 114**
 
+
 ## 🐛 Bug Fixes (28 PRs)
 
-1. **#19624** - [BugFix] Fix DP Coordinator incorrect debug log message
-2. **#19316** - [Bugfix] Fix auto dtype casting for BatchFeature
+::: {.callout-note collapse="true"}
+## 1. #19624 - [BugFix] Fix DP Coordinator incorrect debug log message
+
+#### Overview
+This PR fixes a logging bug in the Data Parallel (DP) Coordinator where debug messages were showing incorrect wave numbers. The coordinator was logging `"Moving DP wave from N to N"` instead of the correct `"Moving DP wave from N to (N + 1)"`. This affects the V1 engine's data parallel processing wave management system.
+
+**Motivation**: Accurate debug logging is crucial for troubleshooting distributed processing coordination issues in vLLM's V1 engine architecture.
+
+#### Code Changes (Verified)
+
+**File**: `vllm/v1/engine/coordinator.py`
+
+```diff
+@@ -183,11 +183,12 @@ def process_input_socket(self, front_publish_address: str,
+                     # engines are paused, so that we can wake the other
+                     # engines.
+                     engine_to_exclude, wave = msgspec.msgpack.decode(buffer)
+-                    if wave < self.current_wave:
+-                        # If the wave number is stale, ensure the message is
+-                        # handled by all the engines.
+-                        engine_to_exclude = None
+                     if not self.engines_running:
++                        if wave < self.current_wave:
++                            # If the wave number is stale, ensure the message
++                            # is handled by all the engines.
++                            engine_to_exclude = None
++
+                         self.engines_running = True
+                         self.stats_changed = True
+                         self._send_start_wave(publish_back, self.current_wave,
+@@ -217,8 +218,10 @@ def process_input_socket(self, front_publish_address: str,
+                         # (engines_running==False).
+                         if self.current_wave <= wave:
++                            new_wave = wave + 1
+                             logger.debug("Moving DP wave from %d to %d.",
+-                                         self.current_wave, wave)
+-                            self.current_wave = wave + 1
++                                         self.current_wave, new_wave)
++                            self.current_wave = new_wave
+                             self.engines_running = False
+                             self.stats_changed = True
+```
+
+**Explanation**: 
+- **Main Fix**: Introduced a `new_wave` variable to compute `wave + 1` before logging, ensuring the debug message shows the correct transition from current wave to next wave
+- **Code Refactoring**: Moved the stale wave check inside the `if not self.engines_running` block for better logical grouping (noted as "unrelated simplification" by author)
+- **Variable Extraction**: Extracted `scheduler_stats` to a local variable to avoid repeated attribute access, improving code readability
+
+#### PR Discussion & Comments
+
+**@njhill → self** — Code organization improvement
+> "This is unrelated simplification, this check only applies to the case inside the if."
+
+**@njhill → self** — Main bug identification  
+> "This is the actual bug fix"
+
+#### Key Takeaways
+- **Bug Impact**: Incorrect debug logging can mislead developers during troubleshooting of distributed processing coordination
+- **Simple but Important**: The fix demonstrates how even small logging errors should be corrected for proper debugging experience
+- **Code Quality**: The PR also includes minor refactoring improvements alongside the main fix
+- **V1 Engine Context**: This affects the newer V1 engine architecture's data parallel processing system
+
+#### Further Reading
+- [vLLM V1 Engine Documentation](https://docs.vllm.ai)
+- [Original PR #19624](https://github.com/vllm-project/vllm/pull/19624)
+
+:::
+
+
+::: {.callout-note collapse="true"}
+## 2. #19316 - [Bugfix] Fix auto dtype casting for BatchFeature
+
+#### Overview
+This PR fixes a critical dtype casting issue for `BatchFeature` objects in vision-language models, particularly affecting DeepSeek VL2. The bug occurred because `BatchFeature` is a `UserDict`, and `isinstance(value, dict)` returns `False`, causing data type casting to fail in the `json_map_leaves` function.
+
+**Motivation**: Proper dtype casting is essential for vision-language models to ensure tensor operations are performed with consistent data types, preventing runtime errors like `"Input type (float) and bias type (c10::BFloat16) should be the same"`.
+
+#### Code Changes (Verified)
+
+**File**: `vllm/inputs/registry.py`
+
+```diff
+@@ -168,10 +168,12 @@ def maybe_cast_dtype(x):
+         try:
+             output = hf_processor(**data, **merged_kwargs, return_tensors="pt")
+             # this emulates output.to(dtype=self.model_config.dtype)
+-            cast_output = json_map_leaves(maybe_cast_dtype, output)
+             if isinstance(output, BatchFeature):
++                cast_output = json_map_leaves(maybe_cast_dtype, output.data)
+                 return BatchFeature(cast_output)
+
++            cast_output = json_map_leaves(maybe_cast_dtype, output)
++
+             logger.warning_once(
+                 f"{type(hf_processor).__name__} did not return `BatchFeature`. "
+                 "Make sure to match the behaviour of `ProcessorMixin` when "
+```
+
+**File**: `vllm/model_executor/models/qwen2_vl.py` (and `qwen2_5_vl.py`)
+
+```diff
+@@ -1208,9 +1208,9 @@ def _process_image_input(
+         assert grid_thw.ndim == 2
+
+         if image_input["type"] == "image_embeds":
+-            image_embeds = image_input["image_embeds"].type(self.visual.dtype)
++            image_embeds = image_input["image_embeds"]
+         else:
+-            pixel_values = image_input["pixel_values"].type(self.visual.dtype)
++            pixel_values = image_input["pixel_values"]
+             image_embeds = self.visual(pixel_values, grid_thw=grid_thw)
+```
+
+**File**: `vllm/utils.py`
+
+```diff
+@@ -190,6 +190,16 @@
+     torch.int64: np.int64,
+ }
+
++
++@contextlib.contextmanager
++def set_default_torch_num_threads(num_threads: int):
++    """Sets the default number of threads for PyTorch to the given value."""
++    old_num_threads = torch.get_num_threads()
++    torch.set_num_threads(num_threads)
++    yield
++    torch.set_num_threads(old_num_threads)
++
++
+ P = ParamSpec('P')
+ T = TypeVar("T")
+ U = TypeVar("U")
+```
+
+**Explanation**: 
+- **Main Fix**: Modified `json_map_leaves` to work with `BatchFeature.data` instead of the `BatchFeature` object directly, since `BatchFeature` inherits from `UserDict`
+- **Model Updates**: Removed explicit `.type()` casting in Qwen2 VL models since the casting is now handled correctly at the input processing level
+- **Test Infrastructure**: Added `set_default_torch_num_threads` utility to prevent OpenMP deadlocks during test execution
+- **Circular Import Fix**: Moved utility functions to `vllm.utils` to avoid circular import issues
+
+#### PR Discussion & Comments
+
+**@Isotr0py → self** — Circular import resolution
+> "I move this to vllm.utils to avoid circular import: ImportError: cannot import name 'LoadConfig' from partially initialized module 'vllm.config'"
+
+**@Isotr0py → self** — Deadlock prevention  
+> "Seems that disable openmp by setting torch_num_threads=1 during engine forking can fix the deadlock issue locally"
+
+#### Key Takeaways
+- **Vision-Language Models**: `BatchFeature` objects require special handling since they inherit from `UserDict`, not `dict`
+- **Type Safety**: Proper dtype casting prevents runtime errors in mixed-precision scenarios common in modern LLM inference
+- **Test Stability**: OpenMP thread management is crucial for preventing deadlocks in multi-process test environments
+- **Code Organization**: Moving utility functions to appropriate modules prevents circular dependencies
+
+#### Further Reading
+- [vLLM Vision-Language Models Documentation](https://docs.vllm.ai)
+- [Original Issue #19219](https://github.com/vllm-project/vllm/issues/19219)
+- [Original PR #19316](https://github.com/vllm-project/vllm/pull/19316)
+
+:::
+
+---
 3. **#19561** - [Bugfix] Don't attempt to use triton if no driver is active
 4. **#19644** - [Bugfix][2/n] Fix speculative decoding CI - Fix test_ngram_e2e_greedy_correctness
 5. **#19633** - [Bugfix][1/n] Fix the speculative decoding test by setting the target dtype
@@ -95,7 +257,6 @@ format: html
 
 1. **#19617** - Enable prefix caching with full cuda graphs
 
----
 
 ## Summary by Category
 
