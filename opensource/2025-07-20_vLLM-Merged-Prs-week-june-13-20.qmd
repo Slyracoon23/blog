@@ -621,8 +621,7 @@ This PR fixes a critical issue where vLLM would attempt to use Triton kernels ev
 - [Original PR #19561](https://github.com/vllm-project/vllm/pull/19561)
 
 :::
-4. **[#19644](https://github.com/vllm-project/vllm/pull/19644)** - [Bugfix][2/n] Fix speculative decoding CI - Fix test_ngram_e2e_greedy_correctness
-5. **[#19633](https://github.com/vllm-project/vllm/pull/19633)** - [Bugfix][1/n] Fix the speculative decoding test by setting the target dtype
+
 6. **[#19262](https://github.com/vllm-project/vllm/pull/19262)** - [Fix] Convert kv_transfer_config from dict to KVTransferConfig
 7. **[#19660](https://github.com/vllm-project/vllm/pull/19660)** - [Misc] Fix skipped max-model-len validation when deriving max model length from tokenizer config
 8. **[#19583](https://github.com/vllm-project/vllm/pull/19583)** - [Bugfix][Ray] Set the cuda context eagerly in the ray worker
