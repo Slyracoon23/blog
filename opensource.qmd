@@ -34,4 +34,9 @@ title-block-banner: true
 
 **Good Starter Issues:** [Open Issues](https://github.com/skypilot-org/skypilot/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20starter%20issues%22) - Perfect for getting started with contributions.
 
+### {{< fa cogs >}} Ray - AI Compute Engine  
+[ray-project/ray](https://github.com/ray-project/ray) - Unified framework for scaling AI and Python applications with distributed runtime and AI libraries for training, tuning, serving, and reinforcement learning.
+
+**Bug Reports & Features:** [Open Issues](https://github.com/ray-project/ray/issues) - Large active community with diverse contribution opportunities across AI/ML domains.
+
 ## My Contributions 
