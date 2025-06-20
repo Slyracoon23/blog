@@ -1,18 +1,18 @@
 ---
 aliases:
-- /vllm-merged-prs-last-week-june-13-20/
+- /vllm-merged-prs-week-june-13-20/
 categories:
 - Open Source
 - Python
 - FastAPI
 - Performance
 date: '2025-07-20'
-image: /images/opensource/vllm_merged_prs_last_week_june_13_20.png
-title: "vLLM Merged PRs last week (June 13-20)"
-subtitle: "A look at the PRs merged to vLLM last week"
+image: /images/opensource/vllm_merged_prs_week_june_13_20.png
+title: "vLLM Merged PRs week (June 13-20)"
+subtitle: "A look at the PRs merged to vLLM this week"
 format: html
 ---
-# vLLM Merged PRs - Last Week (June 13-20, 2025)
+# vLLM Merged PRs - Week (June 13-20, 2025)
 
 **Total PRs: 114**
 
@@ -38,6 +38,8 @@ format: html
 4. **Speculative Decoding Fixes**: Multiple fixes for speculative decoding test stability
 5. **Hardware Support**: Updates for TPU, AMD ROCm, and NVIDIA hardware
 6. **Code Quality**: Many cleanup and maintenance PRs to improve code quality
+
+--- 
 
 ::: {.panel-tabset}
 
@@ -213,6 +215,323 @@ This PR fixes a critical dtype casting issue for `BatchFeature` objects in visio
 - [vLLM Vision-Language Models Documentation](https://docs.vllm.ai)
 - [Original Issue #19219](https://github.com/vllm-project/vllm/issues/19219)
 - [Original PR #19316](https://github.com/vllm-project/vllm/pull/19316)
+
+:::
+
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19561: Don't attempt to use triton if no driver is active"}
+## [#19561](https://github.com/vllm-project/vllm/pull/19561) - Don't attempt to use triton if no driver is active
+
+#### Overview
+This PR fixes a critical issue where vLLM would attempt to use Triton kernels even when no active GPU driver is available, causing runtime crashes. The problem occurs when Triton is installed by external packages (like xgrammar) on non-GPU platforms, leading to conflicts during MLA (Multi-Layer Attention) backend imports.
+
+**Motivation**: Prevent runtime crashes on platforms where Triton is installed but incompatible due to missing or inactive GPU drivers, ensuring graceful fallback behavior.
+
+#### Code Changes (Verified)
+
+**File**: `vllm/triton_utils/importing.py`
+
+```diff
+@@ -12,6 +12,36 @@
+     find_spec("triton") is not None
+     or find_spec("pytorch-triton-xpu") is not None  # Not compatible
+ )
++if HAS_TRITON:
++    try:
++        from triton.backends import backends
++
++        # It's generally expected that x.driver exists and has
++        # an is_active method.
++        # The `x.driver and` check adds a small layer of safety.
++        active_drivers = [
++            x.driver for x in backends.values()
++            if x.driver and x.driver.is_active()
++        ]
++        if len(active_drivers) != 1:
++            logger.info(
++                "Triton is installed but %d active driver(s) found "
++                "(expected 1). Disabling Triton to prevent runtime errors.",
++                len(active_drivers))
++            HAS_TRITON = False
++    except ImportError:
++        # This can occur if Triton is partially installed or triton.backends
++        # is missing.
++        logger.warning(
++            "Triton is installed, but `triton.backends` could not be imported. "
++            "Disabling Triton.")
++        HAS_TRITON = False
++    except Exception as e:
++        # Catch any other unexpected errors during the check.
++        logger.warning(
++            "An unexpected error occurred while checking Triton active drivers:"
++            " %s. Disabling Triton.", e)
++        HAS_TRITON = False
+ 
+ if not HAS_TRITON:
+     logger.info("Triton not installed or not compatible; certain GPU-related"
+```
+
+**Explanation**: 
+
+- **Driver Validation**: Added comprehensive check for active Triton backends by examining `triton.backends.backends.values()` and filtering for drivers where `x.driver.is_active()` returns `True`
+
+- **Expected Driver Count**: Enforces that exactly one active driver should exist; zero drivers indicates no GPU support, while multiple drivers suggests an ambiguous configuration
+
+- **Graceful Fallback**: When driver validation fails, `HAS_TRITON` is set to `False`, allowing vLLM to fall back to non-Triton alternatives
+
+- **Robust Error Handling**: Three-tier exception handling covers ImportError (missing backends), generic exceptions (corrupted installations), and ensures vLLM never crashes during import due to Triton issues
+
+- **Informative Logging**: Specific log messages help users understand why Triton was disabled, distinguishing between driver count issues, import failures, and unexpected errors
+
+#### PR Discussion & Comments
+
+> **Development Team Discussion:**
+> 
+> **@gemini-code-assist[bot] → @kzawora-intel** — Enhanced error handling and logging needed for robustness  
+> *"The added check for active Triton drivers is a good approach to prevent runtime errors when Triton is installed but not usable."*
+> 
+> **@kzawora-intel** confirmed implementation of suggestions:  
+> *"done"*
+
+#### Key Takeaways
+- **Cross-Platform Compatibility**: External packages can install Triton on incompatible platforms, requiring runtime validation rather than just package detection
+- **Error Prevention**: Proactive driver validation prevents cryptic runtime crashes like `"RuntimeError: 0 active drivers ([]). There should only be one."`
+- **Graceful Degradation**: vLLM should always have fallback paths when hardware-specific optimizations are unavailable
+- **Import-Time Validation**: Critical infrastructure checks should occur at import time to fail fast and provide clear error messages
+
+#### Further Reading
+- [vLLM Triton Integration Documentation](https://docs.vllm.ai)
+- [Triton GPU Programming Guide](https://triton-lang.org/)
+- [Original PR #19561](https://github.com/vllm-project/vllm/pull/19561)
+
+:::
+
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19644: Fix speculative decoding CI - Fix test_ngram_e2e_greedy_correctness"}
+## [#19644](https://github.com/vllm-project/vllm/pull/19644) - Fix speculative decoding CI - Fix test_ngram_e2e_greedy_correctness
+
+#### Overview
+This PR fixes numerical instability issues in speculative decoding tests by explicitly setting test models to use `float32` precision instead of the default `float16`. The JackFram/llama models used in these tests were originally trained in fp32, and using fp16 caused numerical instability leading to test failures.
+
+**Motivation**: Ensure test stability by using the correct precision for test models, preventing CI failures due to floating-point precision mismatches between baseline and speculative decoding results.
+
+#### Code Changes (Verified)
+
+**File**: `tests/spec_decode/e2e/test_integration.py`
+
+```diff
+@@ -14,10 +14,13 @@
+ @pytest.mark.parametrize(
+     "common_llm_kwargs",
+     [{
++        "model_name": "JackFram/llama-68m",
+ 
+         # Verify equality when cuda graphs allowed.
+         "enforce_eager": False,
+-        "model_name": "JackFram/llama-68m",
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**File**: `tests/spec_decode/e2e/test_logprobs.py`
+
+```diff
+@@ -17,7 +17,10 @@
+         "model_name": "JackFram/llama-160m",
+ 
+         # Skip cuda graph recording for fast test.
+-        "enforce_eager": True
++        "enforce_eager": True,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**File**: `tests/spec_decode/e2e/test_multistep_correctness.py`
+
+```diff
+@@ -57,6 +57,9 @@
+ 
+         # Skip cuda graph recording for fast test.
+         "enforce_eager": True,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**File**: `tests/spec_decode/e2e/test_ngram_correctness.py`
+
+```diff
+@@ -40,6 +40,9 @@
+ 
+         # Print spec metrics.
+         "disable_log_stats": False,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**File**: `tests/spec_decode/e2e/test_mlp_correctness.py`
+
+```diff
+@@ -494,6 +494,9 @@ def test_mlp_disable_queue(vllm_runner, common_llm_kwargs,
+ 
+         # Skip cuda graph recording for fast test.
+         "enforce_eager": True,
++
++        # Precision
++        "dtype": PRECISION,
+     }])
+```
+
+**File**: `vllm/model_executor/models/eagle.py`
+
+```diff
+@@ -74,6 +74,7 @@ class EAGLE(nn.Module):
+     def __init__(self, *, vllm_config: VllmConfig, prefix: str = ""):
+         super().__init__()
+         config = vllm_config.model_config.hf_config
++        self.dtype = vllm_config.model_config.dtype
+         self.config = config
+```
+
+```diff
+@@ -250,7 +251,7 @@ def load_weights(self, weights: Iterable[tuple[str, torch.Tensor]]):
+             lm_head_weight = torch.zeros(
+                 self.lm_head.org_vocab_size,
+                 self.lm_head.embedding_dim,
+-                dtype=self.config.torch_dtype,
++                dtype=self.dtype,
+             )
+```
+
+**Explanation**: 
+
+- **Test Configuration Updates**: Added explicit `"dtype": "float32"` to all speculative decoding test configurations to match the original model precision
+
+- **Numerical Stability**: JackFram/llama models were trained in fp32; using fp16 causes precision loss that manifests as differences between baseline and speculative decoding outputs
+
+- **EAGLE Model Fix**: Updated EAGLE model to use `vllm_config.model_config.dtype` instead of `self.config.torch_dtype` for consistent dtype handling
+
+- **Comprehensive Coverage**: Applied the fix across all speculative decoding test files to ensure consistent behavior
+
+- **Code Consistency**: Some locations used `PRECISION` constant for dtype specification, maintaining existing patterns
+
+#### PR Discussion & Comments
+
+> **Development Team Discussion:**
+> 
+> **@gemini-code-assist[bot]** suggested formatting improvements:  
+> *"For consistency with other additions in this PR, consider adding a blank line before this comment block."*
+
+#### Key Takeaways
+- **Precision Matching**: Test models should use the same precision they were trained with to avoid numerical instability
+- **Speculative Decoding Sensitivity**: Speculative decoding correctness tests are particularly sensitive to floating-point precision differences
+- **CI Stability**: Systematic dtype specification across test suites prevents flaky CI failures due to precision mismatches
+- **Model Consistency**: All components (base model, speculative model, tests) should use consistent dtypes for reliable comparisons
+
+#### Further Reading
+- [vLLM Speculative Decoding Documentation](https://docs.vllm.ai)
+- [PyTorch Floating Point Precision Guide](https://pytorch.org/docs/stable/notes/numerical_accuracy.html)
+- [Original PR #19644](https://github.com/vllm-project/vllm/pull/19644)
+
+:::
+
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19633: Fix the speculative decoding test by setting the target dtype"}
+## [#19633](https://github.com/vllm-project/vllm/pull/19633) - Fix the speculative decoding test by setting the target dtype
+
+#### Overview
+This PR addresses test failures in the speculative decoding pipeline caused by dtype mismatches. The failure was introduced by [PR #18751](https://github.com/vllm-project/vllm/pull/18751), which changed default precision behavior. The fix explicitly sets `dtype: "float32"` for all multistep correctness tests to maintain numerical stability.
+
+**Motivation**: Restore CI stability by ensuring consistent precision across speculative decoding tests, preventing numerical inconsistencies between baseline and speculative outputs.
+
+#### Code Changes (Verified)
+
+**File**: `tests/spec_decode/e2e/test_multistep_correctness.py`
+
+```diff
+@@ -57,6 +57,9 @@
+ 
+         # Skip cuda graph recording for fast test.
+         "enforce_eager": True,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+```diff
+@@ -139,6 +142,9 @@ def test_spec_decode_e2e_with_detokenization(test_llm_generator,
+ 
+         # Print spec metrics.
+         "disable_log_stats": False,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+```diff
+@@ -216,6 +222,9 @@ def test_spec_decode_e2e_greedy_correctness_tiny_model_bs1(
+ 
+         # Print spec metrics.
+         "disable_log_stats": False,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+```diff
+@@ -464,6 +476,8 @@ def test_spec_decode_e2e_greedy_correctness_real_model_large_bs(
+ 
+         # Skip cuda graph recording for fast test.
+         "enforce_eager": True,
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**Explanation**: 
+
+- **Systematic Dtype Enforcement**: Added explicit `"dtype": "float32"` to all test configurations in the multistep correctness test suite
+
+- **Regression Fix**: Addresses changes from PR #18751 that modified default precision behavior, causing speculative decoding tests to fail due to numerical differences
+
+- **Comprehensive Coverage**: Applied the fix to 8 different test scenarios within the same file, ensuring consistent behavior across all multistep correctness tests
+
+- **Test Success**: All 64 tests now pass after applying the dtype fix (runtime: 32:35)
+
+- **Comment Consistency**: Each addition includes explanatory comments about float32 being the original model precision for numerical stability
+
+#### PR Discussion & Comments
+
+> **Development Team Discussion:**
+> 
+> **@gemini-code-assist[bot]** suggested code improvement for maintainability:  
+> *"This dtype setting and its accompanying comment are repeated in several places throughout this file. To enhance maintainability and adhere to the DRY principle, consider defining these common keyword arguments in a shared dictionary."*
+
+The bot suggested creating a shared dictionary like:
+```python
+_COMMON_FLOAT32_KWARGS = {
+    # The original model is float32, keep it for numerical stability.
+    "dtype": "float32",
+}
+```
+
+#### Key Takeaways
+- **Regression Prevention**: Changes to default precision behavior should consider impact on existing test suites
+- **Test Brittleness**: Speculative decoding correctness tests are highly sensitive to floating-point precision changes
+- **Code Duplication**: While the fix is effective, the repetitive nature of the changes highlights potential for refactoring common test configurations
+- **Cascading Effects**: Single PRs affecting precision can break multiple test suites that depend on consistent numerical behavior
+
+#### Further Reading
+- [vLLM Speculative Decoding Documentation](https://docs.vllm.ai)
+- [Related PR #18751](https://github.com/vllm-project/vllm/pull/18751) (Original culprit)
+- [Original PR #19633](https://github.com/vllm-project/vllm/pull/19633)
 
 :::
 
