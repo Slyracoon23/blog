@@ -16,12 +16,35 @@ format: html
 
 **Total PRs: 114**
 
+## Summary by Category
+
+- **Bug Fixes**: 28 PRs (24.6%)
+- **Miscellaneous & Cleanup**: 21 PRs (18.4%)
+- **Performance & Optimization**: 16 PRs (14.0%)
+- **Kernel & Hardware**: 12 PRs (10.5%)
+- **V1 Engine**: 8 PRs (7.0%)
+- **Model Support**: 8 PRs (7.0%)
+- **CI/Build**: 7 PRs (6.1%)
+- **Frontend & API**: 5 PRs (4.4%)
+- **Documentation**: 5 PRs (4.4%)
+- **TPU**: 3 PRs (2.6%)
+- **Other categories**: 1 PR each
+
+## Key Highlights
+
+1. **Major Focus on Bug Fixes**: Nearly 25% of PRs were bug fixes, showing active maintenance
+2. **Performance Improvements**: Significant work on FP4 MOE kernels and CUTLASS optimizations
+3. **V1 Engine Development**: Continued development of the new V1 engine architecture
+4. **Speculative Decoding Fixes**: Multiple fixes for speculative decoding test stability
+5. **Hardware Support**: Updates for TPU, AMD ROCm, and NVIDIA hardware
+6. **Code Quality**: Many cleanup and maintenance PRs to improve code quality
+
 ::: {.panel-tabset}
 
 ## 🐛 Bug Fixes (28 PRs)
 
-::: {.callout-warning collapse="true" title="🐛 Bug Fix"}
-## #19624 - Fix DP Coordinator incorrect debug log message
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19624: Fix DP Coordinator incorrect debug log message"}
+## [#19624](https://github.com/vllm-project/vllm/pull/19624) - Fix DP Coordinator incorrect debug log message
 
 #### Overview
 This PR fixes a logging bug in the Data Parallel (DP) Coordinator where debug messages were showing incorrect wave numbers. The coordinator was logging `"Moving DP wave from N to N"` instead of the correct `"Moving DP wave from N to (N + 1)"`. This affects the V1 engine's data parallel processing wave management system.
@@ -64,8 +87,11 @@ This PR fixes a logging bug in the Data Parallel (DP) Coordinator where debug me
 ```
 
 **Explanation**: 
+
 - **Main Fix**: Introduced a `new_wave` variable to compute `wave + 1` before logging, ensuring the debug message shows the correct transition from current wave to next wave
+
 - **Code Refactoring**: Moved the stale wave check inside the `if not self.engines_running` block for better logical grouping (noted as "unrelated simplification" by author)
+
 - **Variable Extraction**: Extracted `scheduler_stats` to a local variable to avoid repeated attribute access, improving code readability
 
 #### PR Discussion & Comments
@@ -91,8 +117,8 @@ This PR fixes a logging bug in the Data Parallel (DP) Coordinator where debug me
 :::
 
 
-::: {.callout-warning collapse="true" title="🐛 Bug Fix"}
-## #19316 - Fix auto dtype casting for BatchFeature
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19316: Fix auto dtype casting for BatchFeature"}
+## [#19316](https://github.com/vllm-project/vllm/pull/19316) - Fix auto dtype casting for BatchFeature
 
 #### Overview
 This PR fixes a critical dtype casting issue for `BatchFeature` objects in vision-language models, particularly affecting DeepSeek VL2. The bug occurred because `BatchFeature` is a `UserDict`, and `isinstance(value, dict)` returns `False`, causing data type casting to fail in the `json_map_leaves` function.
@@ -158,9 +184,13 @@ This PR fixes a critical dtype casting issue for `BatchFeature` objects in visio
 ```
 
 **Explanation**: 
+
 - **Main Fix**: Modified `json_map_leaves` to work with `BatchFeature.data` instead of the `BatchFeature` object directly, since `BatchFeature` inherits from `UserDict`
+
 - **Model Updates**: Removed explicit `.type()` casting in Qwen2 VL models since the casting is now handled correctly at the input processing level
+
 - **Test Infrastructure**: Added `set_default_torch_num_threads` utility to prevent OpenMP deadlocks during test execution
+
 - **Circular Import Fix**: Moved utility functions to `vllm.utils` to avoid circular import issues
 
 #### PR Discussion & Comments
@@ -187,74 +217,63 @@ This PR fixes a critical dtype casting issue for `BatchFeature` objects in visio
 :::
 
 ---
-3. **#19561** - [Bugfix] Don't attempt to use triton if no driver is active
-4. **#19644** - [Bugfix][2/n] Fix speculative decoding CI - Fix test_ngram_e2e_greedy_correctness
-5. **#19633** - [Bugfix][1/n] Fix the speculative decoding test by setting the target dtype
-6. **#19262** - [Fix] Convert kv_transfer_config from dict to KVTransferConfig
-7. **#19660** - [Misc] Fix skipped max-model-len validation when deriving max model length from tokenizer config
-8. **#19583** - [Bugfix][Ray] Set the cuda context eagerly in the ray worker
-9. **#19725** - [Bugfix] fix RAY_CGRAPH_get_timeout is not set successfully
-10. **#19872** - [CI/Build][Bugfix] Fix deadlock on v1 engine test CI
-11. **#19875** - [Fix] import regex instead of re
-12. **#18032** - [Benchmark] Fix `Value of type "SampleRequest" is not indexable`
-13. **#19901** - [CPU][CI] Fallback sliding window to v0 and fix CPU pooling model tests
-14. **#19589** - [CI/Build] Fix torch nightly CI dependencies part 2
 
 **Other Bug Fixes:**
-3. **#19561** - [Bugfix] Don't attempt to use triton if no driver is active
-4. **#19644** - [Bugfix][2/n] Fix speculative decoding CI - Fix test_ngram_e2e_greedy_correctness
-5. **#19633** - [Bugfix][1/n] Fix the speculative decoding test by setting the target dtype
-6. **#19262** - [Fix] Convert kv_transfer_config from dict to KVTransferConfig
-7. **#19660** - [Misc] Fix skipped max-model-len validation when deriving max model length from tokenizer config
-8. **#19583** - [Bugfix][Ray] Set the cuda context eagerly in the ray worker
-9. **#19725** - [Bugfix] fix RAY_CGRAPH_get_timeout is not set successfully
-10. **#19872** - [CI/Build][Bugfix] Fix deadlock on v1 engine test CI
-11. **#19875** - [Fix] import regex instead of re
-12. **#18032** - [Benchmark] Fix `Value of type "SampleRequest" is not indexable`
-13. **#19901** - [CPU][CI] Fallback sliding window to v0 and fix CPU pooling model tests
-14. **#19589** - [CI/Build] Fix torch nightly CI dependencies part 2
+
+3. **[#19561](https://github.com/vllm-project/vllm/pull/19561)** - [Bugfix] Don't attempt to use triton if no driver is active
+4. **[#19644](https://github.com/vllm-project/vllm/pull/19644)** - [Bugfix][2/n] Fix speculative decoding CI - Fix test_ngram_e2e_greedy_correctness
+5. **[#19633](https://github.com/vllm-project/vllm/pull/19633)** - [Bugfix][1/n] Fix the speculative decoding test by setting the target dtype
+6. **[#19262](https://github.com/vllm-project/vllm/pull/19262)** - [Fix] Convert kv_transfer_config from dict to KVTransferConfig
+7. **[#19660](https://github.com/vllm-project/vllm/pull/19660)** - [Misc] Fix skipped max-model-len validation when deriving max model length from tokenizer config
+8. **[#19583](https://github.com/vllm-project/vllm/pull/19583)** - [Bugfix][Ray] Set the cuda context eagerly in the ray worker
+9. **[#19725](https://github.com/vllm-project/vllm/pull/19725)** - [Bugfix] fix RAY_CGRAPH_get_timeout is not set successfully
+10. **[#19872](https://github.com/vllm-project/vllm/pull/19872)** - [CI/Build][Bugfix] Fix deadlock on v1 engine test CI
+11. **[#19875](https://github.com/vllm-project/vllm/pull/19875)** - [Fix] import regex instead of re
+12. **[#18032](https://github.com/vllm-project/vllm/pull/18032)** - [Benchmark] Fix `Value of type "SampleRequest" is not indexable`
+13. **[#19901](https://github.com/vllm-project/vllm/pull/19901)** - [CPU][CI] Fallback sliding window to v0 and fix CPU pooling model tests
+14. **[#19589](https://github.com/vllm-project/vllm/pull/19589)** - [CI/Build] Fix torch nightly CI dependencies part 2
 
 ## ⚡ Performance & Optimization (16 PRs)
 
-1. **#19500** - [Hardware][NVIDIA][kernel] Fp4 MOE quant kernel optimization
-2. **#19566** - [Perf] Further tunings for SM100 FP8 CUTLASS kernel
-3. **#18777** - Export NaNs in logits to scheduler_stats if output is corrupted
-4. **#18354** - [V1][Metrics] Deprecate metrics with gpu_ prefix for non GPU specific metrics
+1. **[#19500](https://github.com/vllm-project/vllm/pull/19500)** - [Hardware][NVIDIA][kernel] Fp4 MOE quant kernel optimization
+2. **[#19566](https://github.com/vllm-project/vllm/pull/19566)** - [Perf] Further tunings for SM100 FP8 CUTLASS kernel
+3. **[#18777](https://github.com/vllm-project/vllm/pull/18777)** - Export NaNs in logits to scheduler_stats if output is corrupted
+4. **[#18354](https://github.com/vllm-project/vllm/pull/18354)** - [V1][Metrics] Deprecate metrics with gpu_ prefix for non GPU specific metrics
 
 ## 🤖 Model Support (8 PRs)
 
-1. **#19663** - [Model] GPT2ForSequenceClassification model
+1. **[#19663](https://github.com/vllm-project/vllm/pull/19663)** - [Model] GPT2ForSequenceClassification model
 
 ## 🏗️ CI/Build (7 PRs)
 
-1. **#19508** - Adding "AMD: Multi-step Tests" to amdproduction
-2. **#19648** - Only build CUTLASS MoE kernels on Hopper
-3. **#19649** - [Misc] Remove duplicate multiproc method setting for CPU platform
+1. **[#19508](https://github.com/vllm-project/vllm/pull/19508)** - Adding "AMD: Multi-step Tests" to amdproduction
+2. **[#19648](https://github.com/vllm-project/vllm/pull/19648)** - Only build CUTLASS MoE kernels on Hopper
+3. **[#19649](https://github.com/vllm-project/vllm/pull/19649)** - [Misc] Remove duplicate multiproc method setting for CPU platform
 
 ## 🔧 Kernel & Hardware (12 PRs)
 
-1. **#19745** - [Kernel] correct cpu worker function parameter type
-2. **#19749** - [Kernel] mark TorchSDPABackend swap_blocks NotImplementedError
+1. **[#19745](https://github.com/vllm-project/vllm/pull/19745)** - [Kernel] correct cpu worker function parameter type
+2. **[#19749](https://github.com/vllm-project/vllm/pull/19749)** - [Kernel] mark TorchSDPABackend swap_blocks NotImplementedError
 
 ## 🌐 Frontend & API (5 PRs)
 
-1. **#19564** - [Misc][Frontend] passthrough `bad_words`
+1. **[#19564](https://github.com/vllm-project/vllm/pull/19564)** - [Misc][Frontend] passthrough `bad_words`
 
 ## 📚 Documentation (5 PRs)
 
-1. **#19526** - [Misc] update cuda version
-2. **#19851** - [Misc] refactor example - openai_transcription_client
+1. **[#19526](https://github.com/vllm-project/vllm/pull/19526)** - [Misc] update cuda version
+2. **[#19851](https://github.com/vllm-project/vllm/pull/19851)** - [Misc] refactor example - openai_transcription_client
 
 ## 🧹 Miscellaneous & Cleanup (21 PRs)
 
-1. **#19593** - [Misc] Modularize CLI Argument Parsing in Benchmark Scripts
-2. **#19609** - [MISC] Remove unused variables in C++
-3. **#19672** - [MISC] typo fix
-4. **#19889** - [Misc] Clean up useless code
+1. **[#19593](https://github.com/vllm-project/vllm/pull/19593)** - [Misc] Modularize CLI Argument Parsing in Benchmark Scripts
+2. **[#19609](https://github.com/vllm-project/vllm/pull/19609)** - [MISC] Remove unused variables in C++
+3. **[#19672](https://github.com/vllm-project/vllm/pull/19672)** - [MISC] typo fix
+4. **[#19889](https://github.com/vllm-project/vllm/pull/19889)** - [Misc] Clean up useless code
 
 ## 🚀 V1 Engine (8 PRs)
 
-1. **#19164** - [custom_op][vllm-plugin] update custom_op class to use op_registry
+1. **[#19164](https://github.com/vllm-project/vllm/pull/19164)** - [custom_op][vllm-plugin] update custom_op class to use op_registry
 
 ## 🎯 Speculative Decoding (2 PRs)
 
@@ -262,7 +281,7 @@ This PR fixes a critical dtype casting issue for `BatchFeature` objects in visio
 
 ## 🔧 TPU (3 PRs)
 
-1. **#19620** - [TPU] support attention head dim smaller than 128
+1. **[#19620](https://github.com/vllm-project/vllm/pull/19620)** - [TPU] support attention head dim smaller than 128
 
 ## 🔴 AMD/ROCm (1 PR)
 
@@ -274,30 +293,6 @@ This PR fixes a critical dtype casting issue for `BatchFeature` objects in visio
 
 ## 🔗 Full CUDA Graphs (1 PR)
 
-1. **#19617** - Enable prefix caching with full cuda graphs
+1. **[#19617](https://github.com/vllm-project/vllm/pull/19617)** - Enable prefix caching with full cuda graphs
 
 :::
-
-
-## Summary by Category
-
-- **Bug Fixes**: 28 PRs (24.6%)
-- **Miscellaneous & Cleanup**: 21 PRs (18.4%)
-- **Performance & Optimization**: 16 PRs (14.0%)
-- **Kernel & Hardware**: 12 PRs (10.5%)
-- **V1 Engine**: 8 PRs (7.0%)
-- **Model Support**: 8 PRs (7.0%)
-- **CI/Build**: 7 PRs (6.1%)
-- **Frontend & API**: 5 PRs (4.4%)
-- **Documentation**: 5 PRs (4.4%)
-- **TPU**: 3 PRs (2.6%)
-- **Other categories**: 1 PR each
-
-## Key Highlights
-
-1. **Major Focus on Bug Fixes**: Nearly 25% of PRs were bug fixes, showing active maintenance
-2. **Performance Improvements**: Significant work on FP4 MOE kernels and CUTLASS optimizations
-3. **V1 Engine Development**: Continued development of the new V1 engine architecture
-4. **Speculative Decoding Fixes**: Multiple fixes for speculative decoding test stability
-5. **Hardware Support**: Updates for TPU, AMD ROCm, and NVIDIA hardware
-6. **Code Quality**: Many cleanup and maintenance PRs to improve code quality
