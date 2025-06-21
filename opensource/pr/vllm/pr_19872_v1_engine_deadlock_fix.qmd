@@ -1,0 +1,59 @@
+---
+title: "#19872 - Fix deadlock on v1 engine test CI"
+description: "Resolved critical deadlock in V1 engine test suite by enforcing single-threaded PyTorch operations during engine initialization"
+categories: [bug-fix, v1-engine, ci, testing, pytorch-threading]
+date: "2025-06-19"
+image: /images/thumbnail_template.jpg
+---
+
+## [#19872](https://github.com/vllm-project/vllm/pull/19872) - Fix deadlock on v1 engine test CI
+
+#### Overview
+This PR addresses a critical deadlock issue in the V1 engine test suite that was causing CI timeouts on the main branch. The problem occurred specifically in the `test_check_health` function within `tests/v1/engine/test_async_llm.py`, where engine initialization was encountering threading-related deadlocks. The fix implements a targeted solution by forcing single-threaded PyTorch operations during the sensitive engine initialization phase, consistent with patterns already established in other tests within the same file.
+
+The deadlock issue represents a common challenge in multi-threaded test environments where PyTorch's default threading behavior can create race conditions during complex object initialization. This fix ensures CI stability while maintaining the functionality and performance characteristics of the V1 engine in production environments.
+
+#### Code Changes (Verified)
+**File**: `tests/v1/engine/test_async_llm.py`
+
+```diff
+@@ -383,7 +383,8 @@ async def test_check_health(monkeypatch: pytest.MonkeyPatch):
+     with monkeypatch.context() as m, ExitStack() as after:
+         m.setenv("VLLM_USE_V1", "1")
+ 
+-        engine = AsyncLLM.from_engine_args(TEXT_ENGINE_ARGS)
++        with set_default_torch_num_threads(1):
++            engine = AsyncLLM.from_engine_args(TEXT_ENGINE_ARGS)
+         after.callback(engine.shutdown)
+ 
+         # Test 1: Healthy engine should not raise any exception
+```
+
+**Explanation**: 
+- **Line 386**: Wraps the `AsyncLLM.from_engine_args()` call with `set_default_torch_num_threads(1)` context manager
+- **Threading Control**: Forces PyTorch to use only 1 thread during engine initialization, preventing potential deadlocks from thread pool contention
+- **Consistency Pattern**: Aligns with the established pattern used in other test functions in the same file (`test_load`, `test_abort`, `test_finished_flag`) which all use the same threading constraint
+- **Scope Limitation**: The single-threaded constraint only applies during the critical initialization phase, not affecting the engine's runtime threading behavior
+- **Performance Trade-off**: Minimal impact on test performance since this only affects the initialization phase, which is typically I/O bound rather than compute bound
+
+#### PR Discussion & Comments
+**@gemini-code-assist[bot] → @Isotr0py** — Automated code review analysis
+"The change is minimal, targeted, and appears to be a direct and appropriate fix for the described CI deadlock."
+
+**@gemini-code-assist[bot] → @Isotr0py** — Pattern recognition feedback  
+"This modification is consistent with a pattern observed in multiple other tests within the test_async_llm.py file"
+
+**@houseroad → @Isotr0py** — Maintainer approval
+Approved the PR without additional comments, indicating confidence in the straightforward fix.
+
+#### Key Takeaways
+- **Threading Isolation**: Single-threaded PyTorch operations during engine initialization prevent deadlocks in test environments without affecting production performance
+- **Pattern Consistency**: Following established patterns within the codebase reduces debugging complexity and maintains consistency across test functions
+- **CI Stability**: Small, targeted fixes to test infrastructure can have significant impact on development velocity by preventing false-positive test failures
+- **Context Manager Usage**: The `set_default_torch_num_threads(1)` context manager provides precise scope control, ensuring threading constraints only apply where needed
+- **V1 Engine Robustness**: This fix demonstrates the importance of careful threading considerations when testing complex async systems like the V1 engine
+
+#### Further Reading
+- [PyTorch Threading and Parallelism](https://pytorch.org/docs/stable/notes/cpu_threading_torchscript_inference.html) - Official documentation on PyTorch threading behavior
+- [vLLM V1 Engine Documentation](https://docs.vllm.ai) - Architecture and design principles for the V1 engine
+- [Direct PR Link](https://github.com/vllm-project/vllm/pull/19872) - Full discussion and implementation details

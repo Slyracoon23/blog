@@ -1,0 +1,155 @@
+---
+title: "#19660 - Fix skipped max-model-len validation when deriving max model length from tokenizer config"
+description: "Fixed a critical bug where max_model_len validation was being skipped when derived from tokenizer config, preventing potential CUDA errors and incorrect model outputs"
+categories: [bug-fix, config-validation, tokenizer]
+date: "2025-06-15"
+---
+
+## [#19660](https://github.com/vllm-project/vllm/pull/19660) - Fix skipped max-model-len validation when deriving max model length from tokenizer config
+
+#### Overview
+- Fixed a validation bypass bug where `max_model_len` validation was skipped when the final value was derived from tokenizer configuration after initial validation steps
+- The issue occurred when the tokenizer configuration override happened after validation in `_get_and_verify_max_len`, allowing invalid values to pass through
+- Introduced by PR #19201, this bug could lead to incorrect model outputs or CUDA errors when user-specified values exceeded actual model limits
+
+#### Code Changes (Verified)
+**File**: `vllm/config.py`
+
+```diff
+@@ -1429,25 +1429,19 @@ def matryoshka_dimensions(self):
+         return getattr(self.hf_config, "matryoshka_dimensions", None)
+ 
+     def get_and_verify_max_len(self, max_model_len: int):
++        tokenizer_config = try_get_tokenizer_config(
++            self.tokenizer,
++            trust_remote_code=self.trust_remote_code,
++            revision=self.tokenizer_revision)
+         max_model_len = _get_and_verify_max_len(
+             hf_config=self.hf_text_config,
++            tokenizer_config=tokenizer_config,
+             max_model_len=max_model_len,
+             disable_sliding_window=self.disable_sliding_window,
+             sliding_window_len=self.get_hf_config_sliding_window(),
+             spec_target_max_model_len=self.spec_target_max_model_len,
+             encoder_config=self.encoder_config)
+-
+-        tokenizer_config = try_get_tokenizer_config(
+-            self.tokenizer,
+-            trust_remote_code=self.trust_remote_code,
+-            revision=self.tokenizer_revision)
+-
+-        if tokenizer_config is None:
+-            return max_model_len
+-
+-        model_max_length = tokenizer_config.get("model_max_length",
+-                                                max_model_len)
+-        max_model_len = min(max_model_len, model_max_length)
++        logger.info("Using max model len %s", max_model_len)
+         return max_model_len
+```
+
+**Explanation**: 
+- Moved tokenizer config fetching from AFTER validation to BEFORE, ensuring tokenizer constraints are considered during validation
+- Eliminated the post-validation tokenizer override logic that was bypassing validation checks
+- Added logging to track the final max_model_len value being used
+
+**File**: `vllm/config.py` (function signature update)
+
+```diff
+@@ -3283,6 +3277,7 @@ def _get_and_verify_dtype(
+ 
+ def _get_and_verify_max_len(
+     hf_config: PretrainedConfig,
++    tokenizer_config: Optional[dict],
+     max_model_len: Optional[int],
+     disable_sliding_window: bool,
+     sliding_window_len: Optional[Union[int, list[Optional[int]]]],
+```
+
+**Explanation**: 
+- Added `tokenizer_config` parameter to the core validation function to enable early consideration of tokenizer constraints
+
+**File**: `vllm/config.py` (validation logic enhancement)
+
+```diff
+@@ -3332,6 +3327,13 @@ def _get_and_verify_max_len(
+         derived_max_model_len = min(derived_max_model_len,
+                                     sliding_window_len_min)
+ 
++    # Consider model_max_length in tokenizer_config
++    if tokenizer_config:
++        tokenizer_model_max_length = tokenizer_config.get(
++            "model_max_length", derived_max_model_len)
++        derived_max_model_len = min(derived_max_model_len,
++                                    tokenizer_model_max_length)
++
+     # If none of the keys were found in the config, use a default and
+     # log a warning.
+     if derived_max_model_len == float("inf"):
+```
+
+**Explanation**: 
+- Integrated tokenizer `model_max_length` into the core derivation logic before validation occurs
+- Uses `min()` to ensure the most restrictive constraint is applied
+- Maintains backward compatibility by using `derived_max_model_len` as fallback when tokenizer config lacks `model_max_length`
+
+**File**: `tests/test_config.py`
+
+```diff
++@pytest.mark.parametrize(
++    ("model_id", "max_model_len", "expected_max_len", "should_raise"), [
++        ("BAAI/bge-reranker-base", None, 512, False),
++        ("BAAI/bge-reranker-base", 256, 256, False),
++        ("BAAI/bge-reranker-base", 513, 512, True),
++    ])
++def test_get_and_verify_max_len(model_id, max_model_len, expected_max_len,
++                                should_raise):
++    """Test get_and_verify_max_len with different configurations."""
++    model_config = ModelConfig(
++        model_id,
++        task="auto",
++        tokenizer=model_id,
++        tokenizer_mode="auto",
++        trust_remote_code=False,
++        seed=0,
++        dtype="float16",
++        revision=None,
++    )
++
++    if should_raise:
++        with pytest.raises(ValueError):
++            model_config.get_and_verify_max_len(max_model_len)
++    else:
++        actual_max_len = model_config.get_and_verify_max_len(max_model_len)
++        assert actual_max_len == expected_max_len
+```
+
+**Explanation**: 
+- Added comprehensive test coverage for the validation fix using BAAI/bge-reranker-base model (max_position_embeddings=512)
+- Tests three scenarios: auto-derivation (None), valid user override (256), and invalid user override (513)
+- Verifies that invalid overrides now properly raise ValueError instead of being silently accepted
+
+#### PR Discussion & Comments
+**@gemini-code-assist[bot] → @yeqcharlotte** — Code review feedback on additional test cases
+"Consider adding a test case where max_model_len is a string (e.g., '1k') to ensure the parsing logic handles human-readable formats correctly."
+
+**@gemini-code-assist[bot] → @yeqcharlotte** — Suggestion for improved logging visibility  
+"Consider adding a log message here to indicate when model_max_length from the tokenizer config is being used to further limit derived_max_model_len."
+
+**@houseroad → @yeqcharlotte** — Review approval
+"Looks good to me."
+
+**@DarkLight1337 → @yeqcharlotte** — Maintenance acknowledgment
+"Thanks for fixing!"
+
+#### Key Takeaways
+- **Validation Order Matters**: The sequence of validation steps is critical - tokenizer constraints must be considered BEFORE final validation, not after
+- **Silent Failures Are Dangerous**: The original bug allowed invalid configurations to pass silently, potentially causing runtime CUDA errors or incorrect model outputs
+- **Comprehensive Testing**: The fix includes thorough test coverage to prevent regression, testing both valid and invalid boundary conditions
+- **Backward Compatibility**: The refactor maintains existing behavior for valid configurations while properly rejecting invalid ones
+- **Configuration Derivation**: vLLM considers multiple sources for max model length: HuggingFace config attributes, sliding window constraints, and tokenizer configuration - all must be harmonized correctly
+
+#### Further Reading
+- [vLLM Model Configuration Documentation](https://docs.vllm.ai/en/latest/models/supported_models.html)
+- [HuggingFace Tokenizer Configuration Guide](https://huggingface.co/docs/transformers/main_classes/tokenizer)
+- [Direct PR Link](https://github.com/vllm-project/vllm/pull/19660)

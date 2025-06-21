@@ -1,0 +1,86 @@
+---
+title: "PR #19725: Fix RAY_CGRAPH_get_timeout Environment Variable Setting"
+description: "Fixes Ray configuration issue where timeout environment variable wasn't being set properly due to import ordering"
+date: "2025-06-21"
+categories: [bug-fix, ray, distributed-execution, environment-variables]
+---
+
+## [#19725](https://github.com/vllm-project/vllm/pull/19725) - Fix RAY_CGRAPH_get_timeout is not set successfully
+
+#### Overview
+- **Problem**: The `RAY_CGRAPH_get_timeout` environment variable was not being set successfully, causing timeout issues in Ray compiled graph execution
+- **Root Cause**: Environment variable was being set after importing `ray.dag`, but Ray's context initialization occurs during the import process
+- **Solution**: Move environment variable configuration before the `ray.dag` import to ensure proper initialization
+- **Impact**: Prevents timeout failures in distributed execution scenarios, particularly affecting model forward runs and tensor communications
+
+The issue was identified through [GitHub issue #19703](https://github.com/vllm-project/vllm/issues/19703), where users experienced timeout problems due to Ray's default 10-second timeout being insufficient for vLLM's distributed operations.
+
+#### Code Changes (Verified)
+**File**: `vllm/executor/ray_distributed_executor.py`
+
+```diff
+@@ -557,8 +557,17 @@ def _check_ray_cgraph_installation(self):
+     def _compiled_ray_dag(self, enable_asyncio: bool):
+         assert self.parallel_config.use_ray
+         self._check_ray_cgraph_installation()
++        # Enlarge the default value of "RAY_CGRAPH_get_timeout" to 300 seconds
++        # (it is 10 seconds by default). This is a Ray environment variable to
++        # control the timeout of getting result from a compiled graph execution,
++        # i.e., the distributed execution that includes model forward runs and
++        # intermediate tensor communications, in the case of vllm.
++        # Note: we should set this env var before importing
++        # ray.dag, otherwise it will not take effect.
++        os.environ.setdefault("RAY_CGRAPH_get_timeout", "300")  # noqa: SIM112
+         from ray.dag import InputNode, MultiOutputNode
+-
++        logger.info("RAY_CGRAPH_get_timeout is set to %s",
++                    os.environ["RAY_CGRAPH_get_timeout"])  # noqa: SIM112
+         logger.info("VLLM_USE_RAY_COMPILED_DAG_CHANNEL_TYPE = %s",
+                     envs.VLLM_USE_RAY_COMPILED_DAG_CHANNEL_TYPE)
+         logger.info("VLLM_USE_RAY_COMPILED_DAG_OVERLAP_COMM = %s",
+@@ -570,15 +579,6 @@ def _compiled_ray_dag(self, enable_asyncio: bool):
+                 "Invalid value for VLLM_USE_RAY_COMPILED_DAG_CHANNEL_TYPE: "
+                 f"{channel_type}. Valid values are: 'auto', 'nccl', or 'shm'.")
+ 
+-        # Enlarge the default value of "RAY_CGRAPH_get_timeout" to 300 seconds
+-        # (it is 10 seconds by default). This is a Ray environment variable to
+-        # control the timeout of getting result from a compiled graph execution,
+-        # i.e., the distributed execution that includes model forward runs and
+-        # intermediate tensor communications, in the case of vllm.
+-        os.environ.setdefault("RAY_CGRAPH_get_timeout", "300")  # noqa: SIM112
+-        logger.info("RAY_CGRAPH_get_timeout is set to %s",
+-                    os.environ["RAY_CGRAPH_get_timeout"])  # noqa: SIM112
+-
+         with InputNode() as input_data:
+             # Example DAG: PP=2, TP=4
+             #
+```
+
+**Explanation**: 
+- **Critical Timing Fix**: The environment variable `RAY_CGRAPH_get_timeout` is moved before the `from ray.dag import` statement, which is essential because Ray's context initialization happens during module import
+- **Extended Comment**: Added a crucial note explaining why the environment variable must be set before the import - "Note: we should set this env var before importing ray.dag, otherwise it will not take effect"
+- **Timeout Value**: Maintains the 300-second timeout (increased from Ray's default 10 seconds) to accommodate vLLM's longer-running distributed operations
+- **Logging Enhancement**: The logging statement is also moved to immediately follow the environment variable setting, providing visibility into the configuration
+- **Import Order Dependency**: This fix addresses a common Python gotcha where module imports can trigger initialization code that reads environment variables
+
+#### PR Discussion & Comments
+**@ruisearch42 → @chaunceyjiang** — Requested clarification on timing importance
+"please add a comment here this needs to be set before the import"
+
+**@chaunceyjiang → @ruisearch42** — Acknowledged and implemented
+"Done."
+
+The discussion highlights the importance of documenting why the environment variable placement is critical, leading to the improved comment explaining the import order dependency.
+
+#### Key Takeaways
+- **Import Order Matters**: Environment variables that affect module initialization must be set before importing the modules that use them
+- **Ray Context Initialization**: Ray's compiled graph context reads configuration during import time, not at runtime
+- **Documentation Importance**: Critical timing requirements should be explicitly documented in code comments to prevent future regressions
+- **Timeout Configuration**: The 300-second timeout provides adequate time for vLLM's distributed model forward passes and tensor communications
+- **Environment Variable Best Practices**: Using `os.environ.setdefault()` allows user override while providing sensible defaults
+
+#### Further Reading
+- [Ray Compiled Graph Documentation](https://docs.ray.io/en/latest/ray-core/objects/accelerated_dags.html)
+- [Ray Context Configuration](https://github.com/ray-project/ray/blob/master/python/ray/dag/context.py#L11-L13)
+- [GitHub Issue #19703](https://github.com/vllm-project/vllm/issues/19703) - Original problem report
+- [vLLM Ray Distributed Execution](https://docs.vllm.ai/en/latest/serving/distributed_serving.html#ray)

@@ -70,15 +70,30 @@ format: html
 {{< include pr/vllm/pr_19561_triton_driver_check.qmd >}}
 :::
 
-6. **[#19262](https://github.com/vllm-project/vllm/pull/19262)** - [Fix] Convert kv_transfer_config from dict to KVTransferConfig
-7. **[#19660](https://github.com/vllm-project/vllm/pull/19660)** - [Misc] Fix skipped max-model-len validation when deriving max model length from tokenizer config
-8. **[#19583](https://github.com/vllm-project/vllm/pull/19583)** - [Bugfix][Ray] Set the cuda context eagerly in the ray worker
-9. **[#19725](https://github.com/vllm-project/vllm/pull/19725)** - [Bugfix] fix RAY_CGRAPH_get_timeout is not set successfully
-10. **[#19872](https://github.com/vllm-project/vllm/pull/19872)** - [CI/Build][Bugfix] Fix deadlock on v1 engine test CI
-11. **[#19875](https://github.com/vllm-project/vllm/pull/19875)** - [Fix] import regex instead of re
-12. **[#18032](https://github.com/vllm-project/vllm/pull/18032)** - [Benchmark] Fix `Value of type "SampleRequest" is not indexable`
-13. **[#19901](https://github.com/vllm-project/vllm/pull/19901)** - [CPU][CI] Fallback sliding window to v0 and fix CPU pooling model tests
-14. **[#19589](https://github.com/vllm-project/vllm/pull/19589)** - [CI/Build] Fix torch nightly CI dependencies part 2
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19262: Convert kv_transfer_config from dict to KVTransferConfig"}
+{{< include pr/vllm/pr_19262_kv_transfer_config_fix.qmd >}}
+:::
+
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19660: Fix skipped max-model-len validation when deriving max model length from tokenizer config"}
+{{< include pr/vllm/pr_19660_max_model_len_validation.qmd >}}
+:::
+
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19583: Set the cuda context eagerly in the ray worker"}
+{{< include pr/vllm/pr_19583_ray_cuda_context_fix.qmd >}}
+:::
+
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19725: Fix RAY_CGRAPH_get_timeout is not set successfully"}
+{{< include pr/vllm/pr_19725_ray_cgraph_timeout_fix.qmd >}}
+:::
+
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19872: Fix deadlock on v1 engine test CI"}
+{{< include pr/vllm/pr_19872_v1_engine_deadlock_fix.qmd >}}
+:::
+
+6. **[#19875](https://github.com/vllm-project/vllm/pull/19875)** - [Fix] import regex instead of re
+7. **[#18032](https://github.com/vllm-project/vllm/pull/18032)** - [Benchmark] Fix `Value of type "SampleRequest" is not indexable`
+8. **[#19901](https://github.com/vllm-project/vllm/pull/19901)** - [CPU][CI] Fallback sliding window to v0 and fix CPU pooling model tests
+9. **[#19589](https://github.com/vllm-project/vllm/pull/19589)** - [CI/Build] Fix torch nightly CI dependencies part 2
 
 ## ⚡ Performance & Optimization (16 PRs)
 

@@ -50,22 +50,31 @@ REPO: vllm-project/vllm
 
 ## Implementation Flow
 
+### Processing Constraints
+- **MAXIMUM 3 PRs IN PARALLEL**: Process at most 3 PRs simultaneously to prevent resource exhaustion
+- **NO SEQUENTIAL PROCESSING**: Always use parallel processing within the 3-PR limit
+- **BATCH PROCESSING**: If more than 3 PRs requested, process in batches of 3
+
 ### When User Issues Command
 ```
-User: "ANALYZE_PRS: 19642, 19588"
+User: "ANALYZE_PRS: 19642, 19588, 19561, 19583, 19725"
 ```
 
 **Main Agent Actions:**
-1. Parse command → Extract PR numbers [19642, 19588]
+1. Parse command → Extract PR numbers [19642, 19588, 19561, 19583, 19725]
 2. Set default repo → vllm-project/vllm
-3. Create sub-agent for each PR
-4. Monitor progress and collect results
-5. Update blog index with new entries
+3. **Split into batches of max 3 PRs**: Batch 1: [19642, 19588, 19561], Batch 2: [19583, 19725]
+4. Create sub-agent for each PR in current batch (max 3 parallel sub-agents)
+5. Monitor progress and collect results from current batch
+6. Process next batch once current batch completes
+7. Update blog index with all collected results
 
-**Sub-Agent Actions (in parallel):**
+**Sub-Agent Actions (in parallel, max 3 concurrent):**
 Each sub-agent follows the 4-phase workflow below.
 
 ## Sub-Agent Workflow
+
+**⚠️ PARALLEL PROCESSING LIMIT**: Maximum 3 sub-agents running concurrently. Process additional PRs in subsequent batches.
 
 ### 1. Data Collection Phase
 For each PR, the sub-agent must:
