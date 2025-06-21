@@ -1,0 +1,185 @@
+---
+title: "#19688 - Fix Online MM Beam Search"
+description: "Fixed multimodal beam search data propagation in online serving"
+categories: [bug-fix, multimodal, beam-search, online-serving]
+date: "2025-06-21"
+image: images/thumbnail_template.jpg
+---
+
+## [#19688](https://github.com/vllm-project/vllm/pull/19688) - Fix Online MM Beam Search
+
+#### Overview
+- Fixed critical bug where multimodal data was not properly passed through beam search in online serving
+- Addresses issue where beam search generated text as if no image was provided during inference
+- Resolved data propagation problem in async beam search implementation affecting vision-language models
+
+#### Code Changes (Verified)
+
+**File**: `vllm/engine/protocol.py`
+
+```diff
+@@ -88,9 +88,18 @@ async def beam_search(
+         if processed_inputs["type"] == "embeds":
+             raise NotImplementedError
+
+-        prompt_token_ids = processed_inputs["prompt_token_ids"]
++        # This is a workaround to fix multimodal beam search; this is a
++        # bandaid fix for 2 small problems:
++        # 1. Multi_modal_data on the processed_inputs currently resolves to
++        #    `None`.
++        # 2. preprocessing above expands the multimodal placeholders. However,
++        #    this happens again in generation, so the double expansion causes
++        #    a mismatch.
++        # TODO - would be ideal to handle this more gracefully.
++        prompt_token_ids = prompt.get("prompt_token_ids")
++        multi_modal_data = prompt.get("multi_modal_data")
++
+         prompt_text = processed_inputs.get("prompt")
+-        multi_modal_data = processed_inputs.get("multi_modal_data")
+         mm_processor_kwargs = processed_inputs.get("mm_processor_kwargs")
+```
+
+**Explanation**: 
+
+- Changed data source from `processed_inputs` to raw `prompt` for both `prompt_token_ids` and `multi_modal_data`
+- Fixed issue where `multi_modal_data` was resolving to `None` in processed inputs
+- Prevented double expansion of multimodal placeholders that caused token mismatches
+- Acknowledged as temporary workaround with TODO for more graceful handling
+
+**File**: `vllm/entrypoints/llm.py`
+
+```diff
+@@ -15,7 +15,8 @@
+ from typing_extensions import TypeVar, deprecated
+
+ from vllm.beam_search import (BeamSearchInstance, BeamSearchOutput,
+-                              BeamSearchSequence, get_beam_search_score)
++                              BeamSearchSequence,
++                              create_sort_beams_key_function)
+ from vllm.config import (CompilationConfig, ModelDType, TokenizerMode,
+                          is_init_field)
+@@ -573,10 +574,11 @@ def beam_search(
+         lora_requests = self._get_beam_search_lora_requests(
+             lora_request, prompts)
+
+-        def sort_beams_key(x: BeamSearchSequence) -> float:
+-            return get_beam_search_score(x.tokens, x.cum_logprob,
+-                                         tokenizer.eos_token_id,
+-                                         length_penalty)
++        tokenizer = self.get_tokenizer()
++        sort_beams_key = create_sort_beams_key_function(
++            tokenizer.eos_token_id,
++            length_penalty,
++        )
+```
+
+**Explanation**: 
+
+- Refactored beam search scoring to use shared `create_sort_beams_key_function` utility
+- Eliminates code duplication between sync and async beam search implementations
+- Moves tokenizer initialization earlier to support the shared function
+- Improves code maintainability and consistency across beam search variants
+
+**File**: `tests/entrypoints/openai/test_vision.py`
+
+```diff
+@@ -25,6 +25,25 @@
+     "https://upload.wikimedia.org/wikipedia/commons/0/0b/RGBA_comp.png",
+ ]
+
++EXPECTED_MM_BEAM_SEARCH_RES = [
++    [
++        "The image shows a wooden boardwalk leading through a",
++        "The image shows a wooden boardwalk extending into a",
++    ],
++    [
++        "The image shows two parrots perched on",
++        "The image shows two birds perched on a cur",
++    ],
++    [
++        "The image shows a Venn diagram with three over",
++        "This image shows a Venn diagram with three over",
++    ],
++    [
++        "This image displays a gradient of colors ranging from",
++        "This image displays a gradient of colors transitioning from",
++    ],
++]
+```
+
+**Explanation**: 
+
+- Added expected outputs for multimodal beam search test validation
+- Provides deterministic test results for each of the four test images
+- Ensures beam search produces different but valid descriptions for each image
+- Captures actual model outputs after fix implementation with deterministic settings
+
+```diff
+@@ -270,10 +289,13 @@ async def test_single_chat_session_image_base64encoded(
+ @pytest.mark.asyncio
+ @pytest.mark.parametrize("model_name", [MODEL_NAME])
+-@pytest.mark.parametrize("image_url", TEST_IMAGE_URLS)
++@pytest.mark.parametrize("image_idx", list(range(len(TEST_IMAGE_URLS))))
+ async def test_single_chat_session_image_base64encoded_beamsearch(
+-        client: openai.AsyncOpenAI, model_name: str, image_url: str,
++        client: openai.AsyncOpenAI, model_name: str, image_idx: int,
+         base64_encoded_image: dict[str, str]):
++    # NOTE: This test also validates that we pass MM data through beam search
++    image_url = TEST_IMAGE_URLS[image_idx]
++    expected_res = EXPECTED_MM_BEAM_SEARCH_RES[image_idx]
+```
+
+**Explanation**: 
+
+- Changed parameterization from `image_url` to `image_idx` to access expected results
+- Added explicit validation comment highlighting multimodal data propagation testing
+- Enables deterministic testing against known-good outputs for each image
+
+```diff
+@@ -297,10 +319,11 @@ async def test_single_chat_session_image_base64encoded_beamsearch(
+         messages=messages,
+         n=2,
+         max_completion_tokens=10,
++        temperature=0.0,
+         extra_body=dict(use_beam_search=True))
+     assert len(chat_completion.choices) == 2
+-    assert chat_completion.choices[
+-        0].message.content != chat_completion.choices[1].message.content
++    for actual, expected_str in zip(chat_completion.choices, expected_res):
++        assert actual.message.content == expected_str
+```
+
+**Explanation**: 
+
+- Added `temperature=0.0` for deterministic output generation
+- Replaced weak inequality test with strong equality validation against expected outputs
+- Ensures test actually validates multimodal data is processed correctly in beam search
+- Provides regression protection against future multimodal beam search bugs
+
+#### PR Discussion & Comments
+
+**@gemini-code-assist[bot] → @alex-jw-brooks** — Raised concerns about test validation consistency
+"The strings in EXPECTED_MM_BEAM_SEARCH_RES are significantly longer than what 10 tokens would typically produce"
+
+**@alex-jw-brooks → @gemini-code-assist[bot]** — Clarified test approach
+"EXPECTED_MM_BEAM_SEARCH_RES results are the outputs of the current tests after the fix with greedy decoding"
+
+**@alex-jw-brooks** — Explained refactoring motivation
+"Small refactor to share this between sync / async because it's identical"
+
+**@DarkLight1337** — Approved the changes
+"LGTM, thanks for the fix!"
+
+#### Key Takeaways
+
+- **Multimodal Beam Search Fix**: The core issue was that `processed_inputs` was losing multimodal data during preprocessing, requiring a workaround to access the original prompt data
+- **Data Propagation Importance**: Proper multimodal data propagation is critical for vision-language models to generate contextually appropriate responses during beam search
+- **Test Validation Enhancement**: Strong test assertions with expected outputs provide better regression protection than weak inequality checks
+- **Code Consistency**: Refactoring shared functionality between sync and async implementations improves maintainability and reduces duplication
+
+#### Further Reading
+
+- [Issue #19687: Async Beam Search Doesn't Pass Multimodal Data Correctly](https://github.com/vllm-project/vllm/issues/19687)
+- [Previous sync beam search fix #16240](https://github.com/vllm-project/vllm/issues/16240) 
+- [vLLM Multimodal Documentation](https://docs.vllm.ai/en/latest/models/multimodal.html)
+- [Direct PR link](https://github.com/vllm-project/vllm/pull/19688)

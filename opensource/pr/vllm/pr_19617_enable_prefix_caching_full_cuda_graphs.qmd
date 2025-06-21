@@ -1,0 +1,58 @@
+---
+title: "#19617 - Enable prefix caching with full cuda graphs"
+description: "Fixed configuration issue that silently disabled prefix caching when using full CUDA graphs"
+author: "vLLM Team"
+date: "2025-06-15"
+categories: [optimization, prefix-caching, cuda-graphs, performance]
+image: images/thumbnail_template.jpg
+---
+
+## [#19617](https://github.com/vllm-project/vllm/pull/19617) - Enable prefix caching with full cuda graphs
+
+#### Overview
+- vLLM was silently disabling prefix caching when full CUDA graphs were enabled, limiting performance optimizations
+- Prefix caching should be compatible with full CUDA graphs and provides significant memory and compute benefits
+- This fix removes the restriction and enables both optimizations to work together for improved inference performance
+
+#### Code Changes (Verified)
+**File**: `vllm/config.py`
+
+```diff
+@@ -4495,7 +4495,6 @@ def __post_init__(self):
+                 "full_cuda_graph is not supported with "
+                 "cascade attention. Disabling cascade attention.")
+             self.model_config.disable_cascade_attn = True
+-            self.cache_config.enable_prefix_caching = False
+
+         if (self.kv_events_config is not None
+                 and self.kv_events_config.enable_kv_cache_events
+```
+
+**Explanation**: 
+
+- Removed the line that forcibly disabled `enable_prefix_caching` when `full_cuda_graph` was enabled
+- This change allows prefix caching to function alongside full CUDA graphs, combining the benefits of both optimizations
+- Prefix caching reduces redundant computation by reusing cached key-value pairs for common prompt prefixes
+- Full CUDA graphs optimize kernel launch overhead by pre-recording execution sequences
+- The combination enables better memory utilization and faster inference for workloads with shared prompt patterns
+
+#### PR Discussion & Comments
+**@gemini-code-assist[bot] → @WoosukKwon** — Questioned memory utilization increase in test configuration
+"gpu_memory_utilization was changed from 0.3 to 0.4... why this specific value?"
+
+**@WoosukKwon → @gemini-code-assist[bot]** — Explained recent memory optimization improvements
+"This is because we fixed the memory bug recently. Now we can create two vLLM instances each with gpu_memory_utilization=0.4."
+
+**@houseroad → @WoosukKwon** — Raised concern about CI failures
+"v1 failure seems related?"
+
+#### Key Takeaways
+- Prefix caching and full CUDA graphs are now compatible, eliminating an artificial restriction that limited performance
+- The fix enables better resource utilization by combining memory-efficient caching with optimized kernel execution
+- Recent memory bug fixes in vLLM allowed for increased GPU memory utilization in test configurations
+- This change is particularly beneficial for serving scenarios with repeated prompt patterns or chat applications
+
+#### Further Reading
+- [vLLM Prefix Caching Documentation](https://docs.vllm.ai/en/latest/usage/engine_args.html#prefix-caching)
+- [CUDA Graphs Overview](https://developer.nvidia.com/blog/cuda-graphs/)
+- [Direct PR Link](https://github.com/vllm-project/vllm/pull/19617)
