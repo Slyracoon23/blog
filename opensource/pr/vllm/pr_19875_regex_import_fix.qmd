@@ -1,0 +1,69 @@
+---
+title: "#19875 - Import regex instead of re"
+description: "Fixed pre-commit linting failure by replacing standard library re module with regex module in xlam_tool_parser.py"
+date: "2025-06-19"
+categories: [bug-fix, linting, tool-calling, frontend]
+---
+
+## [#19875](https://github.com/vllm-project/vllm/pull/19875) - Import regex instead of re
+
+#### Overview
+- **Problem**: Pre-commit checks were failing on main branch due to incorrect import statement in `xlam_tool_parser.py`
+- **Solution**: Replace Python's built-in `re` module import with the `regex` library (aliased as `re`)
+- **Impact**: Ensures consistency with vLLM's linting standards and prevents CI failures
+
+This PR addresses a straightforward but critical linting issue that was blocking the main branch. The vLLM project has standardized on using the `regex` library instead of Python's built-in `re` module for enhanced regular expression capabilities. The `xlam_tool_parser.py` file was incorrectly using the standard library import, causing pre-commit hook failures.
+
+#### Code Changes (Verified)
+**File**: `vllm/entrypoints/openai/tool_parsers/xlam_tool_parser.py`
+
+```diff
+@@ -1,10 +1,11 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # ruff: noqa
+ import json
+-import re
+ from collections.abc import Sequence
+ from typing import Any, Dict, List, Optional, Union
+ 
++import regex as re
++
+ from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
+                                               DeltaFunctionCall, DeltaMessage,
+                                               DeltaToolCall,
+```
+
+**Explanation**: 
+- **Line 4 removal**: Eliminated the import of Python's standard library `re` module
+- **Line 7 addition**: Added import of the `regex` library with alias `as re` to maintain backward compatibility
+- **Line 8 addition**: Added blank line for proper import section formatting per PEP 8
+- **Compatibility**: The alias ensures all existing code using `re.` function calls continues to work without modification
+- **Consistency**: Aligns with other vLLM modules that use the `regex` library for enhanced functionality
+
+The `regex` library provides additional features beyond the standard `re` module, including better Unicode support, more advanced pattern matching capabilities, and improved performance for certain operations. This standardization helps maintain consistency across the vLLM codebase.
+
+#### PR Discussion & Comments
+**@gemini-code-assist[bot] → @tdoublep** — Automated review confirmed linting standards compliance
+"This change aligns with the project's pre-commit checks and is consistent with the use of regex in other parts of the codebase"
+
+**@aarnphm → @tdoublep** — Maintainer approval
+"[Empty approval]" (Fast-tracked due to straightforward nature of the fix)
+
+**@tlrmchlsmth → @tdoublep** — Reviewer appreciation
+"🙏" (Acknowledgment of the quick fix for blocking issue)
+
+**@mgoin → @tdoublep** — Additional approval
+"[Empty approval]" (Multiple approvals indicate urgency of the fix)
+
+#### Key Takeaways
+- **Linting Standards**: vLLM project standardizes on `regex` library over Python's built-in `re` module
+- **CI/CD Health**: Pre-commit hooks are critical for maintaining code quality - failures block development
+- **Import Aliasing**: Using `import regex as re` provides seamless backward compatibility
+- **Quick Fixes**: Simple linting issues can be fast-tracked through review when they're blocking critical workflows
+- **Project Consistency**: Tool calling and frontend components must follow the same import patterns as the core engine
+
+#### Further Reading
+- [Python regex library documentation](https://pypi.org/project/regex/)
+- [vLLM pre-commit configuration](https://github.com/vllm-project/vllm/blob/main/.pre-commit-config.yaml)
+- [Original PR #19875](https://github.com/vllm-project/vllm/pull/19875)
+- [vLLM tool calling documentation](https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html#tool-calling)

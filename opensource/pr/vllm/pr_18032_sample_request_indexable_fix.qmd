@@ -1,0 +1,77 @@
+---
+title: "PR #18032 - Fix SampleRequest Indexable Type Error"
+description: "Resolved MyPy type error by replacing tuple indexing with proper attribute access in benchmark throughput scripts"
+categories: [bug-fix, typing, benchmarks]
+date: "2025-05-12"
+---
+
+## [#18032](https://github.com/vllm-project/vllm/pull/18032) - Fix `Value of type "SampleRequest" is not indexable`
+
+#### Overview
+- **Problem**: MyPy type error in benchmark throughput scripts where `SampleRequest` objects were being accessed using tuple indexing syntax `requests[0][2]`
+- **Root Cause**: The code was treating `SampleRequest` objects as indexable tuples when they should be accessed as objects with named attributes
+- **Solution**: Replace tuple indexing `[2]` with proper attribute access `.expected_output_len`
+- **Impact**: Fixes static type checking errors and improves code clarity in benchmark utilities
+
+#### Code Changes (Verified)
+
+**File**: `benchmarks/benchmark_throughput.py`
+
+```diff
+@@ -97,7 +97,7 @@ def run_vllm(
+         assert lora_requests is None, "BeamSearch API does not support LoRA"
+         prompts = [request.prompt for request in requests]
+         # output_len should be the same for all requests.
+-        output_len = requests[0][2]
++        output_len = requests[0].expected_output_len
+         for request in requests:
+             assert request.expected_output_len == output_len
+         start = time.perf_counter()
+```
+
+**Explanation**: 
+- Line 100: Replaced tuple indexing `requests[0][2]` with attribute access `requests[0].expected_output_len`
+- This change aligns with how the `SampleRequest` object is actually structured - it's not a tuple but an object with named attributes
+- The fix makes the code more readable and self-documenting, as `.expected_output_len` clearly indicates what value is being accessed
+- Eliminates MyPy static type checking errors that would prevent automated CI/CD pipelines from passing
+
+**File**: `vllm/benchmarks/throughput.py`
+
+```diff
+@@ -84,7 +84,7 @@ def run_vllm(
+         assert lora_requests is None, "BeamSearch API does not support LoRA"
+         prompts = [request.prompt for request in requests]
+         # output_len should be the same for all requests.
+-        output_len = requests[0][2]
++        output_len = requests[0].expected_output_len
+         for request in requests:
+             assert request.expected_output_len == output_len
+         start = time.perf_counter()
+```
+
+**Explanation**: 
+- Line 87: Identical fix as above - replaced tuple indexing with proper attribute access
+- This file appears to be a duplicate or related throughput benchmark implementation
+- Both files needed the same fix to maintain consistency and eliminate type errors
+- The change ensures that both benchmark utilities use the same correct pattern for accessing `SampleRequest` properties
+
+#### PR Discussion & Comments
+
+**@ywang96 → @b8zhong** — Approval with rebase request
+"Thanks for the fix! Please do rebase so we can put on auto merge."
+
+The reviewer quickly approved the fix, recognizing it as a straightforward type error correction. The request for rebasing indicates this was a simple, non-controversial fix that could be automatically merged once updated.
+
+#### Key Takeaways
+
+- **Type Safety Matters**: Even small typing errors can break CI/CD pipelines and development workflows when using static type checkers like MyPy
+- **Consistent Object Access**: Using proper attribute access (`.attribute`) instead of tuple indexing (`[index]`) makes code more maintainable and self-documenting
+- **Duplicate Code Maintenance**: When similar functionality exists in multiple files, consistent fixes must be applied across all instances
+- **Quick Fixes Have Value**: Simple bug fixes like this one, while not architecturally significant, are important for maintaining code quality and developer productivity
+
+#### Further Reading
+
+- [MyPy Type Checking Documentation](https://mypy.readthedocs.io/en/stable/)
+- [Python Data Classes and Type Hints](https://docs.python.org/3/library/dataclasses.html)
+- [vLLM Benchmarking Documentation](https://docs.vllm.ai/en/latest/getting_started/benchmarking.html)
+- [Direct PR Link](https://github.com/vllm-project/vllm/pull/18032)

@@ -90,10 +90,19 @@ format: html
 {{< include pr/vllm/pr_19872_v1_engine_deadlock_fix.qmd >}}
 :::
 
-6. **[#19875](https://github.com/vllm-project/vllm/pull/19875)** - [Fix] import regex instead of re
-7. **[#18032](https://github.com/vllm-project/vllm/pull/18032)** - [Benchmark] Fix `Value of type "SampleRequest" is not indexable`
-8. **[#19901](https://github.com/vllm-project/vllm/pull/19901)** - [CPU][CI] Fallback sliding window to v0 and fix CPU pooling model tests
-9. **[#19589](https://github.com/vllm-project/vllm/pull/19589)** - [CI/Build] Fix torch nightly CI dependencies part 2
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19875: Import regex instead of re"}
+{{< include pr/vllm/pr_19875_regex_import_fix.qmd >}}
+:::
+
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #18032: Fix SampleRequest indexable benchmark"}
+{{< include pr/vllm/pr_18032_sample_request_indexable_fix.qmd >}}
+:::
+
+::: {.callout-warning collapse="true" title="🐛 Bug Fix - PR #19901: Fallback sliding window to v0 and fix CPU pooling model tests"}
+{{< include pr/vllm/pr_19901_cpu_sliding_window_fix.qmd >}}
+:::
+
+6. **[#19589](https://github.com/vllm-project/vllm/pull/19589)** - [CI/Build] Fix torch nightly CI dependencies part 2
 
 ## ⚡ Performance & Optimization (16 PRs)
 
