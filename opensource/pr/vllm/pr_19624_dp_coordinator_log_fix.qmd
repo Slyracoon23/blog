@@ -1,0 +1,69 @@
+## [#19624](https://github.com/vllm-project/vllm/pull/19624) - Fix DP Coordinator incorrect debug log message
+
+#### Overview
+This PR fixes a logging bug in the Data Parallel (DP) Coordinator where debug messages were showing incorrect wave numbers. The coordinator was logging `"Moving DP wave from N to N"` instead of the correct `"Moving DP wave from N to (N + 1)"`. This affects the V1 engine's data parallel processing wave management system.
+
+**Motivation**: Accurate debug logging is crucial for troubleshooting distributed processing coordination issues in vLLM's V1 engine architecture.
+
+#### Code Changes (Verified)
+
+**File**: `vllm/v1/engine/coordinator.py`
+
+```diff
+@@ -183,11 +183,12 @@ def process_input_socket(self, front_publish_address: str,
+                     # engines are paused, so that we can wake the other
+                     # engines.
+                     engine_to_exclude, wave = msgspec.msgpack.decode(buffer)
+-                    if wave < self.current_wave:
+-                        # If the wave number is stale, ensure the message is
+-                        # handled by all the engines.
+-                        engine_to_exclude = None
+                     if not self.engines_running:
++                        if wave < self.current_wave:
++                            # If the wave number is stale, ensure the message
++                            # is handled by all the engines.
++                            engine_to_exclude = None
++
+                         self.engines_running = True
+                         self.stats_changed = True
+                         self._send_start_wave(publish_back, self.current_wave,
+@@ -217,8 +218,10 @@ def process_input_socket(self, front_publish_address: str,
+                         # (engines_running==False).
+                         if self.current_wave <= wave:
++                            new_wave = wave + 1
+                             logger.debug("Moving DP wave from %d to %d.",
+-                                         self.current_wave, wave)
+-                            self.current_wave = wave + 1
++                                         self.current_wave, new_wave)
++                            self.current_wave = new_wave
+                             self.engines_running = False
+                             self.stats_changed = True
+```
+
+**Explanation**: 
+
+- **Main Fix**: Introduced a `new_wave` variable to compute `wave + 1` before logging, ensuring the debug message shows the correct transition from current wave to next wave
+
+- **Code Refactoring**: Moved the stale wave check inside the `if not self.engines_running` block for better logical grouping (noted as "unrelated simplification" by author)
+
+- **Variable Extraction**: Extracted `scheduler_stats` to a local variable to avoid repeated attribute access, improving code readability
+
+#### PR Discussion & Comments
+
+> **Development Team Discussion:**
+> 
+> **@njhill** commented on code organization improvement:  
+> *"This is unrelated simplification, this check only applies to the case inside the if."*
+> 
+> **@njhill** identified the main bug:  
+> *"This is the actual bug fix"*
+
+#### Key Takeaways
+- **Bug Impact**: Incorrect debug logging can mislead developers during troubleshooting of distributed processing coordination
+- **Simple but Important**: The fix demonstrates how even small logging errors should be corrected for proper debugging experience
+- **Code Quality**: The PR also includes minor refactoring improvements alongside the main fix
+- **V1 Engine Context**: This affects the newer V1 engine architecture's data parallel processing system
+
+#### Further Reading
+- [vLLM V1 Engine Documentation](https://docs.vllm.ai)
+- [Original PR #19624](https://github.com/vllm-project/vllm/pull/19624) 

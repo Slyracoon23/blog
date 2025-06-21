@@ -1,0 +1,91 @@
+## [#19633](https://github.com/vllm-project/vllm/pull/19633) - Fix the speculative decoding test by setting the target dtype
+
+#### Overview
+This PR addresses test failures in the speculative decoding pipeline caused by dtype mismatches. The failure was introduced by [PR #18751](https://github.com/vllm-project/vllm/pull/18751), which changed default precision behavior. The fix explicitly sets `dtype: "float32"` for all multistep correctness tests to maintain numerical stability.
+
+**Motivation**: Restore CI stability by ensuring consistent precision across speculative decoding tests, preventing numerical inconsistencies between baseline and speculative outputs.
+
+#### Code Changes (Verified)
+
+**File**: `tests/spec_decode/e2e/test_multistep_correctness.py`
+
+```diff
+@@ -57,6 +57,9 @@
+ 
+         # Skip cuda graph recording for fast test.
+         "enforce_eager": True,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+```diff
+@@ -139,6 +142,9 @@ def test_spec_decode_e2e_with_detokenization(test_llm_generator,
+ 
+         # Print spec metrics.
+         "disable_log_stats": False,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+```diff
+@@ -216,6 +222,9 @@ def test_spec_decode_e2e_greedy_correctness_tiny_model_bs1(
+ 
+         # Print spec metrics.
+         "disable_log_stats": False,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+```diff
+@@ -464,6 +476,8 @@ def test_spec_decode_e2e_greedy_correctness_real_model_large_bs(
+ 
+         # Skip cuda graph recording for fast test.
+         "enforce_eager": True,
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**Explanation**: 
+
+- **Systematic Dtype Enforcement**: Added explicit `"dtype": "float32"` to all test configurations in the multistep correctness test suite
+
+- **Regression Fix**: Addresses changes from PR #18751 that modified default precision behavior, causing speculative decoding tests to fail due to numerical differences
+
+- **Comprehensive Coverage**: Applied the fix to 8 different test scenarios within the same file, ensuring consistent behavior across all multistep correctness tests
+
+- **Test Success**: All 64 tests now pass after applying the dtype fix (runtime: 32:35)
+
+- **Comment Consistency**: Each addition includes explanatory comments about float32 being the original model precision for numerical stability
+
+#### PR Discussion & Comments
+
+> **Development Team Discussion:**
+> 
+> **@gemini-code-assist[bot]** suggested code improvement for maintainability:  
+> *"This dtype setting and its accompanying comment are repeated in several places throughout this file. To enhance maintainability and adhere to the DRY principle, consider defining these common keyword arguments in a shared dictionary."*
+
+The bot suggested creating a shared dictionary like:
+```python
+_COMMON_FLOAT32_KWARGS = {
+    # The original model is float32, keep it for numerical stability.
+    "dtype": "float32",
+}
+```
+
+#### Key Takeaways
+- **Regression Prevention**: Changes to default precision behavior should consider impact on existing test suites
+- **Test Brittleness**: Speculative decoding correctness tests are highly sensitive to floating-point precision changes
+- **Code Duplication**: While the fix is effective, the repetitive nature of the changes highlights potential for refactoring common test configurations
+- **Cascading Effects**: Single PRs affecting precision can break multiple test suites that depend on consistent numerical behavior
+
+#### Further Reading
+- [vLLM Speculative Decoding Documentation](https://docs.vllm.ai)
+- [Related PR #18751](https://github.com/vllm-project/vllm/pull/18751) (Original culprit)
+- [Original PR #19633](https://github.com/vllm-project/vllm/pull/19633) 

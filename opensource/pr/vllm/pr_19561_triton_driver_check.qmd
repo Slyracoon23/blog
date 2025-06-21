@@ -1,0 +1,83 @@
+## [#19561](https://github.com/vllm-project/vllm/pull/19561) - Don't attempt to use triton if no driver is active
+
+#### Overview
+This PR fixes a critical issue where vLLM would attempt to use Triton kernels even when no active GPU driver is available, causing runtime crashes. The problem occurs when Triton is installed by external packages (like xgrammar) on non-GPU platforms, leading to conflicts during MLA (Multi-Layer Attention) backend imports.
+
+**Motivation**: Prevent runtime crashes on platforms where Triton is installed but incompatible due to missing or inactive GPU drivers, ensuring graceful fallback behavior.
+
+#### Code Changes (Verified)
+
+**File**: `vllm/triton_utils/importing.py`
+
+```diff
+@@ -12,6 +12,36 @@
+     find_spec("triton") is not None
+     or find_spec("pytorch-triton-xpu") is not None  # Not compatible
+ )
++if HAS_TRITON:
++    try:
++        from triton.backends import backends
++
++        # It's generally expected that x.driver exists and has
++        # an is_active method.
++        # The `x.driver and` check adds a small layer of safety.
++        active_drivers = [
++            x.driver for x in backends.values()
++            if x.driver and x.driver.is_active()
++        ]
++        if len(active_drivers) != 1:
++            logger.info(
++                "Triton is installed but %d active driver(s) found "
++                "(expected 1). Disabling Triton to prevent runtime errors.",
++                len(active_drivers))
++            HAS_TRITON = False
++    except ImportError:
++        # This can occur if Triton is partially installed or triton.backends
++        # is missing.
++        logger.warning(
++            "Triton is installed, but `triton.backends` could not be imported. "
++            "Disabling Triton.")
++        HAS_TRITON = False
++    except Exception as e:
++        # Catch any other unexpected errors during the check.
++        logger.warning(
++            "An unexpected error occurred while checking Triton active drivers:"
++            " %s. Disabling Triton.", e)
++        HAS_TRITON = False
+ 
+ if not HAS_TRITON:
+     logger.info("Triton not installed or not compatible; certain GPU-related"
+```
+
+**Explanation**: 
+
+- **Driver Validation**: Added comprehensive check for active Triton backends by examining `triton.backends.backends.values()` and filtering for drivers where `x.driver.is_active()` returns `True`
+
+- **Expected Driver Count**: Enforces that exactly one active driver should exist; zero drivers indicates no GPU support, while multiple drivers suggests an ambiguous configuration
+
+- **Graceful Fallback**: When driver validation fails, `HAS_TRITON` is set to `False`, allowing vLLM to fall back to non-Triton alternatives
+
+- **Robust Error Handling**: Three-tier exception handling covers ImportError (missing backends), generic exceptions (corrupted installations), and ensures vLLM never crashes during import due to Triton issues
+
+- **Informative Logging**: Specific log messages help users understand why Triton was disabled, distinguishing between driver count issues, import failures, and unexpected errors
+
+#### PR Discussion & Comments
+
+> **Development Team Discussion:**
+> 
+> **@gemini-code-assist[bot] → @kzawora-intel** — Enhanced error handling and logging needed for robustness  
+> *"The added check for active Triton drivers is a good approach to prevent runtime errors when Triton is installed but not usable."*
+> 
+> **@kzawora-intel** confirmed implementation of suggestions:  
+> *"done"*
+
+#### Key Takeaways
+- **Cross-Platform Compatibility**: External packages can install Triton on incompatible platforms, requiring runtime validation rather than just package detection
+- **Error Prevention**: Proactive driver validation prevents cryptic runtime crashes like `"RuntimeError: 0 active drivers ([]). There should only be one."`
+- **Graceful Degradation**: vLLM should always have fallback paths when hardware-specific optimizations are unavailable
+- **Import-Time Validation**: Critical infrastructure checks should occur at import time to fail fast and provide clear error messages
+
+#### Further Reading
+- [vLLM Triton Integration Documentation](https://docs.vllm.ai)
+- [Triton GPU Programming Guide](https://triton-lang.org/)
+- [Original PR #19561](https://github.com/vllm-project/vllm/pull/19561) 

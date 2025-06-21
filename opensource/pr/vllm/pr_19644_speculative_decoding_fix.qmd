@@ -1,0 +1,131 @@
+## [#19644](https://github.com/vllm-project/vllm/pull/19644) - Fix speculative decoding CI - Fix test_ngram_e2e_greedy_correctness
+
+#### Overview
+This PR fixes numerical instability issues in speculative decoding tests by explicitly setting test models to use `float32` precision instead of the default `float16`. The JackFram/llama models used in these tests were originally trained in fp32, and using fp16 caused numerical instability leading to test failures.
+
+**Motivation**: Ensure test stability by using the correct precision for test models, preventing CI failures due to floating-point precision mismatches between baseline and speculative decoding results.
+
+#### Code Changes (Verified)
+
+**File**: `tests/spec_decode/e2e/test_integration.py`
+
+```diff
+@@ -14,10 +14,13 @@
+ @pytest.mark.parametrize(
+     "common_llm_kwargs",
+     [{
++        "model_name": "JackFram/llama-68m",
+ 
+         # Verify equality when cuda graphs allowed.
+         "enforce_eager": False,
+-        "model_name": "JackFram/llama-68m",
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**File**: `tests/spec_decode/e2e/test_logprobs.py`
+
+```diff
+@@ -17,7 +17,10 @@
+         "model_name": "JackFram/llama-160m",
+ 
+         # Skip cuda graph recording for fast test.
+-        "enforce_eager": True
++        "enforce_eager": True,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**File**: `tests/spec_decode/e2e/test_multistep_correctness.py`
+
+```diff
+@@ -57,6 +57,9 @@
+ 
+         # Skip cuda graph recording for fast test.
+         "enforce_eager": True,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**File**: `tests/spec_decode/e2e/test_ngram_correctness.py`
+
+```diff
+@@ -40,6 +40,9 @@
+ 
+         # Print spec metrics.
+         "disable_log_stats": False,
++
++        # The original model is float32, keep it for numerical stability.
++        "dtype": "float32",
+     }])
+```
+
+**File**: `tests/spec_decode/e2e/test_mlp_correctness.py`
+
+```diff
+@@ -494,6 +494,9 @@ def test_mlp_disable_queue(vllm_runner, common_llm_kwargs,
+ 
+         # Skip cuda graph recording for fast test.
+         "enforce_eager": True,
++
++        # Precision
++        "dtype": PRECISION,
+     }])
+```
+
+**File**: `vllm/model_executor/models/eagle.py`
+
+```diff
+@@ -74,6 +74,7 @@ class EAGLE(nn.Module):
+     def __init__(self, *, vllm_config: VllmConfig, prefix: str = ""):
+         super().__init__()
+         config = vllm_config.model_config.hf_config
++        self.dtype = vllm_config.model_config.dtype
+         self.config = config
+```
+
+```diff
+@@ -250,7 +251,7 @@ def load_weights(self, weights: Iterable[tuple[str, torch.Tensor]]):
+             lm_head_weight = torch.zeros(
+                 self.lm_head.org_vocab_size,
+                 self.lm_head.embedding_dim,
+-                dtype=self.config.torch_dtype,
++                dtype=self.dtype,
+             )
+```
+
+**Explanation**: 
+
+- **Test Configuration Updates**: Added explicit `"dtype": "float32"` to all speculative decoding test configurations to match the original model precision
+
+- **Numerical Stability**: JackFram/llama models were trained in fp32; using fp16 causes precision loss that manifests as differences between baseline and speculative decoding outputs
+
+- **EAGLE Model Fix**: Updated EAGLE model to use `vllm_config.model_config.dtype` instead of `self.config.torch_dtype` for consistent dtype handling
+
+- **Comprehensive Coverage**: Applied the fix across all speculative decoding test files to ensure consistent behavior
+
+- **Code Consistency**: Some locations used `PRECISION` constant for dtype specification, maintaining existing patterns
+
+#### PR Discussion & Comments
+
+> **Development Team Discussion:**
+> 
+> **@gemini-code-assist[bot]** suggested formatting improvements:  
+> *"For consistency with other additions in this PR, consider adding a blank line before this comment block."*
+
+#### Key Takeaways
+- **Precision Matching**: Test models should use the same precision they were trained with to avoid numerical instability
+- **Speculative Decoding Sensitivity**: Speculative decoding correctness tests are particularly sensitive to floating-point precision differences
+- **CI Stability**: Systematic dtype specification across test suites prevents flaky CI failures due to precision mismatches
+- **Model Consistency**: All components (base model, speculative model, tests) should use consistent dtypes for reliable comparisons
+
+#### Further Reading
+- [vLLM Speculative Decoding Documentation](https://docs.vllm.ai)
+- [PyTorch Floating Point Precision Guide](https://pytorch.org/docs/stable/notes/numerical_accuracy.html)
+- [Original PR #19644](https://github.com/vllm-project/vllm/pull/19644) 

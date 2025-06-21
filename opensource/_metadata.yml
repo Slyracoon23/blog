@@ -2,3 +2,13 @@
 title-block-banner: true
 sidebar: opensource
 author: "Earl Potters"
+
+# # PR Blog Entries
+# contents:
+#   - path: pr/vllm/pr_19561_triton_driver_check.qmd
+#     title: "#19561 - Don't attempt to use triton if no driver is active"
+#     description: "Fixed Triton driver validation preventing crashes on non-GPU platforms with graceful fallback implementation"
+#     categories: [bug-fix, triton, gpu-drivers, vllm]
+#     date: "2025-01-15"
+#     image: images/thumbnail_template.jpg
+#     reading-time: "8 min"

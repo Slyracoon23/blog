@@ -1,0 +1,95 @@
+## [#19316](https://github.com/vllm-project/vllm/pull/19316) - Fix auto dtype casting for BatchFeature
+
+#### Overview
+This PR fixes a critical dtype casting issue for `BatchFeature` objects in vision-language models, particularly affecting DeepSeek VL2. The bug occurred because `BatchFeature` is a `UserDict`, and `isinstance(value, dict)` returns `False`, causing data type casting to fail in the `json_map_leaves` function.
+
+**Motivation**: Proper dtype casting is essential for vision-language models to ensure tensor operations are performed with consistent data types, preventing runtime errors like `"Input type (float) and bias type (c10::BFloat16) should be the same"`.
+
+#### Code Changes (Verified)
+
+**File**: `vllm/inputs/registry.py`
+
+```diff
+@@ -168,10 +168,12 @@ def maybe_cast_dtype(x):
+         try:
+             output = hf_processor(**data, **merged_kwargs, return_tensors="pt")
+             # this emulates output.to(dtype=self.model_config.dtype)
+-            cast_output = json_map_leaves(maybe_cast_dtype, output)
+             if isinstance(output, BatchFeature):
++                cast_output = json_map_leaves(maybe_cast_dtype, output.data)
+                 return BatchFeature(cast_output)
+
++            cast_output = json_map_leaves(maybe_cast_dtype, output)
++
+             logger.warning_once(
+                 f"{type(hf_processor).__name__} did not return `BatchFeature`. "
+                 "Make sure to match the behaviour of `ProcessorMixin` when "
+```
+
+**File**: `vllm/model_executor/models/qwen2_vl.py` (and `qwen2_5_vl.py`)
+
+```diff
+@@ -1208,9 +1208,9 @@ def _process_image_input(
+         assert grid_thw.ndim == 2
+
+         if image_input["type"] == "image_embeds":
+-            image_embeds = image_input["image_embeds"].type(self.visual.dtype)
++            image_embeds = image_input["image_embeds"]
+         else:
+-            pixel_values = image_input["pixel_values"].type(self.visual.dtype)
++            pixel_values = image_input["pixel_values"]
+             image_embeds = self.visual(pixel_values, grid_thw=grid_thw)
+```
+
+**File**: `vllm/utils.py`
+
+```diff
+@@ -190,6 +190,16 @@
+     torch.int64: np.int64,
+ }
+
++
++@contextlib.contextmanager
++def set_default_torch_num_threads(num_threads: int):
++    """Sets the default number of threads for PyTorch to the given value."""
++    old_num_threads = torch.get_num_threads()
++    torch.set_num_threads(num_threads)
++    yield
++    torch.set_num_threads(old_num_threads)
++
++
+ P = ParamSpec('P')
+ T = TypeVar("T")
+ U = TypeVar("U")
+```
+
+**Explanation**: 
+
+- **Main Fix**: Modified `json_map_leaves` to work with `BatchFeature.data` instead of the `BatchFeature` object directly, since `BatchFeature` inherits from `UserDict`
+
+- **Model Updates**: Removed explicit `.type()` casting in Qwen2 VL models since the casting is now handled correctly at the input processing level
+
+- **Test Infrastructure**: Added `set_default_torch_num_threads` utility to prevent OpenMP deadlocks during test execution
+
+- **Circular Import Fix**: Moved utility functions to `vllm.utils` to avoid circular import issues
+
+#### PR Discussion & Comments
+
+> **Development Team Discussion:**
+> 
+> **@Isotr0py** explained the circular import resolution:  
+> *"I move this to vllm.utils to avoid circular import: ImportError: cannot import name 'LoadConfig' from partially initialized module 'vllm.config'"*
+> 
+> **@Isotr0py** addressed deadlock prevention:  
+> *"Seems that disable openmp by setting torch_num_threads=1 during engine forking can fix the deadlock issue locally"*
+
+#### Key Takeaways
+- **Vision-Language Models**: `BatchFeature` objects require special handling since they inherit from `UserDict`, not `dict`
+- **Type Safety**: Proper dtype casting prevents runtime errors in mixed-precision scenarios common in modern LLM inference
+- **Test Stability**: OpenMP thread management is crucial for preventing deadlocks in multi-process test environments
+- **Code Organization**: Moving utility functions to appropriate modules prevents circular dependencies
+
+#### Further Reading
+- [vLLM Vision-Language Models Documentation](https://docs.vllm.ai)
+- [Original Issue #19219](https://github.com/vllm-project/vllm/issues/19219)
+- [Original PR #19316](https://github.com/vllm-project/vllm/pull/19316) 
