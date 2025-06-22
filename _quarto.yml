@@ -22,6 +22,8 @@ website:
         href: notes.qmd
       - text: "{{< fa scroll >}} Papers"
         href: papers.qmd
+      - text: "{{< fa users >}} Role Models"
+        href: role-models.qmd
       - text: "{{< fa feather >}} Writing"
         href: writing.qmd
       - text: "{{< fa palette >}} Art"

@@ -1,0 +1,122 @@
+---
+title: "Tri Dao: The FlashAttention Genius"
+description: "Exploring the brilliant work of Tri Dao, the researcher who revolutionized transformer efficiency with FlashAttention and continues to push the boundaries of hardware-aware algorithms."
+date: "2025-01-27"
+categories: [researcher, algorithms, transformers, hardware-aware, systems]
+image: /images/thumbnail_template.jpg
+born: "Unknown"
+nationality: "Unknown"
+field: "Computer Science - Machine Learning and Systems"
+affiliation: "Princeton University (Assistant Professor), Together AI (Chief Scientist)"
+notable_achievements:
+  - "Creator of FlashAttention and FlashAttention-2"
+  - "Co-creator of Mamba (State Space Models)"
+  - "ICML 2022 Outstanding Paper runner-up"
+  - "NeurIPS 2024 Best Paper for FlashAttention-3"
+  - "Transformers are SSMs paper (ICML 2024)"
+github: "https://github.com/Dao-AILab/flash-attention"
+website: "https://tridao.me"
+blog: "https://tridao.me/blog"
+draft: false
+---
+
+## Who Is Tri Dao?
+
+Tri Dao is an Assistant Professor of Computer Science at Princeton University and Chief Scientist at Together AI. He is one of the most influential researchers in modern machine learning, known for creating FlashAttention - the algorithm that made training and inference of large language models practically feasible. His work sits at the intersection of machine learning and systems, focusing on hardware-aware algorithms that bridge theoretical advances with real-world performance.
+
+## What Draws Me to Tri Dao
+
+### Bridging Theory and Practice
+Tri doesn't just publish papers - he creates algorithms that fundamentally change how the entire AI community builds and deploys models. FlashAttention isn't just a research contribution; it's infrastructure that powers virtually every major LLM today.
+
+### Hardware-Aware Innovation
+His deep understanding of GPU architecture and memory hierarchies allows him to design algorithms that work with hardware rather than against it. This systems-level thinking is rare in ML research but absolutely crucial for practical impact.
+
+### Relentless Pursuit of Efficiency
+While others focus on making models bigger, Tri focuses on making them faster and more efficient. His work enables the same capabilities with dramatically less computational cost, democratizing access to powerful AI.
+
+## Revolutionary Contributions
+
+### 1. FlashAttention Series
+- **FlashAttention (2022)**: Reduced attention memory complexity from O(n²) to O(n) with no approximation
+- **FlashAttention-2 (2023)**: 2x speedup through better parallelism and work partitioning
+- **FlashAttention-3 (2024)**: Optimized for H100 GPUs with asynchrony and low-precision
+
+**Impact**: Enabled training of models with context lengths previously impossible, now used in virtually every major LLM
+
+### 2. State Space Models Revolution
+- **Mamba (2023)**: Co-created with Albert Gu, showing linear-time sequence modeling
+- **Mamba-2 (2024)**: Proved theoretical connections between SSMs and attention mechanisms
+- **Impact**: Opened new paradigms for efficient sequence modeling beyond transformers
+
+### 3. Hardware-Aware Algorithm Design
+- Deep understanding of GPU memory hierarchies (HBM vs SRAM)
+- Algorithms that minimize memory I/O rather than just FLOPs
+- Practical implementations using NVIDIA CUTLASS and CuTe libraries
+
+## Technical Philosophy
+
+### Memory is the Bottleneck
+Tri recognized early that modern AI workloads are memory-bound, not compute-bound. His algorithms prioritize minimizing memory transfers over reducing floating-point operations.
+
+### Hardware-Software Co-design
+Rather than treating hardware as a black box, Tri designs algorithms that exploit specific hardware features like Tensor Cores and memory hierarchies.
+
+### No Approximations When Possible
+Unlike many efficiency-focused researchers, Tri prioritizes exact algorithms. FlashAttention achieves massive speedups while maintaining mathematical equivalence to standard attention.
+
+## Impact on the Field
+
+### Enabling Long Context Models
+FlashAttention made it practical to train models with context lengths of 32k, 100k, or even longer. This unlocked new capabilities in document understanding, code generation, and complex reasoning.
+
+### Changing How We Think About Efficiency
+Tri's work shifted the field's focus from pure FLOP reduction to holistic system efficiency, considering memory, communication, and hardware utilization.
+
+### Democratizing Large-Scale AI
+By making training and inference more efficient, his algorithms reduce the computational resources needed for state-of-the-art AI, making it accessible to smaller organizations.
+
+## Research Methodology
+
+### Deep System Understanding
+Tri doesn't just optimize algorithms in isolation - he understands the entire stack from hardware to applications.
+
+### Rigorous Implementation
+His research comes with production-quality implementations that the community can immediately adopt.
+
+### Collaborative Approach
+Works closely with hardware vendors (NVIDIA) and industry partners to ensure practical relevance.
+
+## Key Papers and Resources
+
+### Foundational Papers
+- "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness" (NeurIPS 2022)
+- "FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning" (2023)
+- "Mamba: Linear-Time Sequence Modeling with Selective State Spaces" (2023)
+- "Transformers are SSMs: Generalized Models and Efficient Algorithms" (ICML 2024)
+
+### Online Presence
+- **Website**: [https://tridao.me](https://tridao.me)
+- **GitHub**: [https://github.com/Dao-AILab/flash-attention](https://github.com/Dao-AILab/flash-attention)
+- **Blog**: [https://tridao.me/blog](https://tridao.me/blog) - Excellent technical deep-dives
+
+### Key Repositories
+- **FlashAttention**: 18k+ stars, used in PyTorch, Hugging Face, and major ML frameworks
+- **Mamba**: State space model implementations
+
+## Personal Reflections
+
+What amazes me about Tri is his ability to see inefficiencies that others miss and create solutions that seem obvious in retrospect. FlashAttention is one of those "why didn't I think of that?" innovations that fundamentally changes how we approach a problem.
+
+His work represents the best of academic research - theoretically rigorous but immediately practical. In an era where many papers are incremental improvements, Tri consistently delivers paradigm-shifting contributions.
+
+His approach to hardware-aware algorithm design is something I try to emulate in my own work. Understanding the full stack - from hardware constraints to application requirements - is crucial for building systems that actually work in practice.
+
+## Looking Forward
+
+Tri's current work on state space models and his exploration of alternatives to transformers suggests he's not content to rest on the success of FlashAttention. His vision of efficient, long-context models that can process books, videos, and complex multi-modal inputs is reshaping how we think about AI capabilities.
+
+---
+
+**Why This Matters to Me:**
+Tri Dao exemplifies the researcher I aspire to be - someone who combines deep theoretical understanding with practical impact. His work shows that the most important advances often come from questioning fundamental assumptions and building better systems rather than just better models. In my own research and development work, I try to follow his example of understanding the full stack and optimizing for real-world constraints, not just theoretical metrics. 

@@ -1,0 +1,32 @@
+---
+title: "{{< fa users >}} Role Models"
+description: "People who inspire me and whose lives, philosophies, and achievements I find worth exploring and learning from."
+listing:
+  contents: role-models
+  sort: "date desc"
+  type: default
+  image-align: left
+  image-placeholder: images/thumbnail_template.jpg
+  feed: true
+  sort-ui: false
+  filter-ui: false
+  max-description-length: 110
+  fields: [image, title, description, categories, reading-time]
+page-layout: full
+sidebar: false
+title-block-banner: true
+---
+
+## Role Models of Interest
+
+### {{< fa rocket >}} Woosuk Kwon - vLLM Pioneer
+[GitHub](https://github.com/WoosukKwon) | [Website](https://woosuk.me) | [Twitter](https://twitter.com/woosuk_k) - CS PhD student at UC Berkeley who created vLLM, revolutionizing LLM inference with PagedAttention.
+
+**Key Project:** [vLLM](https://github.com/vllm-project/vllm) - High-throughput and memory-efficient inference engine for LLMs with 50.4k+ stars.
+
+### {{< fa bolt >}} Tri Dao - FlashAttention Genius  
+[GitHub](https://github.com/Dao-AILab/flash-attention) | [Website](https://tridao.me) | [Blog](https://tridao.me/blog) - Princeton Professor & Together AI Chief Scientist who revolutionized transformer efficiency.
+
+**Key Projects:** [FlashAttention](https://github.com/Dao-AILab/flash-attention) - Fast and memory-efficient exact attention with 18k+ stars, and Mamba state space models.
+ 
+## My Reflections

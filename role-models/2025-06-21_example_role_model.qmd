@@ -1,0 +1,79 @@
+---
+title: "Richard Feynman: The Curious Physicist"
+description: "Exploring the life and philosophy of Richard Feynman - a Nobel Prize-winning physicist known for his curiosity, teaching ability, and unconventional approach to life."
+date: "2025-06-21"
+categories: [physicist, nobel-prize, curiosity, teaching]
+image: /images/thumbnail_template.jpg
+born: "1918-05-11"
+died: "1988-02-15"
+nationality: "American"
+field: "Theoretical Physics"
+notable_achievements:
+  - "Nobel Prize in Physics (1965)"
+  - "Manhattan Project contributor"
+  - "Feynman diagrams creator"
+  - "Exceptional physics teacher"
+draft: true
+---
+
+## Who Was Richard Feynman?
+
+Richard Phillips Feynman was an American theoretical physicist known for his work in quantum mechanics, quantum electrodynamics, and particle physics. Beyond his scientific achievements, he was renowned for his ability to explain complex concepts in simple terms and his insatiable curiosity about the world.
+
+## What Draws Me to Feynman
+
+### The Art of Curiosity
+Feynman's approach to learning was fundamentally different. He didn't just want to know *what* - he wanted to understand *why* and *how*. His famous quote captures this perfectly:
+
+> "I would rather have questions that can't be answered than answers that can't be questioned."
+
+### Teaching Philosophy
+His ability to break down complex physics into understandable concepts is legendary. The "Feynman Technique" of learning - explaining concepts in simple terms - has become a cornerstone of effective learning.
+
+### Unconventional Path
+- Learned to play bongos
+- Studied art and drawing
+- Worked as a safecracker
+- Always maintained a playful approach to serious work
+
+## Key Life Lessons
+
+### 1. Maintain Beginner's Mind
+Feynman never lost his sense of wonder. Even as a Nobel laureate, he approached problems with fresh eyes and genuine curiosity.
+
+### 2. The Importance of Play
+He believed that the best work comes from a playful attitude. His Nobel Prize work actually started from playing with a wobbling plate in the cafeteria.
+
+### 3. Honest Self-Assessment
+Feynman was brutally honest about what he did and didn't understand. His famous quote: "I learned very early the difference between knowing the name of something and knowing something."
+
+## Personal Reflections
+
+What strikes me most about Feynman is his integration of intellectual rigor with genuine joy in discovery. In our age of specialization, his interdisciplinary curiosity feels both refreshing and necessary.
+
+His approach to problem-solving - breaking things down to first principles and building up understanding from there - is something I try to apply in my own work with AI and machine learning.
+
+## Quotes That Resonate
+
+- "The first principle is that you must not fool yourself—and you are the easiest person to fool."
+- "I think it's much more interesting to live not knowing than to have answers which might be wrong."
+- "Study hard what interests you the most in the most undisciplined, irreverent and original manner possible."
+
+## Resources for Further Exploration
+
+### Books
+- "Surely You're Joking, Mr. Feynman!" - His most famous memoir
+- "What Do You Care What Other People Think?" - More personal stories
+- "The Feynman Lectures on Physics" - His legendary physics course
+
+### Videos
+- Feynman explaining fire - A masterclass in scientific thinking
+- His Caltech lectures - Available online
+
+### Philosophy
+Feynman's approach to life and learning continues to influence scientists, educators, and curious minds across disciplines. His legacy reminds us that the best learning happens when we maintain our sense of wonder and aren't afraid to say "I don't know."
+
+---
+
+**Why This Matters to Me:**
+In my work building AI systems, Feynman's emphasis on truly understanding rather than just memorizing patterns feels especially relevant. His approach to breaking down complex problems and maintaining intellectual honesty is something I strive to emulate in both technical work and life. 
