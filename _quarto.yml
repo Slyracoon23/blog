@@ -3,6 +3,7 @@ project:
   render:
     - "*.qmd"
     - "*.md"
+    - "*.ipynb"
     - "!CLAUDE.md"
 
 website:
