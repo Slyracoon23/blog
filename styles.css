@@ -315,86 +315,7 @@ mark {
     box-shadow: none;
 }
 
-/* Modern View Counter and Comment Counter Styles - clean badge design */
-.view-counter-container {
-    display: inline-flex;
-    gap: 0.4rem;
-    margin-left: 1rem;
-    margin-top: 0.2rem;
-}
 
-.view-counter,
-.comment-counter {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    padding: 0.15rem 0.4rem;
-    border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: 600;
-    background-color: rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
-}
-
-.view-counter {
-    color: #2563eb;
-    background-color: rgba(37, 99, 235, 0.1);
-    border-color: rgba(37, 99, 235, 0.2);
-}
-
-.comment-counter {
-    color: #059669;
-    background-color: rgba(5, 150, 105, 0.1);
-    border-color: rgba(5, 150, 105, 0.2);
-}
-
-.view-counter:hover {
-    background-color: rgba(37, 99, 235, 0.15);
-    border-color: rgba(37, 99, 235, 0.3);
-    transform: translateY(-1px);
-}
-
-.comment-counter:hover {
-    background-color: rgba(5, 150, 105, 0.15);
-    border-color: rgba(5, 150, 105, 0.3);
-    transform: translateY(-1px);
-}
-
-.view-icon,
-.comment-icon {
-    font-size: 0.9em;
-    display: inline-block;
-}
-
-.view-count,
-.comment-count {
-    font-weight: 700;
-    line-height: 1;
-}
-
-.view-text {
-    display: none; /* Hide the "views" text for minimal design */
-}
-
-/* Post metadata enhancements */
-.post-metadata {
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9em;
-    color: #666;
-}
-
-/* Integrate view counter with existing metadata */
-.metadata .view-counter-container,
-div.quarto-post .metadata .view-counter-container {
-    margin-left: 0;
-    margin-top: 0.3rem;
-}
 
 /* Comments section styling enhancements */
 .giscus {
@@ -413,25 +334,7 @@ div.quarto-post .metadata .view-counter-container {
     background: transparent;
 }
 
-/* Responsive view counter */
-@media (max-width: 768px) {
-    .view-counter,
-    .comment-counter {
-        font-size: 0.75em;
-        padding: 0.1rem 0.3rem;
-        gap: 0.15rem;
-    }
-    
-    .view-counter-container {
-        margin-left: 0.5rem;
-        gap: 0.3rem;
-    }
-    
-    .post-metadata {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
+
 
 /* Left Sidebar Navigation Styling - white container to match TOC */
 .sidebar-navigation,
@@ -657,5 +560,27 @@ nav[role="doc-toc"],
     .navbar-logo {
         height: 40px !important;
         max-height: 45px !important;
+    }
+}
+
+/* Simple counter styling within metadata section */
+.simple-counters {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    text-align: left;
+    display: block;
+}
+
+/* Responsive simple counters */
+@media (max-width: 768px) {
+    .simple-counters {
+        font-size: 0.8em;
+        margin-top: 0.3rem;
+        margin-bottom: 0.3rem;
+        padding: 0.3rem;
     }
 }
