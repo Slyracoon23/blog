@@ -96,7 +96,42 @@ website:
       align: left
       contents:
         - section: "🤖 **AI Agents**"
-          contents: "notes/AI Agents/*"
+          contents: "notes/Agents/*"
+        - text: "---"
+        - section: "🧠 **ARC AGI**"
+          contents: 
+            - "notes/Arc AGI/arc_agi_2_puzzle_analysis.ipynb"
+        - text: "---"
+        - section: "🗣️ **Large Language Models**"
+          contents: 
+            - "notes/Large Language Models/extending_context.qmd"
+            - "notes/Large Language Models/what_is_prompt_engineering.qmd"
+        - text: "---"
+        - section: "📊 **Dataset Preparation**"
+          contents: 
+            - "notes/Dataset Prep/how_to_prepare_a_vision_dataset.qmd"
+        - text: "---"
+        - section: "📚 **Machine Learning**"
+          contents: 
+            - "notes/machine-learning-book/machine-learning-fundementals.qmd"
+            - "notes/machine-learning-book/1_xgboost/*"
+            - "notes/machine-learning-book/2_transformers/*"
+        - text: "---"
+        - section: "🔧 **Building LLMs**"
+          contents: 
+            - "notes/Building LLMs from Scratch/week1/*"
+        - text: "---"
+        - section: "🎯 **Preference Tuning**"
+          contents: 
+            - "notes/Preference Based Finetuning/hot_or_not/*"
+        - text: "---"
+        - section: "🔥 **PyTorch**"
+          contents: 
+            - "notes/learn pytorch/00_fundamntals.py"
+        - text: "---"
+        - section: "📈 **Observable JS**"
+          contents: 
+            - "notes/obserable JS/interactive-data-visualization-with-obserable-js.qmd"
 
     - id: goals
       title: "Goals"
