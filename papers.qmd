@@ -1,8 +1,8 @@
 ---
-title: "{{< fa pen >}} Research notes"
-description: "Personal summaries and insights gathered from reading various research papers and articles."
+title: "{{< fa scroll >}} Papers"
+description: "Collection of research papers - both my publications and papers from other researchers that I find interesting."
 listing:
-  contents: notes
+  contents: papers
   sort: "date desc"
   type: default
   image-align: left
@@ -11,10 +11,8 @@ listing:
   sort-ui: false
   filter-ui: false
   max-description-length: 110
-  fields: [image, title, description, categories, reading-time, papers]
+  fields: [image, title, description, categories, reading-time, authors]
 page-layout: full
 sidebar: false
 title-block-banner: true
----
-
-
+--- 

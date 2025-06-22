@@ -1,0 +1,84 @@
+---
+title: "Attention Mechanisms in Large Language Models: A Comprehensive Survey"
+description: "A comprehensive survey of attention mechanisms used in modern large language models, covering both theoretical foundations and practical implementations."
+date: "2025-06-21"
+authors: 
+  - "Earl Potters"
+  - "Jane Smith"
+  - "John Doe"
+categories: [research, attention-mechanisms, transformers, survey]
+image: /images/thumbnail_template.jpg
+citation:
+  type: article
+  container-title: "Journal of Machine Learning Research"
+  volume: "26"
+  page: "1-45"
+  issued: "2025-06-21"
+  url: "https://example.com/paper"
+draft: true
+---
+
+## Abstract
+
+This paper presents a comprehensive survey of attention mechanisms in large language models. We examine the evolution from basic attention to more sophisticated mechanisms like multi-head attention, sparse attention, and linear attention variants. Our analysis covers both the theoretical foundations and practical implementations across different model architectures.
+
+## Key Contributions
+
+- Comprehensive taxonomy of attention mechanisms
+- Empirical comparison of computational efficiency
+- Analysis of attention patterns in different tasks
+- Guidelines for selecting appropriate attention mechanisms
+
+## Introduction
+
+Attention mechanisms have become the cornerstone of modern natural language processing...
+
+## Related Work
+
+### Early Attention Mechanisms
+- Bahdanau et al. (2014) - Neural Machine Translation
+- Luong et al. (2015) - Effective Approaches to Attention
+
+### Transformer Architecture
+- Vaswani et al. (2017) - Attention Is All You Need
+- Recent developments in efficient attention
+
+## Methodology
+
+Our survey methodology includes:
+
+1. **Literature Review**: Systematic review of 200+ papers
+2. **Empirical Analysis**: Benchmarking on standard datasets
+3. **Theoretical Analysis**: Mathematical foundations
+
+## Results
+
+### Computational Efficiency
+- Standard attention: O(n²) complexity
+- Sparse attention: O(n√n) complexity
+- Linear attention: O(n) complexity
+
+### Performance Analysis
+Detailed performance comparison across different tasks...
+
+## Discussion
+
+The trade-offs between computational efficiency and model performance...
+
+## Conclusion
+
+This survey provides a comprehensive overview of attention mechanisms and their applications in large language models. Future work should focus on...
+
+## References
+
+1. Vaswani, A., et al. (2017). Attention is all you need. *Advances in Neural Information Processing Systems*.
+2. Bahdanau, D., et al. (2014). Neural machine translation by jointly learning to align and translate. *arXiv preprint*.
+3. Brown, T., et al. (2020). Language models are few-shot learners. *Advances in Neural Information Processing Systems*.
+
+---
+
+**Paper Links:**
+- [arXiv Preprint](https://example.com/arxiv)
+- [Journal Publication](https://example.com/journal)
+- [Code Repository](https://github.com/example/attention-survey)
+- [Dataset](https://huggingface.co/datasets/example/attention-data) 

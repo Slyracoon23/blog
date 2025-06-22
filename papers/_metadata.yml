@@ -1,0 +1,7 @@
+freeze: auto
+date-format: "MMM D, YYYY"
+author: "Earl Potters"
+categories: [research, papers]
+citation: true
+title-block-banner: true
+# image-alt: "Research paper thumbnail" 

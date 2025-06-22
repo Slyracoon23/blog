@@ -20,6 +20,8 @@ website:
         href: opensource.qmd
       - text: "{{< fa pen >}} Notes"
         href: notes.qmd
+      - text: "{{< fa scroll >}} Papers"
+        href: papers.qmd
       - text: "{{< fa feather >}} Writing"
         href: writing.qmd
       - text: "{{< fa palette >}} Art"
